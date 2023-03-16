@@ -1,0 +1,4005 @@
+'ThisWorkbook	Document
+
+
+
+'Main	Module
+
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''DEVELOPER  Anastasiou Alex
+''EMAIL      AnastasiouAlex@gmail.com
+''GITHUB     https://github.com/AlexOfRhodes
+''YOUTUBE    https://bit.ly/3aLZU9M
+''VK         https://vk.com/video/playlist/735281600_1
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Public Sub Main()
+    uMouseRecorder.Show
+End Sub
+
+'Callback for buttonMightyMouse onAction
+Sub MouseRecorderButtonClicked(control As IRibbonControl)
+    '#INCLUDE Main
+    Main
+End Sub
+
+
+'MouseDB	Document
+
+
+
+'mFormParent	Module
+
+Option Explicit
+Option Compare Text
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' modSupport
+' By Chip Pearson, chip@cpearson.com www.cpearson.com
+'
+' This module contains declarations and code that are used in support of the procedures in frmSetParent but aren't
+' directly related to the topic of the workbook.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' used by FormatMessage
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public Const FORMAT_MESSAGE_ALLOCATE_BUFFER = &H100
+Public Const FORMAT_MESSAGE_ARGUMENT_ARRAY = &H2000
+Public Const FORMAT_MESSAGE_FROM_HMODULE = &H800
+Public Const FORMAT_MESSAGE_FROM_STRING = &H400
+Public Const FORMAT_MESSAGE_FROM_SYSTEM = &H1000
+Public Const FORMAT_MESSAGE_IGNORE_INSERTS = &H200
+Public Const FORMAT_MESSAGE_MAX_WIDTH_MASK = &HFF
+Public Const FORMAT_MESSAGE_TEXT_LEN = 160        ' from ERRORS.H C++ include file.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Various constants
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public Const MAX_PATH = 260        ' Windows mandated value
+Public Const GWL_HWNDPARENT As Long = -8
+Public Const GW_OWNER = 4
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Windows API Declares
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public Declare PtrSafe Function FormatMessage Lib "kernel32.dll" Alias "FormatMessageA" (ByVal dwFlags As Long, ByRef lpSource As Any, ByVal dwMessageId As Long, ByVal dwLanguageId As Long, ByVal lpBuffer As String, ByVal nSize As Long, ByRef Arguments As Long) As Long
+Public Declare PtrSafe Function GetWindowLong Lib "user32.dll" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+Public Declare PtrSafe Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hWnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+Public Declare PtrSafe Function GetWindowText Lib "user32.dll" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' frmSetParent
+' This form illustrates the SetParent procedure to make a userform the a child window
+' of no window, the Excel Application window, the Excel Desktop Window, and the Active
+' Window.
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Window Class Names
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public Const C_EXCEL_APP_WINDOWCLASS = "XLMAIN"
+Public Const C_EXCEL_DESK_WINDOWCLASS = "XLDESK"
+Public Const C_EXCEL_WINDOW_WINDOWCLASS = "EXCEL7"
+Public Const C_VBA_USERFORM_WINDOWCLASS = "ThunderDFrame"
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Window HWnds
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public VBEditorHWnd As Long
+Public ApplicationHWnd As Long
+Public ExcelDeskHWnd As Long
+Public ActiveWindowHWnd As Long
+Public UserFormHWnd As Long
+Public WindowsDesktopHWnd As Long
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Other Consts
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public Const GA_ROOT As Long = 2
+Public Const GA_ROOTOWNER As Long = 3
+Public Const GA_PARENT As Long = 1
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Windows API Functions
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Public Declare PtrSafe Function FindWindowEx Lib "user32" Alias "FindWindowExA" (ByVal hWnd1 As Long, ByVal hWnd2 As Long, ByVal lpsz1 As String, ByVal lpsz2 As String) As Long
+Public Declare PtrSafe Function GetAncestor Lib "user32.dll" (ByVal hWnd As Long, ByVal gaFlags As Long) As Long
+Public Declare PtrSafe Function GetDesktopWindow Lib "user32" () As Long
+Public Declare PtrSafe Function GetParent Lib "user32.dll" (ByVal hWnd As Long) As Long
+Public Declare PtrSafe Function GetWindow Lib "user32" (ByVal hWnd As Long, ByVal wCmd As Long) As Long
+Public Declare PtrSafe Function SetForegroundWindow Lib "user32" (ByVal hWnd As Long) As Long
+Public Declare PtrSafe Function SetParent Lib "user32" (ByVal hwndChild As Long, ByVal hWndNewParent As Long) As Long
+Public Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+'''
+Rem Form on top
+Public Const SWP_NOMOVE = &H2
+Public Const SWP_NOSIZE = &H1
+Public Const HWND_TOP = 0
+Public Const HWND_BOTTOM = 1
+Public Const HWND_TOPMOST = -1
+Public Const HWND_NOTOPMOST = -2
+Public Declare PtrSafe Function SetWindowPos Lib "user32" (ByVal hWnd As LongPtr, ByVal hwndInsertAfter As LongPtr, ByVal x As LongPtr, ByVal Y As LongPtr, ByVal cx As LongPtr, ByVal cy As LongPtr, ByVal uFlags As LongPtr) As Long
+
+Public Sub UserformOnTop(Form As Object)
+    Const C_VBA6_USERFORM_CLASSNAME = "ThunderDFrame"
+    Dim Ret As Long
+    Dim formHWnd As Long
+    'Get window handle of the userform
+    formHWnd = CLng(FindWindow(C_VBA6_USERFORM_CLASSNAME, Form.Caption))
+    If formHWnd = 0 Then
+        Debug.Print Err.LastDllError
+    End If
+    'Set userform window to 'always on top'
+    Ret = SetWindowPos(formHWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE)
+    If Ret = 0 Then
+        Debug.Print Err.LastDllError
+    End If
+    'Application.WindowState = xlMinimized
+End Sub
+
+'''
+Public Sub DisplayLabels(Form As Object)
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' DipsplayLabelText
+    ' This gets the various HWnds if they are not already
+    ' set and updates the label captions on the form.
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE GetWindowClassName
+    '#INCLUDE GetHWndWindowText
+    Dim ParentHWnd As Long
+    Dim ParentWindowClass As String
+    Dim AncestorWindow As Long
+    Dim WinLong As Long
+    Dim OwnerWindow As Long
+    Dim ClassName As String
+    Dim s As String
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Get The HWnds
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''
+    ' HWnd of the VBEditor
+    '''''''''''''''''''''''''''''''
+    VBEditorHWnd = Application.VBE.MainWindow.hWnd
+    '''''''''''''''''''''''''''''''
+    ' HWnd of the Excel Application
+    '''''''''''''''''''''''''''''''
+    ApplicationHWnd = FindWindow(lpClassName:=C_EXCEL_APP_WINDOWCLASS, lpWindowName:=Application.Caption)
+    '''''''''''''''''''''''''''''''
+    ' HWnd of the Excel Desktop
+    '''''''''''''''''''''''''''''''
+    ExcelDeskHWnd = FindWindowEx(hWnd1:=ApplicationHWnd, hWnd2:=0&, lpsz1:=C_EXCEL_DESK_WINDOWCLASS, lpsz2:=vbNullString)
+    '''''''''''''''''''''''''''''''
+    ' HWnd of the ActiveWindow
+    '''''''''''''''''''''''''''''''
+    ActiveWindowHWnd = FindWindowEx(hWnd1:=ExcelDeskHWnd, hWnd2:=0&, lpsz1:=C_EXCEL_WINDOW_WINDOWCLASS, lpsz2:=Application.ActiveWindow.Caption)
+    '''''''''''''''''''''''''''''''
+    ' HWnd of the UserForm
+    '''''''''''''''''''''''''''''''
+    UserFormHWnd = FindWindow(lpClassName:=C_VBA_USERFORM_WINDOWCLASS, lpWindowName:=Form.Caption)
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' update the Option Button Captions with WindowText
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Debug.Print "Active Window (" & GetHWndWindowText(ActiveWindowHWnd) & ")"
+    Debug.Print "Application (" & GetHWndWindowText(ApplicationHWnd) & ")"
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Update Labels with HWnds and Parent HWnds.
+    ' Use GetWindowLong rather than GetParent to
+    ' retrieve the Parent windows.
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''
+    ' VBEditor
+    '''''''''''''''''''''
+    ClassName = GetWindowClassName(Application.VBE.MainWindow.hWnd)
+    Debug.Print "VBEditor -- HWnd: " & CStr(Application.VBE.MainWindow.hWnd) & _
+                                                                             "  (Window Class: " & ClassName & ")"
+    '''''''''''''''''''''
+    ' Windows Desktop
+    '''''''''''''''''''''
+    ClassName = GetWindowClassName(GetDesktopWindow())
+    Debug.Print "Windows Desktop -- HWnd: " & CStr(GetDesktopWindow()) & _
+                                                                       "  (Window Class: " & ClassName & ")"
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' frmSetParent UserForm.   Class Name "ThunderDFrame".
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ParentHWnd = GetWindowLong(UserFormHWnd, GWL_HWNDPARENT)
+    ClassName = GetWindowClassName(UserFormHWnd)
+    ParentWindowClass = GetWindowClassName(ParentHWnd)
+    Debug.Print "UserForm -- HWnd: " & CStr(UserFormHWnd) & " (Window Class: " & ClassName & _
+                                                          ")   Parent HWnd: " & CStr(ParentHWnd) & "  (Window Class: " & ParentWindowClass & ")"
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' ActiveWindow. Class Name "EXCEL7".
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ParentHWnd = GetWindowLong(ActiveWindowHWnd, GWL_HWNDPARENT)
+    ClassName = GetWindowClassName(ActiveWindowHWnd)
+    ParentWindowClass = GetWindowClassName(ParentHWnd)
+    Debug.Print "ActiveWindow -- HWnd: " & CStr(ActiveWindowHWnd) & " (Window Class: " & ClassName & _
+                                                                  ")   Parent HWnd: " & CStr(ParentHWnd) & "  (Window Class: " & ParentWindowClass & ")"
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Information About The Excel Desktop. Class Name "XLDESK"
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ParentHWnd = GetWindowLong(ApplicationHWnd, GWL_HWNDPARENT)
+    ParentHWnd = GetWindowLong(ExcelDeskHWnd, GWL_HWNDPARENT)
+    ClassName = GetWindowClassName(ExcelDeskHWnd)
+    ParentWindowClass = GetWindowClassName(ParentHWnd)
+    Debug.Print "Excel Desktop -- HWnd: " & CStr(ExcelDeskHWnd) & " (Window Class: " & ClassName & _
+                                                                ")   Parent HWnd: " & CStr(ParentHWnd) & "  (Window Class: " & ParentWindowClass & ")"
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Information About The Application Window. Class Name "XLMAIN"
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ParentHWnd = GetWindowLong(ApplicationHWnd, GWL_HWNDPARENT)
+    ClassName = GetWindowClassName(ApplicationHWnd)
+    ParentWindowClass = GetWindowClassName(ParentHWnd)
+    Debug.Print "Excel Application -- HWnd: " & CStr(ApplicationHWnd) & " (Window Class: " & ClassName & _
+                                                                      ")   Parent HWnd: " & CStr(ParentHWnd) & "  (Window Class: " & ParentWindowClass & ")"
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Display information about the various Ancestor values: GA_ROOT, GA_ROOTOWNER, and GA_PARENT.
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    AncestorWindow = GetAncestor(UserFormHWnd, GA_ROOT)
+    ClassName = GetWindowClassName(AncestorWindow)
+    s = "The Ancestor (GA_ROOT) of this UserForm is " & CStr(AncestorWindow) & "  (Window Class: " & ClassName & ")"
+    AncestorWindow = GetAncestor(UserFormHWnd, GA_ROOTOWNER)
+    ClassName = GetWindowClassName(AncestorWindow)
+    s = s & vbCrLf & "The Ancestor (GA_ROOTOWNER) of this UserForm is " & CStr(AncestorWindow) & "  (Window Class: " & ClassName & ")"
+    AncestorWindow = GetAncestor(UserFormHWnd, GA_PARENT)
+    ClassName = GetWindowClassName(AncestorWindow)
+    Debug.Print s & vbCrLf & "The Ancestor (GA_PARENT) of this UserForm is " & CStr(AncestorWindow) & "  (Window Class: " & ClassName & ")"
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Display informationa about this form's owner.
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    OwnerWindow = GetWindow(UserFormHWnd, GW_OWNER)
+    If OwnerWindow Then
+        Debug.Print "The Owner Window of this UserForm is HWnd: " & CStr(OwnerWindow) _
+      & "  (Window Class: " & GetWindowClassName(OwnerWindow) & ")"
+    Else
+        Debug.Print "There is no owner window of this form."
+    End If
+    Form.Repaint
+End Sub
+
+Public Sub MakeFormChildOfVBEditor(Form As Object)
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' MakeFormChildOfVBEditor
+    ' This makes the form a child window of the VBEditor window (this is what you see if you have
+    ' no workbooks open or all workbooks minimized).
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE DisplayErrorText
+    Dim Res As Long
+    Dim ParentHWnd As Long
+    Dim ChildHWnd As Long
+    Dim ErrNum As Long
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Set Parent HWnd to ActiveWindowHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ParentHWnd = VBEditorHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Set Child HWnd to UserFormHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ChildHWnd = UserFormHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Call SetParent to make ChildHWnd a child of
+    ' ParentHWnd.
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    Res = SetParent(hwndChild:=ChildHWnd, hWndNewParent:=ParentHWnd)
+    If Res = 0 Then
+        '''''''''''''''''''''''''''''
+        ' an error occurred
+        '''''''''''''''''''''''''''''
+        ErrNum = Err.LastDllError
+        DisplayErrorText "Error With SetParent", ErrNum
+    Else
+        Debug.Print "The UserForm is a child of the VBEditor window (Class wndclass_desked_gsk). "
+    End If
+    SetForegroundWindow UserFormHWnd
+    Form.Repaint
+End Sub
+
+Public Sub MakeFormChildOfActiveWindow(Form As Object)
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' MakeFormChildOfActiveWindow
+    ' This makes the form a child window of the ActiveWindow.
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE DisplayErrorText
+    Dim Res As Long
+    Dim ParentHWnd As Long
+    Dim ChildHWnd As Long
+    Dim ErrNum As Long
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Set Parent HWnd to ActiveWindowHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ''''''''''''''''''''''''''''''''
+    ' Updete the ActiveWindowHWnd
+    '''''''''''''''''''''''''''''''
+    If Application.ActiveWindow Is Nothing Then
+        MsgBox "There is no active window."
+        Exit Sub
+    End If
+    ActiveWindowHWnd = FindWindowEx(hWnd1:=ExcelDeskHWnd, hWnd2:=0&, lpsz1:=C_EXCEL_WINDOW_WINDOWCLASS, _
+                                    lpsz2:=Application.ActiveWindow.Caption)
+    ParentHWnd = ActiveWindowHWnd
+    If ParentHWnd = 0 Then
+        MsgBox "ParentHWnd Is 0 In MakeFormChildOfActiveWindow"
+    End If
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Set Child HWnd to UserFormHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ChildHWnd = UserFormHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Call SetParent to make ChildHWnd a child of
+    ' ParentHWnd.
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    Res = SetParent(hwndChild:=ChildHWnd, hWndNewParent:=ParentHWnd)
+    If Res = 0 Then
+        '''''''''''''''''''''''''''''
+        ' an error occurred
+        '''''''''''''''''''''''''''''
+        ErrNum = Err.LastDllError
+        DisplayErrorText "Error With SetParent", ErrNum
+    Else
+        Debug.Print "The UserForm is a child of the ActiveWindow (Class: EXCEL7). Note that you cannot move the" & _
+                    " the form outside of the ActiveWindow, and that the form moves as you move the ActiveWindow. If" & _
+                    " you switch to another window such as another workbook, the form is not be visible until you restore" & _
+                    " the original window. Note that it is not possible to make a form a child of an individual worksheet tab."
+    End If
+    SetForegroundWindow UserFormHWnd
+    Form.Repaint
+End Sub
+
+Public Sub MakeFormChildOfDesktop(Form As Object)
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' MakeFormChildOfDesktop
+    ' This makes the form a child window of the Excel Desktop (this is what you see if you have
+    ' no workbooks open or all workbooks minimized).
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE DisplayErrorText
+    Dim Res As Long
+    Dim ParentHWnd As Long
+    Dim ChildHWnd As Long
+    Dim ErrNum As Long
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Set Parent HWnd to ActiveWindowHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ParentHWnd = ExcelDeskHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Set Child HWnd to UserFormHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ChildHWnd = UserFormHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Call SetParent to make ChildHWnd a child of
+    ' ParentHWnd.
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    Res = SetParent(hwndChild:=ChildHWnd, hWndNewParent:=ParentHWnd)
+    If Res = 0 Then
+        '''''''''''''''''''''''''''''
+        ' an error occurred
+        '''''''''''''''''''''''''''''
+        ErrNum = Err.LastDllError
+        DisplayErrorText "Error With SetParent", ErrNum
+    Else
+        Debug.Print "The UserForm is a child of the Excel Desktop (Class XLDESK). The window may get lost behind the" & _
+                    " worksheet windows. In general, you'll never want to make the form a child of Excel Desktop unless you" & _
+                    " don't have any open workbooks, in which case it is better to make a form a child of the Application." & _
+                    " If the window gets lost, click on the Show Form button on Sheet1 to restore the form. The form will" & _
+                    " still be displayed if you minimize all open windows. Note that you cannot drag the form outside of the " & _
+                    " Excel Desktop's window."
+    End If
+    SetForegroundWindow UserFormHWnd
+    Form.Repaint
+End Sub
+
+Public Sub MakeFormChildOfApplication(Form As Object)
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' MakeFormChildOfApplication
+    ' This makes the form a child of the main application window.
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE Main
+    '#INCLUDE DisplayErrorText
+    Dim Res As Long
+    Dim ParentHWnd As Long
+    Dim ChildHWnd As Long
+    Dim ErrNum As Long
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Set Parent HWnd to ActiveWindowHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ParentHWnd = ApplicationHWnd
+    If ParentHWnd = 0 Then
+        MsgBox "ParentHWnd Is 0 In MakeFormChildOfApplication."
+    End If
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Set Child HWnd to UserFormHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ChildHWnd = UserFormHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Call SetParent to make ChildHWnd a child of
+    ' ParentHWnd.
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    Res = SetParent(hwndChild:=ChildHWnd, hWndNewParent:=ParentHWnd)
+    If Res = 0 Then
+        '''''''''''''''''''''''''''''
+        ' an error occurred
+        '''''''''''''''''''''''''''''
+        ErrNum = Err.LastDllError
+        DisplayErrorText "Error With SetParent", ErrNum
+    Else
+        Debug.Print "The UserForm is a child of the Excel Application (Class XLMAIN). Note that the form will be visible even" & _
+                    " as you open and close windows, or minimize windows. If you restore the Excel window and move it around on the" & _
+                    " screen, the form will move with the Application window."
+    End If
+    SetForegroundWindow UserFormHWnd
+    Form.Repaint
+End Sub
+
+Public Sub MakeFormChildOfNothing(Form As Object)
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' MakeFormChildOfNothing
+    ' Sets the parent of the form to 0&
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE Main
+    '#INCLUDE DisplayErrorText
+    Dim Res As Long
+    Dim ParentHWnd As Long
+    Dim ChildHWnd As Long
+    Dim ErrNum As Long
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Set Parent HWnd to ActiveWindowHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    'ParentHWnd = 0&
+    ParentHWnd = GetDesktopWindow()
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Set Child HWnd to UserFormHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ChildHWnd = UserFormHWnd
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Call SetParent to make ChildHWnd a child of
+    ' ParentHWnd.
+    ''''''''''''''''''''''''''''''''''''''''''''''''
+    Res = SetParent(hwndChild:=ChildHWnd, hWndNewParent:=ParentHWnd)
+    'Res = SetWindowLong(hwnd:=ChildHWnd, nIndex:=GWL_HWNDPARENT, dwNewLong:=0&)
+    If Res = 0 Then
+        '''''''''''''''''''''''''''''
+        ' an error occurred
+        '''''''''''''''''''''''''''''
+        ErrNum = Err.LastDllError
+        DisplayErrorText "Error With SetParent", ErrNum
+    Else
+        Debug.Print "The UserForm is a child of the Windows Desktop (see the GA_PARENT item above -- it has the same" & _
+                    " window handle as the Windows Desktop). The Parent Window shows as XLMAIN because XLMAIN is the " & _
+                    " owner of the window (see the GA_ROOTOWNER item above.)  Note that you can move the Excel Application" & _
+                    " window and the form will remain at its original location on the screen. You can also move the" & _
+                    " form outside of the Application's main window. This is the default behavior of an Excel Userform."
+    End If
+    SetForegroundWindow UserFormHWnd
+    Form.Repaint
+End Sub
+
+Public Function GetSystemErrorMessageText(ErrorNumber As Long) As String
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' GetSystemErrorMessageText
+    '
+    ' This function gets the system error message text that corresponds to the error code returned by the
+    ' GetLastError API function or the Err.LastDllError property. It may be used ONLY for these error codes.
+    ' These are NOT the error numbers returned by Err.Number (for these errors, use Err.Description to get
+    ' the description of the message).
+    ' The error number MUST be the value returned by GetLastError or Err.LastDLLError.
+    '
+    ' In general, you should use Err.LastDllError rather than GetLastError because under some circumstances the value of
+    ' GetLastError will be reset to 0 before the value is returned to VB. Err.LastDllError will always reliably return
+    ' the last error number raised in a DLL.
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE TrimToNull
+    Dim ErrorText As String
+    Dim TextLen As Long
+    Dim FormatMessageResult As Long
+    Dim LangID As Long
+    LangID = 0&
+    ErrorText = String$(FORMAT_MESSAGE_TEXT_LEN, " ")
+    TextLen = Len(ErrorText)
+    On Error Resume Next
+    FormatMessageResult = 0&
+    FormatMessageResult = FormatMessage( _
+                          dwFlags:=FORMAT_MESSAGE_FROM_SYSTEM Or FORMAT_MESSAGE_IGNORE_INSERTS, _
+                          lpSource:=0&, _
+                          dwMessageId:=ErrorNumber, _
+                          dwLanguageId:=0&, _
+                          lpBuffer:=ErrorText, _
+                          nSize:=TextLen, _
+                          Arguments:=0&)
+    On Error GoTo 0
+    If FormatMessageResult > 0 Then
+        ErrorText = TrimToNull(ErrorText)
+        GetSystemErrorMessageText = ErrorText
+    Else
+        ' Format message didn't return any text. there is no text description for the specified error.
+        GetSystemErrorMessageText = "NO ERROR DESCRIPTION AVAILABLE"
+    End If
+End Function
+
+Public Sub DisplayErrorText(Context As String, ErrNum As Long)
+    '''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Displays a standard error message box. For this
+    ' procedure, ErrNum should be the number returned
+    ' by the GetLastError API function or the value
+    ' of Err.LastDllError. It is NOT the number
+    ' returned by Err.Number.
+    '''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE GetSystemErrorMessageText
+    Dim ErrText As String
+    ErrText = GetSystemErrorMessageText(ErrNum)
+    MsgBox Context & vbCrLf & _
+           "Error Number: " & CStr(ErrNum) & vbCrLf & _
+           "Error Text:   " & ErrText, vbOKOnly
+End Sub
+
+Public Function TrimToNull(TEXT As String) As String
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' TrimToNull
+    ' Returns all the text in Text to the left of the vbNullChar
+    ' character.
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Dim Pos As Integer
+    Pos = InStr(1, TEXT, vbNullChar, vbTextCompare)
+    If Pos > 0 Then
+        TrimToNull = Left(TEXT, Pos - 1)
+    Else
+        TrimToNull = TEXT
+    End If
+End Function
+
+Public Function GetWindowClassName(hWnd As Long) As String
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' GetWindowClassName
+    ' Returns the window class name of the specified HWnd. Returns
+    ' vbNullString if an error occurred.
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE DisplayErrorText
+    '#INCLUDE TrimToNull
+    Dim ClassName As String
+    Dim Length As Long
+    Dim Res As Long
+    If hWnd = 0 Then
+        GetWindowClassName = "<none>"
+        Exit Function
+    End If
+    ClassName = String$(MAX_PATH, vbNullChar)
+    Length = Len(ClassName)
+    Res = GetClassName(hWnd:=hWnd, lpClassName:=ClassName, nMaxCount:=Length)
+    If Res = 0 Then
+        DisplayErrorText Context:="Error Retrieiving Window Class for HWnd: " & CStr(hWnd), _
+        ErrNum:=Err.LastDllError
+        GetWindowClassName = vbNullString
+    Else
+        ClassName = TrimToNull(ClassName)
+        GetWindowClassName = ClassName
+    End If
+End Function
+
+Public Function GetHWndWindowText(hWnd As Long) As String
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' GetHWndWindowText
+    ' This returns the WindowText of the HWnd.
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE TrimToNull
+    Dim txt As String
+    Dim Res As Long
+    Dim l As Long
+    txt = String$(1024, vbNullChar)
+    l = Len(txt)
+    Res = GetWindowText(hWnd, txt, l)
+    If Res Then
+        txt = TrimToNull(txt)
+        If txt = vbNullString Then
+            txt = "<none>"
+        End If
+    Else
+        txt = vbNullString
+    End If
+    GetHWndWindowText = txt
+End Function
+
+Public Function GetParentWindowClass(hWnd As Long) As String
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' GetParentWindowClass
+    ' Returns the window class name of the parent window of HWnd.
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '#INCLUDE DisplayErrorText
+    '#INCLUDE GetWindowClassName
+    Dim ParentHWnd As Long
+    Dim ClassName As String
+    ParentHWnd = GetWindowLong(hWnd:=hWnd, nIndex:=GWL_HWNDPARENT)
+    If ParentHWnd = 0 Then
+        DisplayErrorText Context:="Error Retrieiving Parent Window for HWnd: " & CStr(hWnd) & _
+                                                                                            " Window Class: " & GetWindowClassName(hWnd), ErrNum:=Err.LastDllError
+        GetParentWindowClass = vbNullString
+        Exit Function
+    End If
+    ClassName = GetWindowClassName(ParentHWnd)
+    GetParentWindowClass = ClassName
+End Function
+
+
+
+'Helper	Module
+
+#If VBA7 And Win64 Then
+    Public Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+#Else
+    public Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+#End If
+
+Public MouseFolder As String
+
+Rem mouse
+Public MouseArray() As Variant
+Rem declaration for keys event reading
+Public Declare PtrSafe Function GetAsyncKeyState Lib "user32" (ByVal vKey As Long) As Integer
+Rem declaration for mouse events
+Public Declare PtrSafe Sub mouse_event Lib "user32" (ByVal dwFlags As Long, ByVal dx As Long, ByVal dy As Long, ByVal cbuttons As Long, ByVal dwExtraInfo As Long)
+Public Const MOUSEEVENTF_LEFTDOWN = &H2
+Public Const MOUSEEVENTF_LEFTUP = &H4
+Public Const MOUSEEVENTF_MIDDLEDOWN = &H20
+Public Const MOUSEEVENTF_MIDDLEUP = &H40
+Public Const MOUSEEVENTF_RIGHTDOWN As Long = &H8
+Public Const MOUSEEVENTF_RIGHTUP As Long = &H10
+Public Const MOUSEEVENTF_MOVE = &H1
+Public Const MOUSEEVENTF_ABSOLUTE = &H8000
+Rem declaration for setting mouse position
+Public Declare PtrSafe Function SetCursorPos Lib "user32" (ByVal x As Long, ByVal Y As Long) As Long
+Rem declaration for getting mouse position
+Public Declare PtrSafe Function GetCursorPos Lib "user32" (lpPoint As POINTAPI) As Long
+Public Type POINTAPI
+    x As Long
+    Y As Long
+End Type
+
+Sub FollowLink(FolderPath As String)
+    Dim oShell As Object
+    Dim Wnd As Object
+    Set oShell = CreateObject("Shell.Application")
+    For Each Wnd In oShell.Windows
+        If Wnd.Name = "File Explorer" Then
+            If Wnd.Document.Folder.Self.path = FolderPath Then Exit Sub
+        End If
+    Next Wnd
+    Application.ThisWorkbook.FollowHyperlink Address:=FolderPath, NewWindow:=True
+End Sub
+
+Function InputboxString(Optional sTitle As String = "Select String", Optional sPrompt As String = "Select String", Optional DefaultValue = "") As String
+    Dim stringVariable As String
+    stringVariable = Application.InputBox( _
+                     title:=sTitle, _
+                     Prompt:=sPrompt, _
+                     Type:=2, _
+                     Default:=DefaultValue)
+    InputboxString = CStr(stringVariable)
+End Function
+
+Public Function CLIP(Optional StoreText As String) As String
+    Dim x As Variant
+    x = StoreText
+    With CreateObject("htmlfile")
+        With .parentWindow.clipboardData
+            Select Case True
+                Case Len(StoreText)
+                    .SetData "text", x
+                Case Else
+                    CLIP = .GetData("text")
+            End Select
+        End With
+    End With
+End Function
+
+Function IsFileFolderURL(path) As String
+    '#INCLUDE FolderExists
+    '#INCLUDE FileExists
+    '#INCLUDE HttpExists
+    Dim retval
+    retval = "I"
+    If (retval = "I") And FileExists(path) Then retval = "F"
+    If (retval = "I") And FolderExists(path) Then retval = "D"
+    If (retval = "I") And HttpExists(path) Then retval = "U"
+    ' I => Invalid | F => File | D => Directory | U => Valid Url
+    CheckPath = retval
+End Function
+
+Function FileExists(ByVal strFile As String, Optional bFindFolders As Boolean) As Boolean
+    'Purpose:   Return True if the file exists, even if it is hidden.
+    'Arguments: strFile: File name to look for. Current directory searched if no path included.
+    '           bFindFolders. If strFile is a folder, FileExists() returns False unless this argument is True.
+    'Note:      Does not look inside subdirectories for the file.
+    'Author:    Allen Browne. http://allenbrowne.com June, 2006.
+    Dim lngAttributes As Long
+
+    'Include read-only files, hidden files, system files.
+    lngAttributes = (vbReadOnly Or vbHidden Or vbSystem)
+    If bFindFolders Then
+        lngAttributes = (lngAttributes Or vbDirectory)        'Include folders as well.
+    Else
+        'Strip any trailing slash, so Dir does not look inside the folder.
+        Do While Right$(strFile, 1) = "\"
+            strFile = Left$(strFile, Len(strFile) - 1)
+        Loop
+    End If
+    'If Dir() returns something, the file exists.
+    On Error Resume Next
+    FileExists = (Len(Dir(strFile, lngAttributes)) > 0)
+End Function
+
+Function FolderExists(ByVal strPath As String) As Boolean
+    On Error Resume Next
+    FolderExists = ((GetAttr(strPath) And vbDirectory) = vbDirectory)
+End Function
+
+Function TrailingSlash(varIn As Variant) As String
+    If Len(varIn) > 0 Then
+        If Right(varIn, 1) = "\" Then
+            TrailingSlash = varIn
+        Else
+            TrailingSlash = varIn & "\"
+        End If
+    End If
+End Function
+
+Function HttpExists(ByVal sURL As String) As Boolean
+    Dim oXHTTP As Object
+    Set oXHTTP = CreateObject("MSXML2.XMLHTTP")
+    If Not UCase(sURL) Like "HTTP:*" Then
+        sURL = "http://" & sURL
+    End If
+    On Error GoTo haveError
+    oXHTTP.Open "HEAD", sURL, False
+    oXHTTP.send
+    HttpExists = IIf(oXHTTP.Status = 200, True, False)
+    Exit Function
+haveError:
+    Debug.Print Err.Description
+    HttpExists = False
+End Function
+
+Function ListboxSelectedCount(listboxCollection As Variant) As Long
+    Dim i As Long
+    Dim listItem As Long
+    Dim selectedCollection As Collection
+    Set selectedCollection = New Collection
+    Dim listboxCount As Long
+    'if arguement passed is collection of listboxes
+    If TypeName(listboxCollection) = "Collection" Then
+        For listboxCount = 1 To listboxCollection.Count
+            If listboxCollection(listboxCount).ListCount > 0 Then
+                For listItem = 0 To listboxCollection(listboxCount).ListCount - 1
+                    If listboxCollection(listboxCount).Selected(listItem) = True Then
+                        SelectedCount = SelectedCount + 1
+                    End If
+                Next listItem
+            End If
+        Next listboxCount
+        'if arguement passed is single Listbox
+    Else
+        If listboxCollection.ListCount > 0 Then
+            For i = 0 To listboxCollection.ListCount - 1
+                If listboxCollection.Selected(i) = True Then
+                    SelectedCount = SelectedCount + 1
+                End If
+            Next i
+        End If
+    End If
+    ListboxSelectedCount = SelectedCount
+End Function
+
+Function ListboxSelectedIndexes(Lbox As MSForms.ListBox) As Collection
+    'listboxes start at 0
+    Dim i As Long
+    Dim selectedIndexes As Collection
+    Set selectedIndexes = New Collection
+    If Lbox.ListCount > 0 Then
+        For i = 0 To Lbox.ListCount - 1
+            If Lbox.Selected(i) Then selectedIndexes.Add i
+        Next i
+    End If
+    Set ListboxSelectedIndexes = selectedIndexes
+End Function
+
+
+Sub FoldersCreate(FolderPath As String)
+    On Error Resume Next
+    Dim individualFolders() As String
+    Dim tempFolderPath As String
+    Dim ArrayElement As Variant
+    individualFolders = Split(FolderPath, "\")
+    For Each ArrayElement In individualFolders
+        tempFolderPath = tempFolderPath & ArrayElement & "\"
+        If FolderExists(tempFolderPath) = False Then
+            MkDir tempFolderPath
+        End If
+    Next ArrayElement
+End Sub
+
+
+Sub TxtOverwrite(sFile As String, sText As String)
+    On Error GoTo ERR_HANDLER
+    Dim FileNumber As Integer
+    FileNumber = FreeFile
+    Open sFile For Output As #FileNumber
+    Print #FileNumber, sText
+    Close #FileNumber
+Exit_Err_Handler:
+    Exit Sub
+ERR_HANDLER:
+    MsgBox "The following error has occurred" & vbCrLf & vbCrLf & _
+    "Error Number: " & Err.Number & vbCrLf & _
+    "Error Source: TxtOverwrite" & vbCrLf & _
+    "Error Description: " & Err.Description, vbCritical, "An Error has Occurred!"
+    GoTo Exit_Err_Handler
+End Sub
+
+
+Function WorkbookProjectProtected(ByVal TargetWorkbook As Workbook) As Boolean
+        WorkbookProjectProtected = (TargetWorkbook.VBProject.Protection = 1)
+End Function
+
+
+Public Function ArrayDimensions(ByVal vArray As Variant) As Long
+    Dim dimnum      As Long
+    Dim ErrorCheck As Long
+    On Error GoTo FinalDimension
+    For dimnum = 1 To 60000
+        ErrorCheck = LBound(vArray, dimnum)
+    Next
+FinalDimension:
+    ArrayDimensions = dimnum - 1
+End Function
+
+Function GetInputRange(ByRef rInput As Excel.Range, _
+                    sPrompt As String, _
+                    sTitle As String, _
+                    Optional ByVal sDefault As String, _
+                    Optional ByVal bActivate As Boolean, _
+                    Optional x, _
+                    Optional Y) As Boolean
+
+'assigns range to variable passed
+'GetInputRange(rng, "Range picker", "Select range to output listbox' list") = False Then Exit Sub
+    Dim bGotRng As Boolean
+    Dim bEvents As Boolean
+    Dim nAttempt As Long
+    Dim sAddr As String
+    Dim vReturn
+    On Error Resume Next
+    If Len(sDefault) = 0 Then
+        If TypeName(Application.Selection) = "Range" Then
+            sDefault = "=" & Application.Selection.Address
+            If Len(sDefault) > 240 Then
+                sDefault = "=" & Application.ActiveCell.Address
+            End If
+        ElseIf TypeName(Application.ActiveSheet) = "Chart" Then
+            sDefault = " first select a Worksheet"
+        Else
+            sDefault = " Select Cell(s) or type address"
+        End If
+    End If
+    Set rInput = Nothing
+    For nAttempt = 1 To 3
+        vReturn = False
+        vReturn = Application.InputBox(sPrompt, sTitle, sDefault, x, Y, Type:=0)
+        If False = vReturn Or Len(vReturn) = 0 Then
+            Exit For
+        Else
+            sAddr = vReturn
+            If Left$(sAddr, 1) = "=" Then sAddr = Mid$(sAddr, 2, 256)
+            If Left$(sAddr, 1) = Chr(34) Then sAddr = Mid$(sAddr, 2, 255)
+            If Right$(sAddr, 1) = Chr(34) Then sAddr = Left$(sAddr, Len(sAddr) - 1)
+            Set rInput = Application.Range(sAddr)
+            If rInput Is Nothing Then
+                sAddr = Application.ConvertFormula(sAddr, xlR1C1, xlA1)
+                Set rInput = Application.Range(sAddr)
+                bGotRng = Not rInput Is Nothing
+            Else
+                bGotRng = True
+            End If
+        End If
+        If bGotRng Then
+            If bActivate Then
+                On Error GoTo ErrH
+                bEvents = Application.EnableEvents
+                Application.EnableEvents = False
+                If Not Application.ActiveWorkbook Is rInput.Parent.Parent Then
+                    rInput.Parent.Parent.Activate
+                End If
+                If Not Application.ActiveSheet Is rInput.Parent Then
+                    rInput.Parent.Activate
+                End If
+                rInput.Select
+            End If
+            Exit For
+        ElseIf nAttempt < 3 Then
+            If MsgBox("Invalid reference, do you want to try again ?", _
+                vbOKCancel, sTitle) <> vbOK Then
+                Exit For
+            End If
+        End If
+    Next
+cleanup:
+    On Error Resume Next
+    If bEvents Then
+        Application.EnableEvents = True
+    End If
+    GetInputRange = bGotRng
+    Exit Function
+ErrH:
+    Set rInput = Nothing
+    bGotRng = False
+    Resume cleanup
+End Function
+''''''''''''''''''''''''''''''
+'Contains the following procedures #1
+''''''''''''''''''''''''''''''
+'IsInArray
+
+Public Function ArrayContains( _
+    ByVal value1 As Variant, _
+    ByVal array1 As Variant) _
+As Boolean
+
+    '@Description: This function checks if a value is in an array
+    '@Author: Anthony Mancini
+    '@Version: 1.0.0
+    '@License: MIT
+    '@Param: value1 is the value that will be checked if its in the array
+    '@Param: array1 is the array
+    '@Returns: Returns boolean True if the value is in the array, and false otherwise
+    '@Example: =IsInArray("hello", {"one", 2, "hello"}) -> True
+    '@Example: =IsInArray("hello", {1, "two", "three"}) -> False
+
+    Dim individualElement As Variant
+    
+    For Each individualElement In array1
+        If individualElement = value1 Then
+            ArrayContains = True
+            Exit Function
+        End If
+    Next
+
+    ArrayContains = False
+
+End Function
+
+Function WorksheetExists(SheetName As String, TargetWorkbook As Workbook) As Boolean
+    Dim TargetWorksheet  As Worksheet
+    On Error Resume Next
+    Set TargetWorksheet = TargetWorkbook.SHEETS(SheetName)
+    On Error GoTo 0
+    WorksheetExists = Not TargetWorksheet Is Nothing
+End Function
+
+Function CreateOrSetSheet(SheetName As String, TargetWorkbook As Workbook) As Worksheet
+    Dim NewSheet As Worksheet
+    If WorksheetExists(SheetName, TargetWorkbook) = True Then
+        Set CreateOrSetSheet = TargetWorkbook.SHEETS(SheetName)
+    Else
+        Set CreateOrSetSheet = TargetWorkbook.SHEETS.Add
+        CreateOrSetSheet.Name = SheetName
+    End If
+End Function
+
+
+'uDEV	UserForm
+
+Rem MakeFormTransparent me
+Rem MakeFormBorderless Me
+Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Declare PtrSafe Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
+Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+Private Const GWL_STYLE As Long = (-16)
+Private Const GWL_EXSTYLE As Long = (-20)
+Private Const WS_CAPTION As Long = &HC00000
+Private Const WS_EX_DLGMODALFRAME As Long = &H1
+Private Const WS_EX_LAYERED = &H80000
+Private Const LWA_COLORKEY = &H1
+Private Const LWA_ALPHA = &H2
+Private m_sngDownX As Single
+Private m_sngDownY As Single
+
+Private Sub MakeFormTransparent(Frm As Object, Optional Color As Variant)
+    Dim formhandle As Long
+    Dim bytOpacity As Byte
+    formhandle = CLng(FindWindow(vbNullString, Frm.Caption))
+    If IsMissing(Color) Then Color = vbWhite
+    bytOpacity = 100
+    SetWindowLong formhandle, GWL_EXSTYLE, GetWindowLong(formhandle, GWL_EXSTYLE) Or WS_EX_LAYERED
+    Frm.BackColor = Color
+    SetLayeredWindowAttributes formhandle, Color, bytOpacity, LWA_COLORKEY
+End Sub
+
+Private Sub MakeFormBorderless(Frm As Object)
+    Dim lngWindow As Long
+    Dim lFrmHdl As Long
+    lFrmHdl = CLng(FindWindow(vbNullString, Frm.Caption))
+    lngWindow = GetWindowLong(lFrmHdl, GWL_STYLE)
+    lngWindow = lngWindow And (Not WS_CAPTION)
+    SetWindowLong lFrmHdl, GWL_STYLE, lngWindow
+    lngWindow = GetWindowLong(lFrmHdl, GWL_EXSTYLE)
+    lngWindow = lngWindow And Not WS_EX_DLGMODALFRAME
+    SetWindowLong lFrmHdl, GWL_EXSTYLE, lngWindow
+    DrawMenuBar lFrmHdl
+End Sub
+
+Private Sub LVK_Click()
+    FollowLink ("https://vk.com/vbarc_hive")
+End Sub
+
+Private Sub Label2_Click()
+    Unload Me
+End Sub
+
+Private Sub LFaceBook_Click()
+    FollowLink ("https://www.facebook.com/VBA-Code-Archive-110295994460212")
+End Sub
+
+Private Sub LGitHub_Click()
+    FollowLink ("https://github.com/alexofrhodes")
+End Sub
+
+Private Sub LYouTube_Click()
+    FollowLink ("https://bit.ly/2QT4wFe")
+End Sub
+
+Private Sub LBuyMeACoffee_Click()
+    FollowLink ("http://paypal.me/alexofrhodes")
+End Sub
+
+Private Function CLIP(Optional StoreText As String) As String
+    Dim x As Variant
+    x = StoreText
+    With CreateObject("htmlfile")
+        With .parentWindow.clipboardData
+            Select Case True
+                Case Len(StoreText)
+                    .SetData "text", x
+                Case Else
+                    CLIP = .GetData("text")
+            End Select
+        End With
+    End With
+End Function
+
+Private Sub LEmail_Click()
+    If OutlookCheck = True Then
+        MailDev
+    Else
+        Dim out As String
+        out = "anastasioualex@gmail.com"
+        CLIP out
+        MsgBox ("Outlook not found" & Chr(10) & _
+                "DEV's email address" & vbNewLine & out & vbNewLine & "copied to clipboard")
+    End If
+End Sub
+
+Sub MailDev()
+    Dim OutApp As Object
+    Dim OutMail As Object
+    Dim strBody As String
+    Set OutApp = CreateObject("Outlook.Application")
+    Set OutMail = OutApp.CreateItem(0)
+    On Error Resume Next
+    With OutMail
+        .To = "anastasioualex@gmail.com"
+        .CC = vbNullString
+        .BCC = vbNullString
+        .Subject = "DEV REQUEST OR FEEDBACK FOR -CODE ARCHIVE-"
+        .body = strBody
+        .Display
+    End With
+    On Error GoTo 0
+    Set OutMail = Nothing
+    Set OutApp = Nothing
+End Sub
+
+Private Sub FollowLink(FolderPath As String)
+    If Right(FolderPath, 1) = "\" Then FolderPath = Left(FolderPath, Len(FolderPath) - 1)
+    On Error Resume Next
+    Dim oShell As Object
+    Dim Wnd As Object
+    Set oShell = CreateObject("Shell.Application")
+    For Each Wnd In oShell.Windows
+        If Wnd.Name = "File Explorer" Then
+            If Wnd.Document.Folder.Self.path = FolderPath Then Exit Sub
+        End If
+    Next Wnd
+    Application.ThisWorkbook.FollowHyperlink Address:=FolderPath, NewWindow:=True
+End Sub
+
+Private Sub UserForm_Initialize()
+    MakeFormBorderless Me
+    MakeFormTransparent Me, vbBlack
+End Sub
+
+
+
+'README	Document
+
+
+
+'mFormTransparent	Module
+
+Rem MakeFormTransparent me
+Rem MakeFormBorderless Me
+Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
+Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+Private Const GWL_STYLE As Long = (-16)
+Private Const GWL_EXSTYLE As Long = (-20)
+Private Const WS_CAPTION As Long = &HC00000
+Private Const WS_EX_DLGMODALFRAME As Long = &H1
+Private Const WS_EX_LAYERED = &H80000
+Private Const LWA_COLORKEY = &H1
+Private Const LWA_ALPHA = &H2
+Private m_sngDownX As Single
+Private m_sngDownY As Single
+Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+
+Public Sub MakeFormTransparent(Frm As Object, Optional Color As Variant)
+    Dim formhandle As Long
+    Dim bytOpacity As Byte
+    formhandle = CLng(FindWindow(vbNullString, Frm.Caption))
+    If IsMissing(Color) Then Color = vbWhite
+    bytOpacity = 100
+    SetWindowLong formhandle, GWL_EXSTYLE, GetWindowLong(formhandle, GWL_EXSTYLE) Or WS_EX_LAYERED
+    Frm.BackColor = Color
+    SetLayeredWindowAttributes formhandle, Color, bytOpacity, LWA_COLORKEY
+End Sub
+
+Public Sub MakeFormBorderless(Frm As Object)
+    Dim lngWindow As Long
+    Dim lFrmHdl As Long
+    lFrmHdl = CLng(FindWindow(vbNullString, Frm.Caption))
+    lngWindow = GetWindowLong(lFrmHdl, GWL_STYLE)
+    lngWindow = lngWindow And (Not WS_CAPTION)
+    SetWindowLong lFrmHdl, GWL_STYLE, lngWindow
+    lngWindow = GetWindowLong(lFrmHdl, GWL_EXSTYLE)
+    lngWindow = lngWindow And Not WS_EX_DLGMODALFRAME
+    SetWindowLong lFrmHdl, GWL_EXSTYLE, lngWindow
+    DrawMenuBar lFrmHdl
+End Sub
+
+
+'uMouseRecorder	UserForm
+
+
+Option Explicit
+
+'* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+'* Module     : uMouseRecorder
+'* Created    : 06-10-2022 10:38
+'* Author     : Anastasiou Alex
+'* Contacts   : AnastasiouAlex@gmail.com
+'*
+'* GITHUB     : https://github.com/AlexOfRhodes
+'* YOUTUBE    : https://www.youtube.com/channel/UC5QH3fn1zjx0aUjRER_rOjg
+'* VK         : https://vk.com/video/playlist/735281600_1
+'* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Private Completed As Boolean
+
+
+Private Sub UserForm_Initialize()
+    Me.Height = 125
+'    Me.Width = 230
+    With aUserform.Init(Me)
+        .LoadPosition
+        .OnTop
+    End With
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    MouseFolder = Environ("USERprofile") & "\Documents\vbArc\MouseMacro\"
+    FoldersCreate MouseFolder
+    checkFile
+    ClicksOnly.Value = WS.Range("h2")
+    LoadMRcaption
+    LoadListbox
+
+    aListBox.Init(lBoxData).AddHeader lBoxHeader, Array("X", "Y", "L", "R", "NOTE")
+
+End Sub
+
+Function CursorPosition() As Variant
+    Dim lngCurPos As POINTAPI, activeX As Long, activeY As Long
+    GetCursorPos lngCurPos
+    activeX = lngCurPos.x
+    activeY = lngCurPos.Y
+    Dim out(1) As Variant
+    out(0) = activeX
+    out(1) = activeY
+    CursorPosition = out
+End Function
+
+'Sub ShowCoordinates(X As Long, Y As Long)
+'    uCoordinates.Load
+'    uCoordinates.Left = X
+'    uCoordinates.Top = Y
+'    uCoordinates.Show
+'End Sub
+
+Private Sub iLogLink_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    LogLink
+    LoadListbox
+End Sub
+
+Sub LogLink()
+    '@INCLUDE InputboxString
+    '@INCLUDE IsFileFolderURL
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim Msg As String
+    Msg = InputboxString()
+    If Len(Msg) = 0 Then Exit Sub
+    If Msg = "False" Then Exit Sub
+    If IsFileFolderURL(Msg) = "I" Then Exit Sub
+    Dim cell As Range
+    Set cell = WS.Range("A" & rows.Count).End(xlUp).Offset(1)
+    cell = "go"
+    cell.Offset(0, 1) = Msg
+End Sub
+
+Private Sub iLogLink_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iLogLink.ControlTipText
+End Sub
+
+Private Sub iLogRight_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    LogClick "right"
+    LoadListbox
+End Sub
+
+Private Sub iCoordinates_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    IndexMouseLocation
+End Sub
+
+Private Sub iCoordinates_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iCoordinates.ControlTipText
+End Sub
+
+Private Sub iSize_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    If Me.Height > 125 Then
+        Me.Height = 125
+        iSize.SpecialEffect = fmSpecialEffectRaised
+    Else
+        Me.Height = 275
+        iSize.SpecialEffect = fmSpecialEffectSunken
+        aListBox.Init(lBoxData).AddHeader lBoxHeader, Array("X", "Y", "L", "R", "NOTE")
+    End If
+End Sub
+
+Private Sub iSize_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iSize.ControlTipText
+End Sub
+
+Private Sub lBoxData_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = lBoxData.ControlTipText
+End Sub
+
+Private Sub UserForm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = "Hold ESC to STOP recording or playback"
+End Sub
+
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+    aUserform.Init(Me).SavePosition
+End Sub
+
+Private Sub ClicksOnly_Click()
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    WS.Range("H2") = ClicksOnly
+End Sub
+
+Sub DeleteRows()
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    If aListBox.Init(lBoxData).SelectedCount = 0 Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Dim c As Long
+    c = aListBox.Init(lBoxData).SelectedCount
+    Set rng = WS.Range(WS.Cells(2 + r, 1), WS.Cells(2 + r, 5)).RESIZE(c)
+    rng.Delete Shift:=xlUp
+End Sub
+
+Sub DoubleClick()
+    'Double click as a quick series of two clicks
+    mouse_event MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0
+    mouse_event MOUSEEVENTF_LEFTUP, 0, 0, 0, 0
+    mouse_event MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0
+    mouse_event MOUSEEVENTF_LEFTUP, 0, 0, 0, 0
+End Sub
+
+Sub DuplicateRows()
+    '@INCLUDE LoadListbox
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    If aListBox.Init(lBoxData).SelectedCount = 0 Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Dim c As Long
+    c = aListBox.Init(lBoxData).SelectedCount
+    Set rng = WS.Range(WS.Cells(2 + r, 1), WS.Cells(2 + r, 5)).RESIZE(c)
+    Dim var
+    var = rng.Value
+    rng.Offset(rng.rows.Count).Insert
+    rng.Offset(rng.rows.Count).RESIZE(rng.rows.Count) = var
+    Application.CutCopyMode = False
+    LoadListbox
+End Sub
+
+Sub EditMemo()
+    '@INCLUDE LoadListbox
+    '@INCLUDE InputboxString
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    Dim s As String
+    If aListBox.Init(lBoxData).SelectedCount = 0 Then Exit Sub
+    Dim ans As String
+    ans = InputboxString
+    If ans = "False" Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Dim c As Long
+    c = aListBox.Init(lBoxData).SelectedCount
+    Set rng = WS.Cells(2 + r, 5).RESIZE(c)
+    rng.Value = ans
+    LoadListbox
+End Sub
+
+Sub EditRow()
+    '@INCLUDE LoadListbox
+    '@INCLUDE InputboxString
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    Dim s As String
+    If aListBox.Init(lBoxData).SelectedCount = 0 Then Exit Sub
+    s = lBoxData.List(lBoxData.ListIndex, 0)
+    s = s & "|" & lBoxData.List(lBoxData.ListIndex, 1)
+    s = s & "|" & lBoxData.List(lBoxData.ListIndex, 2)
+    s = s & "|" & lBoxData.List(lBoxData.ListIndex, 3)
+    s = s & "|" & lBoxData.List(lBoxData.ListIndex, 4)
+    Dim ans As String
+    ans = InputboxString(, , s)
+    If ans = "False" Then Exit Sub
+    If UBound(Split(s, "|")) <> 4 Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Dim c As Long
+    c = aListBox.Init(lBoxData).SelectedCount
+    Set rng = WS.Range(WS.Cells(2 + r, 1), WS.Cells(2 + r, 5)).RESIZE(c)
+    rng.Value = (Split(ans, "|"))
+    LoadListbox
+End Sub
+
+Private Sub info_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    uDEV.Show
+End Sub
+
+Sub LeftClick()
+    mouse_event MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0
+    mouse_event MOUSEEVENTF_LEFTUP, 0, 0, 0, 0
+End Sub
+
+
+
+Sub LoadListbox()
+    '@INCLUDE RecordRange
+    Dim rng As Range
+    Set rng = RecordRange
+    lBoxData.clear
+    If rng Is Nothing Then Exit Sub
+    lBoxData.ColumnCount = rng.Columns.Count
+    lBoxData.List = rng.Value
+End Sub
+
+Sub LoadMRcaption()
+    '@INCLUDE RecordFileFullName
+    '@INCLUDE FileExists
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim FileFullPath As String
+    FileFullPath = RecordFileFullName
+    If WS.Range("H1") = "" Then
+        If WS.Range("A2") = "" Then
+            Me.Caption = "New Recording"
+        ElseIf WS.Range("A2") <> "" Then
+            Me.Caption = "Existing Recording - NOT SAVED"
+        End If
+    ElseIf WS.Range("H1") <> "" Then
+        Me.Caption = IIf(FileExists(FileFullPath), "Loaded - " & WS.Range("H1"), "New Recording")
+    End If
+End Sub
+
+Sub LoadRecord()
+    '@INCLUDE TXTtoArray
+    '@INCLUDE PickRecord
+    '@INCLUDE RecordFileFullName
+    '@INCLUDE newRecord
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim FName As String
+    FName = PickRecord(MouseFolder)
+    If FName = "" Or Right(FName, 7) <> "_mr.txt" Then
+        infoLab.Caption = "No valid file selected"
+        Exit Sub
+    End If
+    newRecord
+    FName = Mid(FName, InStrRev(FName, "\") + 1)
+    FName = Left(FName, InStr(1, FName, "_") - 1)
+    uMouseRecorder.LoadedRecording.Caption = FName
+    WS.Range("H1") = FName
+    Dim recFile As String
+    recFile = RecordFileFullName
+    Dim arr
+    arr = TxtToArray(recFile)
+    If IsEmpty(arr) Then Exit Sub
+    Dim rng As Range
+    Set rng = WS.Range("A2").CurrentRegion.Offset(1)
+    rng.ClearContents
+    rng.RESIZE(UBound(arr, 1), 4) = arr
+End Sub
+
+'VBA function to open a CSV file in memory and parse it to a 2D
+'array without ever touching a worksheet:
+
+Function TxtToArray(sFile$)
+    '@INCLUDE OpenTextFile
+    Dim c&, i&, j&, P&, d$, s$, rows&, cols&, a, r, v
+    Const Q = """", QQ = Q & Q
+    Const ENQ = ""        'Chr(5)
+    Const ESC = ""        'Chr(27)
+    Const COM = ","
+
+    d = OpenTextFile$(sFile)
+    If LenB(d) Then
+        r = Split(Trim(d), vbCrLf)
+        rows = UBound(r) + 1
+        cols = UBound(Split(r(0), ",")) + 1
+        ReDim v(1 To rows, 1 To cols)
+        For i = 1 To rows
+            s = r(i - 1)
+            If LenB(s) Then
+                If InStrB(s, QQ) Then s = Replace(s, QQ, ENQ)
+                For P = 1 To Len(s)
+                    Select Case Mid(s, P, 1)
+                    Case Q:   c = c + 1
+                    Case COM: If c Mod 2 Then Mid(s, P, 1) = ESC
+                    End Select
+                Next
+                If InStrB(s, Q) Then s = Replace(s, Q, "")
+                a = Split(s, COM)
+                For j = 1 To cols
+                    s = a(j - 1)
+                    If InStrB(s, ESC) Then s = Replace(s, ESC, COM)
+                    If InStrB(s, ENQ) Then s = Replace(s, ENQ, Q)
+                    v(i, j) = s
+                Next
+            End If
+        Next
+        TxtToArray = v
+    End If
+End Function
+
+Function OpenTextFile$(F)
+    With CreateObject("ADODB.Stream")
+        .Charset = "utf-8"
+        .Open
+        .LoadFromFile F
+        OpenTextFile = .ReadText
+        .Close
+    End With
+End Function
+
+Private Sub LocMouse_Click()
+    PreviewMousePosition
+End Sub
+
+Sub LogAsk()
+    '@INCLUDE InputboxString
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim cell As Range
+    Set cell = WS.Range("A" & rows.Count).End(xlUp).Offset(1)
+    Dim Msg As String
+    Msg = InputboxString()
+    If Len(Msg) = 0 Then Exit Sub
+    If Msg = "False" Then Exit Sub
+    cell = "ask"
+    cell.Offset(0, 1) = Msg
+End Sub
+
+Sub IndexMouseLocation()
+    Dim lngCurPos As POINTAPI
+    Dim activeX As Long, activeY As Long
+    On Error GoTo LoopEnd
+    Application.EnableCancelKey = xlErrorHandler
+    Do
+        GetCursorPos lngCurPos
+        activeX = lngCurPos.x
+        activeY = lngCurPos.Y
+        LabX.TEXT = activeX
+        LabY.TEXT = activeY
+        Sleep 20
+        DoEvents
+    Loop
+LoopEnd:
+    Application.EnableCancelKey = xlInterrupt
+End Sub
+
+Sub LogClick(ClickType As String)
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Erase MouseArray
+    Dim rng As Range
+    Dim lngCurPos As POINTAPI
+    Dim activeX As Long, activeY As Long
+    On Error GoTo LoopEnd
+    Application.EnableCancelKey = xlErrorHandler
+    Do
+        GetCursorPos lngCurPos
+        activeX = lngCurPos.x
+        activeY = lngCurPos.Y
+        LabX.TEXT = activeX
+        LabY.TEXT = activeY
+        Sleep 20
+        DoEvents
+    Loop
+LoopEnd:
+    'If err = 18 Then
+    Application.EnableCancelKey = xlInterrupt
+    Set rng = WS.Range("A" & rows.Count).End(xlUp).Offset(1, 0)
+    Set rng = rng.RESIZE(, 5)
+    rng.Value = Array(ClickType, activeX, activeY, "", "")
+
+    infoLab.Caption = "Macro recorded."
+    'End If
+End Sub
+
+Sub LogClickImmediate()
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Erase MouseArray
+    Dim rng As Range
+    Dim lngCurPos As POINTAPI
+    Dim previousX As Long, previousY As Long, activeX As Long, activeY As Long
+    Dim previousL As Long, previousR As Long, activeL As Long, activeR As Long
+    Dim arrayCounter As Long: arrayCounter = 1
+    On Error GoTo LoopEnd
+    Application.EnableCancelKey = xlErrorHandler
+    Dim counter As Long
+    Do
+        ReDim Preserve MouseArray(1 To arrayCounter)
+        GetCursorPos lngCurPos
+        activeL = IIf(GetAsyncKeyState(1) = 0, 0, 1)
+        activeR = IIf(GetAsyncKeyState(2) = 0, 0, 1)
+        activeX = lngCurPos.x
+        activeY = lngCurPos.Y
+        If previousL <> activeL Or previousR <> activeR Then
+            previousX = activeX
+            previousY = activeY
+            previousL = activeL
+            previousR = activeR
+            MouseArray(arrayCounter) = Join(Array(previousX, previousY, activeL, activeR), ",")
+            arrayCounter = arrayCounter + 1
+            DoEvents
+            counter = counter + 1
+            If counter = 4 Then GoTo LoopEnd
+        End If
+    Loop
+LoopEnd:
+    If Err = 18 Then
+        Application.EnableCancelKey = xlInterrupt
+        Set rng = WS.Range("A" & rows.Count).End(xlUp).Offset(1, 0)
+        Set rng = rng.RESIZE(UBound(MouseArray), 1)
+        rng = WorksheetFunction.Transpose(MouseArray)
+        rng.TextToColumns rng, comma:=True
+        Range(rng.Cells(1, 1), rng.Cells(2, 4)).Delete Shift:=xlUp
+        'ws.Range("A3:D3").Delete Shift:=xlUp
+        infoLab.Caption = "Macro recorded."
+        '        infoLab.Caption = "Macro recorded at rows: " & rng.Row & " to " & rng.Row + rng.Rows.Count
+        Exit Sub
+    End If
+End Sub
+
+Sub LogDoulbe()
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Erase MouseArray
+    Dim rng As Range
+    Dim lngCurPos As POINTAPI
+    Dim activeX As Long, activeY As Long
+    On Error GoTo LoopEnd
+    Application.EnableCancelKey = xlErrorHandler
+    Do
+        GetCursorPos lngCurPos
+        activeX = lngCurPos.x
+        activeY = lngCurPos.Y
+        LabX.TEXT = activeX
+        LabY.TEXT = activeY
+        Sleep 20
+        DoEvents
+    Loop
+LoopEnd:
+    If Err = 18 Then
+        Application.EnableCancelKey = xlInterrupt
+        Set rng = WS.Range("A" & rows.Count).End(xlUp).Offset(1, 0)
+        Set rng = rng.RESIZE(5)
+        rng.Value = Array("double", activeX, activeY, "", "")
+        infoLab.Caption = "Macro recorded."
+        '        infoLab.Caption = "Macro recorded at rows: " & rng.Row & " to " & rng.Row + rng.Rows.Count
+        Exit Sub
+    End If
+End Sub
+
+Sub LogText()
+    '@INCLUDE InputboxString
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim cell As Range
+    Set cell = WS.Range("A" & rows.Count).End(xlUp).Offset(1)
+    Dim Msg As String
+    Msg = InputboxString()
+    If Len(Msg) = 0 Then Exit Sub
+    If Msg = "False" Then Exit Sub
+    cell = "sendkeys"
+    cell.Offset(0, 1) = Msg
+End Sub
+
+Sub MouseReplay(Optional rng As Range)
+    '@INCLUDE DoubleClick
+    '@INCLUDE LeftClick
+    '@INCLUDE RightClick
+    '@INCLUDE dragMouse
+    '@INCLUDE FollowLink
+    '@INCLUDE InputboxString
+    '@INCLUDE CLIP
+    '@INCLUDE IsFileFolderURL
+    Completed = False
+    'ActiveWindow.WindowState = xlMaximized
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim cell As Range
+    If rng Is Nothing Then
+        Set rng = WS.Range("A2").CurrentRegion
+        Set rng = rng.Offset(1).RESIZE(rng.rows.Count - 1, 1)
+    End If
+    If WorksheetFunction.CountA(rng) = 0 Then Exit Sub
+    On Error GoTo LoopEnd
+    Application.EnableCancelKey = xlErrorHandler
+    Dim DefaultSleep As Long
+    DefaultSleep = 300
+    Dim Msg As String
+
+    For Each cell In rng
+
+        Rem if automatic record of clicks and motion
+        If IsNumeric(cell) Then
+
+            SetCursorPos cell, cell.Offset(, 1)
+
+            If cell.Offset(0, 2) > 1 Then
+                dragMouse cell.Value, cell.Offset(0, 1), cell.Offset(0, 2), cell.Offset(0, 3)
+            ElseIf cell.Offset(0, 2) = 1 Then
+                If cell.Offset(1, 2) = 0 Then
+                    '                    If cell.Offset(2, 2) = 0 And cell.Offset(-1, 2) = 0 Then
+                    LeftClick
+                    Set cell = cell.Offset(2, 0)
+                    Rem This way doesn't work if logging clicks only and not motion because two left clicks will be interpreted as double click
+                    '                    ElseIf cell.Offset(2, 2) = 1 Then
+                    '                        DoubleClick
+                    '                        Set cell = cell.Offset(2, 0)
+                    '                    End If
+                End If
+            ElseIf cell.Offset(0, 3) = 1 Then
+                RightClick
+            End If
+        Else
+            Rem if manual entry
+            If cell = "wait" Then
+                Sleep IIf(cell.Offset(0, 1) <> "", cell.Offset(0, 1), DefaultSleep)
+            ElseIf cell = "go" Then
+                Msg = Replace(cell.Offset(0, 1), """", "")
+                If IsFileFolderURL(Msg) <> "I" Then
+                    FollowLink Msg
+                    Sleep 500
+                End If
+            ElseIf cell = "move" Then
+                SetCursorPos cell.Offset(0, 1), cell.Offset(0, 2)
+            ElseIf cell = "left" Then
+                SetCursorPos cell.Offset(0, 1), cell.Offset(0, 2)
+                LeftClick
+            ElseIf cell = "right" Then
+                SetCursorPos cell.Offset(0, 1), cell.Offset(0, 2)
+                RightClick
+            ElseIf cell = "double" Then
+                SetCursorPos cell.Offset(0, 1), cell.Offset(0, 2)
+                DoubleClick
+            ElseIf cell = "drag" Then
+                dragMouse cell.Offset(0, 1), cell.Offset(0, 2), cell.Offset(0, 3), cell.Offset(0, 4)
+            ElseIf cell = "ask" Then
+                Msg = InputboxString(0, cell.Offset(0, 1))
+                If Len(Msg) > 0 Then
+                    CLIP Msg
+                    SendKeys CLIP, True
+                End If
+            ElseIf cell = "sendkeys" Then
+                Dim ClipText As String
+                ClipText = IIf(cell.Offset(0, 2) = "", cell.Offset(0, 1), String(cell.Offset(0, 2), cell.Offset(0, 1)))
+                SendKeys ClipText, True
+
+            End If
+        End If
+
+        DoEvents
+        Sleep 20        'DefaultSleep
+        If Completed Then Exit Sub
+    Next
+LoopEnd:
+    '    If err = 18 Then
+    Application.EnableCancelKey = xlInterrupt
+    Do While GetAsyncKeyState(1) = 1
+        mouse_event MOUSEEVENTF_LEFTUP, 0, 0, 0, 0
+        DoEvents
+    Loop
+    Completed = True
+    '    End If
+End Sub
+
+Sub MoveRows(offsetRows As Long)
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    If aListBox.Init(lBoxData).SelectedCount = 0 Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Dim c As Long
+    c = aListBox.Init(lBoxData).SelectedCount
+    Set rng = WS.Range(WS.Cells(2 + r, 1), WS.Cells(2 + r, 5)).RESIZE(c)
+    On Error Resume Next        ' in case user makes unreasonable action like only 1 row exists and try to move it
+    rng.Cut
+    If 2 + r + offsetRows < 2 Then
+        WS.Range("A2:E2").Insert
+    ElseIf 2 + r + offsetRows > WS.Range("A1").CurrentRegion.rows.Count Then
+        Dim lRow As Long
+        lRow = WS.Range("A1").CurrentRegion.rows.Count
+        WS.Range("A" & lRow).RESIZE(, 5).Insert
+    Else
+        rng.Offset(offsetRows).Insert
+    End If
+    Application.CutCopyMode = False
+End Sub
+
+Sub MoveToBottom()
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    If lBoxData.ListIndex = -1 Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Dim c As Long
+    c = aListBox.Init(lBoxData).SelectedCount
+    Set rng = WS.Range(WS.Cells(2 + r, 1), WS.Cells(2 + r, 5)).RESIZE(c)
+    On Error Resume Next        ' in case user makes unreasonable action like only 1 row exists and try to move it
+    rng.Cut
+    Dim lRow As Long
+    lRow = WS.Range("A1").CurrentRegion.rows.Count + 1
+    WS.Range("A" & lRow).RESIZE(, 5).Insert
+    Application.CutCopyMode = False
+End Sub
+
+Sub MoveToTop()
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    If lBoxData.ListIndex = -1 Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Dim c As Long
+    c = aListBox.Init(lBoxData).SelectedCount
+    Set rng = WS.Range(WS.Cells(2 + r, 1), WS.Cells(2 + r, 5)).RESIZE(c)
+    On Error Resume Next        ' in case user makes unreasonable action like only 1 row exists and try to move it
+    rng.Cut
+    WS.Range("A2").RESIZE(, 5).Insert
+    Application.CutCopyMode = False
+End Sub
+
+Function PickRecord(Optional initFolder As String) As String
+    If initFolder = "" Then initFolder = MouseFolder
+    Dim strFile As String
+    Dim fd As Office.FileDialog
+    Set fd = Application.FileDialog(msoFileDialogFilePicker)
+    With fd
+        .Filters.clear
+        .Filters.Add "MouseRecord", "*.txt"
+        .title = "Choose Mouse Record"
+        .AllowMultiSelect = False
+        .initialFileName = initFolder
+        If .Show = True Then
+            strFile = .SelectedItems(1)
+            PickRecord = strFile
+        End If
+    End With
+End Function
+
+Sub PlayBackSelectedRows()
+    '@INCLUDE MouseReplay
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    If aListBox.Init(lBoxData).SelectedCount = 0 Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Dim c As Long
+    c = aListBox.Init(lBoxData).SelectedCount
+    Set rng = WS.Cells(2 + r, 1).RESIZE(c)
+    MouseReplay rng
+End Sub
+
+Sub PlayFromHere()
+    '@INCLUDE MouseReplay
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    If aListBox.Init(lBoxData).SelectedCount = 0 Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Dim c As Long
+    c = lBoxData.ListCount - r
+    Set rng = WS.Cells(2 + r, 1).RESIZE(c)
+    MouseReplay rng
+End Sub
+
+Sub PlayUntilHere()
+    '@INCLUDE MouseReplay
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    If aListBox.Init(lBoxData).SelectedCount = 0 Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Set rng = WS.Cells(2, 1).RESIZE(r)
+    MouseReplay rng
+End Sub
+
+Sub PreviewMousePosition()
+    '@INCLUDE ListboxSelectedCount
+    '@INCLUDE ListboxSelectedIndexes
+    If lBoxData.ListIndex = -1 Then Exit Sub
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim r As Long
+    r = aListBox.Init(lBoxData).selectedIndexes(1)
+    Dim c As Long
+    c = aListBox.Init(lBoxData).SelectedCount
+    Set rng = WS.Range(WS.Cells(2 + r, 1), WS.Cells(2 + r, 2))
+    SetCursorPos rng.Cells(1, 1), rng.Cells(1, 2)
+End Sub
+
+Function RecordFileFullName() As String
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    RecordFileFullName = MouseFolder & WS.Range("H1") & "_mr.txt"
+End Function
+
+Function RecordRange() As Range
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    If WS.Range("A2") = "" Then Exit Function
+    Dim rng As Range
+    Set rng = WS.Range("A1").CurrentRegion
+    Set rng = rng.Offset(1).RESIZE(rng.rows.Count - 1, 5)
+    Set RecordRange = rng
+End Function
+
+Sub RecordStart(Optional recordWholeMotion As Boolean)
+    'ActiveWindow.WindowState = xlMaximized
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim lngCurPos As POINTAPI
+    Dim previousX As Long, previousY As Long, activeX As Long, activeY As Long
+    Dim previousL As Long, previousR As Long, activeL As Long, activeR As Long
+    Erase MouseArray
+    Dim arrayCounter As Long: arrayCounter = 1
+    On Error GoTo LoopEnd
+    Application.EnableCancelKey = xlErrorHandler
+    Do
+        ReDim Preserve MouseArray(1 To arrayCounter)
+        GetCursorPos lngCurPos
+        activeL = IIf(GetAsyncKeyState(1) = 0, 0, 1)
+        activeR = IIf(GetAsyncKeyState(2) = 0, 0, 1)
+        activeX = lngCurPos.x
+        activeY = lngCurPos.Y
+        If recordWholeMotion Then
+            If previousX <> lngCurPos.x Or previousY <> lngCurPos.Y Or previousL <> activeL Or previousR <> activeR Then
+                previousX = activeX
+                previousY = activeY
+                previousL = activeL
+                previousR = activeR
+                MouseArray(arrayCounter) = Join(Array(previousX, previousY, activeL, activeR), ",")
+                arrayCounter = arrayCounter + 1
+                DoEvents
+            End If
+        Else
+            If previousL <> activeL Or previousR <> activeR Then
+                previousX = activeX
+                previousY = activeY
+                previousL = activeL
+                previousR = activeR
+                MouseArray(arrayCounter) = Join(Array(previousX, previousY, activeL, activeR), ",")
+                arrayCounter = arrayCounter + 1
+                DoEvents
+            End If
+            LabX.TEXT = activeX
+            LabY.TEXT = activeY
+        End If
+    Loop
+LoopEnd:
+    If Err = 18 Then
+        Application.EnableCancelKey = xlInterrupt
+        Set rng = WS.Range("A" & rows.Count).End(xlUp).Offset(1, 0)
+        Set rng = rng.RESIZE(UBound(MouseArray), 1)
+        rng = WorksheetFunction.Transpose(MouseArray)
+        rng.TextToColumns rng, comma:=True
+        rng.Columns(1).Cells.Font.Bold = False
+        rng.Cells.Font.Bold = True
+        infoLab.Caption = "Macro recorded at rows: " & rng.Row & " to " & rng.Row + rng.rows.Count - 3
+        Range(rng.Cells(1, 1), rng.Cells(2, 4)).Delete Shift:=xlUp
+        LoadMRcaption
+    End If
+End Sub
+
+Function RecordedMacro() As String
+    '@INCLUDE ArrayToString
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Set rng = WS.Range("A2").CurrentRegion.Offset(1)
+    Set rng = rng.RESIZE(rng.rows.Count - 1)
+    Dim arr
+    arr = rng.Value
+    RecordedMacro = ArrayToString(arr)
+End Function
+
+'RETURNS A STRING FROM A 2 DIM ARRAY, SPERATED BY OPTIONAL DELIMITER AND VBNEWLINE FOR EACH ROW
+'
+'@AUTHOR ROBERT TODAR
+Public Function ArrayToString(SourceArray As Variant, Optional Delimiter As String = ",") As String
+    '@INCLUDE ArrayDimensionLength
+
+    Dim Temp As String
+
+    Select Case ArrayDimensionLength(SourceArray)
+        'SINGLE DIMENTIONAL ARRAY
+    Case 1
+        Temp = Join(SourceArray, Delimiter)
+
+        '2 DIMENSIONAL ARRAY
+    Case 2
+        Dim RowIndex As Long
+        Dim ColIndex As Long
+
+        'LOOP EACH ROW IN MULTI ARRAY
+        For RowIndex = LBound(SourceArray, 1) To UBound(SourceArray, 1)
+
+            'LOOP EACH COLUMN ADDING VALUE TO STRING
+            For ColIndex = LBound(SourceArray, 2) To UBound(SourceArray, 2)
+                Temp = Temp & SourceArray(RowIndex, ColIndex)
+                If ColIndex <> UBound(SourceArray, 2) Then Temp = Temp & Delimiter
+            Next ColIndex
+
+            'ADD NEWLINE FOR THE NEXT ROW (MINUS LAST ROW)
+            If RowIndex <> UBound(SourceArray, 1) Then Temp = Temp & vbNewLine
+
+        Next RowIndex
+    End Select
+
+    ArrayToString = Temp
+
+End Function
+
+'RETURNS THE LENGHT OF THE DIMENSION OF AN ARRAY
+Public Function ArrayDimensionLength(SourceArray As Variant) As Integer
+'@BlogPosted
+
+    Dim i As Integer
+    Dim Test As Long
+
+    On Error GoTo Catch
+    Do
+        i = i + 1
+        Test = UBound(SourceArray, i)
+    Loop
+
+Catch:
+    ArrayDimensionLength = i - 1
+
+End Function
+
+Sub RightClick()
+    'Right click
+    mouse_event MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0
+    mouse_event MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0
+End Sub
+
+Sub SaveRecord()
+    '@INCLUDE RecordFileFullName
+    '@INCLUDE RecordedMacro
+    '@INCLUDE txtoverwrite
+    '@INCLUDE TxtOverwrite
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Set rng = WS.Range("A2").CurrentRegion
+    Set rng = rng.Offset(1).RESIZE(rng.rows.Count - 1)
+    TxtOverwrite RecordFileFullName, RecordedMacro
+End Sub
+
+Sub checkFile()
+    '@INCLUDE RecordFileFullName
+    '@INCLUDE FileExists
+    Dim recFile As String
+    recFile = RecordFileFullName
+    Dim recFileName As String
+    recFileName = IIf(FileExists(recFile) = True, recFile, "NONE")
+    LoadedRecording.Caption = recFileName
+    Me.LoadedRecording.ControlTipText = Mid(recFileName, InStrRev(recFileName, "\") + 1)
+End Sub
+
+Sub dragMouse(x0 As Long, y0 As Long, X1 As Long, Y1 As Long)
+    SetCursorPos x0, y0
+    mouse_event MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0
+    Sleep 20
+    SetCursorPos X1, Y1
+    Sleep 20
+    mouse_event MOUSEEVENTF_LEFTUP, 0, 0, 0, 0
+End Sub
+
+Private Sub iBottom_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    MoveToBottom
+    LoadListbox
+End Sub
+
+Private Sub iBottom_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iBottom.ControlTipText
+End Sub
+
+Private Sub iDelete_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    DeleteRows
+    LoadListbox
+End Sub
+
+Private Sub iDelete_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iDelete.ControlTipText
+End Sub
+
+Private Sub iDown_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    MoveRows 2
+    LoadListbox
+End Sub
+
+Private Sub iDown_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iDown.ControlTipText
+End Sub
+
+Private Sub iDuplicate_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    DuplicateRows
+End Sub
+
+Private Sub iDuplicate_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iDuplicate.ControlTipText
+End Sub
+
+Private Sub iFolder_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    FollowLink MouseFolder
+End Sub
+
+Private Sub iFolder_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iFolder.ControlTipText
+End Sub
+
+Private Sub iLoadRecord_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    LoadRecord
+    LoadedRecording.ControlTipText = LoadedRecording.Caption
+    Dim s As String
+    s = LoadedRecording.Caption
+    s = Mid(s, InStrRev(s, "\") + 1)
+    Me.Caption = s
+End Sub
+
+Private Sub iLoadRecord_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iLoadRecord.ControlTipText
+End Sub
+
+Private Sub iLogAsk_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    LogAsk
+    LoadListbox
+End Sub
+
+Private Sub iLogAsk_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iLogAsk.ControlTipText
+End Sub
+
+Private Sub iLogClick_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    LogClick "left"
+    LoadListbox
+End Sub
+
+Private Sub iLogClick_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iLogClick.ControlTipText
+End Sub
+
+Private Sub iLogDouble_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    LogClick "double"
+    LoadListbox
+End Sub
+
+Private Sub iLogDouble_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iLogDouble.ControlTipText
+End Sub
+
+Private Sub iLogInput_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    LogText
+    LoadListbox
+End Sub
+
+Private Sub iLogInput_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iLogInput.ControlTipText
+End Sub
+
+Private Sub iMemo_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    EditMemo
+
+End Sub
+
+Private Sub iMemo_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iMemo.ControlTipText
+End Sub
+
+Private Sub iNewFile_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    newRecord
+    LoadListbox
+End Sub
+
+Private Sub iNewFile_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iNewFile.ControlTipText
+End Sub
+
+Private Sub iPlayAll_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    Me.Hide
+    MouseReplay
+    Me.Show
+End Sub
+
+Private Sub iPlayAll_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iPlayAll.ControlTipText
+End Sub
+
+Private Sub iPlayFromHere_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    Me.Hide
+    PlayFromHere
+    Me.Show
+End Sub
+
+Private Sub iPlayFromHere_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iPlayFromHere.ControlTipText
+End Sub
+
+Private Sub iPlaySelection_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    PlayBackSelectedRows
+End Sub
+
+Private Sub iPlaySelection_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iPlaySelection.ControlTipText
+End Sub
+
+Private Sub iPlayUntilHere_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    Me.Hide
+    PlayUntilHere
+    Me.Show
+End Sub
+
+Private Sub iPlayUntilHere_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iPlayUntilHere.ControlTipText
+End Sub
+
+Private Sub iRecClick_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    RecordStart ClicksOnly.Value
+    LoadListbox
+    infoLab.Caption = "Recording, hold ESC to stop"
+End Sub
+
+Private Sub iRecClick_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iRecClick.ControlTipText
+End Sub
+
+Private Sub iRecDrag_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = "Recording Drag"
+    recordDrag
+    LoadListbox
+End Sub
+
+Private Sub iRecDrag_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iRecDrag.ControlTipText
+End Sub
+
+Private Sub iSave_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    If WS.Range("A2") = "" Then
+        infoLab.Caption = "Record something first"
+        Exit Sub
+    End If
+    Dim FName As String
+    FName = InputboxString(, , WS.Range("H1"))
+    If Len(FName) <> 0 And FName <> "False" Then
+        WS.Range("H1") = FName
+        SaveRecord
+    End If
+    LoadMRcaption
+End Sub
+
+Private Sub iSave_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iSave.ControlTipText
+End Sub
+
+Private Sub iTop_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    MoveToTop
+    LoadListbox
+End Sub
+
+Private Sub iTop_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iTop.ControlTipText
+End Sub
+
+Private Sub iUp_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    MoveRows -1
+    LoadListbox
+End Sub
+
+Private Sub iUp_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = iUp.ControlTipText
+End Sub
+
+Private Sub info_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    infoLab.Caption = info.ControlTipText
+End Sub
+
+Private Sub lBoxData_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+    EditRow
+End Sub
+
+Rem @NOT WORKING - forces motion top to bottom?
+Sub moveFromAtoB(x0 As Long, y0 As Long, X1 As Long, Y1 As Long)
+    Dim steep As Boolean: steep = Abs(Y1 - y0) > Abs(X1 - x0)
+    Dim t As Integer
+    If steep Then
+        '// swap(x0, y0);
+        t = x0
+        x0 = y0
+        y0 = t
+        ' // swap(x1, y1);
+        t = X1
+        X1 = Y1
+        Y1 = t
+    End If
+'    If x0 > X1 Then
+'        '// swap(x0, x1);
+'        t = x0
+'        x0 = X1
+'        X1 = t
+'        '// swap(y0, y1);
+'        t = y0
+'        y0 = Y1
+'        Y1 = t
+'    End If
+    Dim deltax As Integer: deltax = X1 - x0
+    Dim deltay As Integer: deltay = Abs(Y1 - y0)
+    Dim deviation As Integer: deviation = deltax / 2
+    Dim ystep As Integer
+    Dim Y  As Integer: Y = y0
+    If y0 < Y1 Then
+        ystep = 1
+    Else
+        ystep = -1
+    End If
+    Dim x As Integer
+    For x = x0 To X1 Step ystep
+        If steep Then
+            SetCursorPos Y, x
+        Else
+            SetCursorPos x, Y
+        End If
+        deviation = deviation - deltay
+        If deviation < 0 Then
+            Y = Y + ystep
+            deviation = deviation + deltax
+        End If
+        DoEvents
+        Sleep 1
+    Next
+End Sub
+
+Sub newRecord()
+    '@INCLUDE LoadMRcaption
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    WS.Range("A2").CurrentRegion.Offset(1).ClearContents
+    WS.Range("R7").CurrentRegion.Offset(1).ClearContents
+    WS.Range("H1").ClearContents
+    LoadMRcaption
+End Sub
+
+Sub recordDrag()
+    Dim WS As Worksheet: Set WS = ThisWorkbook.SHEETS("MouseDB")
+    Dim rng As Range
+    Dim lngCurPos As POINTAPI
+    Dim previousX As Long, previousY As Long, activeX As Long, activeY As Long
+    Dim previousL As Long, previousR As Long, activeL As Long, activeR As Long
+    Erase MouseArray
+    Dim arrayCounter As Long: arrayCounter = 1
+    On Error GoTo LoopEnd
+    Application.EnableCancelKey = xlErrorHandler
+    Do
+        ReDim Preserve MouseArray(1 To arrayCounter)
+        GetCursorPos lngCurPos
+        activeL = IIf(GetAsyncKeyState(1) = 0, 0, 1)
+        activeR = IIf(GetAsyncKeyState(2) = 0, 0, 1)
+        activeX = lngCurPos.x
+        activeY = lngCurPos.Y
+        If previousX <> lngCurPos.x Or previousY <> lngCurPos.Y Or previousL <> activeL Or previousR <> activeR Then
+            Debug.Print "drag"
+            previousX = activeX
+            previousY = activeY
+            previousL = activeL
+            previousR = activeR
+            MouseArray(arrayCounter) = Join(Array(previousX, previousY, activeL, activeR), ",")
+            arrayCounter = arrayCounter + 1
+        End If
+    Loop
+LoopEnd:
+    If Err = 18 Then
+        Application.EnableCancelKey = xlInterrupt
+        Dim arr
+        arr = MouseArray
+        arr = Filter(arr, ",1,", , vbTextCompare)
+        Set rng = WS.Range("A" & rows.Count).End(xlUp).Offset(1, 0)
+        rng.Offset(0, 0).Value = Split(arr(1), ",")(0)
+        rng.Offset(0, 1).Value = Split(arr(1), ",")(1)
+        rng.Offset(0, 2).Value = Split(arr(UBound(arr)), ",")(0)
+        rng.Offset(0, 3).Value = Split(arr(UBound(arr)), ",")(1)
+
+        rng.Offset(0, 4) = "DRAG"
+
+        infoLab.Caption = "Drag recorded."
+        'infoLab.Caption = "Drag recorded at rows: " & rng.Row & " to " & rng.Row + rng.Rows.Count
+    End If
+End Sub
+
+' Enum MouseButtonConstants
+' vbLeftButton
+' vbMiddleButton
+' vbRightButton
+' End Enum
+'
+''simulate the MouseDown event
+' Sub ButtonDown(Optional ByVal Button As MouseButtonConstants = _
+'    vbLeftButton)
+'    Dim lFlag As Long
+'    If Button = vbLeftButton Then
+'        lFlag = MOUSEEVENTF_LEFTDOWN
+'    ElseIf Button = vbMiddleButton Then
+'        lFlag = MOUSEEVENTF_MIDDLEDOWN
+'    ElseIf Button = vbRightButton Then
+'        lFlag = MOUSEEVENTF_RIGHTDOWN
+'    End If
+'    mouse_event lFlag, 0, 0, 0, 0
+'End Sub
+'
+''simulate the MouseUp event
+'
+' Sub ButtonUp(Optional ByVal Button As MouseButtonConstants = _
+'    vbLeftButton)
+'    Dim lFlag As Long
+'    If Button = vbLeftButton Then
+'        lFlag = MOUSEEVENTF_LEFTUP
+'    ElseIf Button = vbMiddleButton Then
+'        lFlag = MOUSEEVENTF_MIDDLEUP
+'    ElseIf Button = vbRightButton Then
+'        lFlag = MOUSEEVENTF_RIGHTUP
+'    End If
+'    mouse_event lFlag, 0, 0, 0, 0
+'End Sub
+'
+''simulate the MouseClick event
+'
+' Sub ButtonClick(Optional ByVal Button As MouseButtonConstants = _
+'    vbLeftButton)
+'    ButtonDown Button
+'    ButtonUp Button
+'End Sub
+'
+''simulate the MouseDblClick event
+'
+' Sub ButtonDblClick(Optional ByVal Button As MouseButtonConstants = _
+'    vbLeftButton)
+'    ButtonClick Button
+'    ButtonClick Button
+'End Sub
+
+'Sub AlternativeLogPlayback()
+'Rem from different logging style
+'Dim DefaultSleep As Long
+'DefaultSleep = 1000
+'Dim cell As Range, rng As Range
+'Set rng = ActiveSheet.Range("A1").CurrentRegion
+'Set rng = rng.Resize(, 1).offset(1).Resize(rng.rows.count - 1)
+'    Dim lngCurPos As POINTAPI, activeX As Long, activeY As Long
+'    GetCursorPos lngCurPos
+'    activeX = lngCurPos.x
+'    activeY = lngCurPos.y
+'For Each cell In rng
+'    If cell <> "drag" Then
+'        If cell.offset(0, 1) <> "" And cell.offset(0, 2) <> "" Then
+'            'moveFromAtoB activeX, activeY, CLng(cell.offset(0, 1)), CLng(cell.offset(0, 2).Value)
+'            SetCursorPos cell.offset(0, 1), cell.offset(0, 2)
+'        End If
+'   End If
+'    If cell = "move" Then
+'        'moveFromAtoB activeX, activeY, CLng(cell.offset(0, 1)), CLng(cell.offset(0, 2).Value)
+'       SetCursorPos cell.offset(0, 1), cell.offset(0, 2)
+'    ElseIf cell = "left" Then LeftClick
+'    ElseIf cell = "double" Then DoubleClick
+'    ElseIf cell = "right" Then RightClick
+'    ElseIf cell = "drag" Then
+'        GetCursorPos lngCurPos
+'        activeX = lngCurPos.x
+'        activeY = lngCurPos.y
+'        dragMouse activeX, activeY, cell.offset(0, 1), cell.offset(0, 2)
+'    ElseIf cell = "type" Then
+'        CLIP cell.offset(0, 1)
+'        SendKeys CLIP, True
+'    ElseIf cell = "ask" Then
+'        Dim msg As String
+'        msg = InputboxString()
+'        CLIP msg
+'        SendKeys CLIP, True
+'    End If
+'    If cell = "wait" Then
+'        Sleep IIf(cell.offset(0, 1) <> "", cell.offset(0, 1), DefaultSleep)
+'    Else
+'        Sleep DefaultSleep
+'    End If
+'    DoEvents
+'Next
+'End Sub
+
+
+'aUserform	Class
+
+
+Option Explicit
+Option Compare Text
+
+Private oForm As Object
+
+Rem Transparent Declarations
+Rem Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+#If VBA7 Then
+    Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
+    Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+#Else
+    Private Declare Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
+    Private Declare Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+#End If
+
+Private Const GWL_STYLE As Long = (-16)
+Private Const GWL_EXSTYLE As Long = (-20)
+Private Const WS_CAPTION As Long = &HC00000
+Private Const WS_EX_DLGMODALFRAME As Long = &H1
+
+Private Const WS_EX_LAYERED = &H80000
+Private Const LWA_COLORKEY = &H1
+Private Const LWA_ALPHA = &H2
+
+Private m_sngDownX As Single
+Private m_sngDownY As Single
+
+Rem Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Rem Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+
+Rem Parent Declarations
+Private Const FORMAT_MESSAGE_ALLOCATE_BUFFER = &H100
+Private Const FORMAT_MESSAGE_ARGUMENT_ARRAY = &H2000
+Private Const FORMAT_MESSAGE_FROM_HMODULE = &H800
+Private Const FORMAT_MESSAGE_FROM_STRING = &H400
+Private Const FORMAT_MESSAGE_FROM_SYSTEM = &H1000
+Private Const FORMAT_MESSAGE_IGNORE_INSERTS = &H200
+Private Const FORMAT_MESSAGE_MAX_WIDTH_MASK = &HFF
+Private Const FORMAT_MESSAGE_TEXT_LEN = 160
+Private Const MAX_PATH = 260
+Private Const GWL_HWNDPARENT As Long = -8
+Private Const GW_OWNER = 4
+
+#If VBA7 Then
+    Private Declare PtrSafe Function GetWindowText Lib "user32.dll" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
+    Private Declare PtrSafe Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hWnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+    Private Declare PtrSafe Function GetWindowLong Lib "user32.dll" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+#Else
+    Private Declare Function GetWindowText Lib "user32.dll" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
+    Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hWnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+    Private Declare Function GetWindowLong Lib "user32.dll" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+#End If
+
+Private VBEditorHWnd As Long
+Private ApplicationHWnd As Long
+Private ExcelDeskHWnd As Long
+Private ActiveWindowHWnd As Long
+Private UserFormHWnd As Long
+Private WindowsDesktopHWnd As Long
+Private Const GA_ROOT As Long = 2
+Private Const GA_ROOTOWNER As Long = 3
+Private Const GA_PARENT As Long = 1
+
+#If VBA7 Then
+    Private Declare PtrSafe Function GetWindow Lib "user32" (ByVal hWnd As Long, ByVal wCmd As Long) As Long
+    Private Declare PtrSafe Function FindWindowEx Lib "user32" Alias "FindWindowExA" (ByVal hWnd1 As Long, ByVal hWnd2 As Long, ByVal lpsz1 As String, ByVal lpsz2 As String) As Long
+    Private Declare PtrSafe Function GetAncestor Lib "user32.dll" (ByVal hWnd As Long, ByVal gaFlags As Long) As Long
+    Private Declare PtrSafe Function GetDesktopWindow Lib "user32" () As Long
+    Private Declare PtrSafe Function GetParent Lib "user32.dll" (ByVal hWnd As Long) As Long
+    Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+#Else
+    Private Declare Function GetWindow Lib "user32" (ByVal hWnd As Long, ByVal wCmd As Long) As Long
+    Private Declare Function FindWindowEx Lib "user32" Alias "FindWindowExA" (ByVal hWnd1 As Long, ByVal hWnd2 As Long, ByVal lpsz1 As String, ByVal lpsz2 As String) As Long
+    Private Declare Function GetAncestor Lib "user32.dll" (ByVal hWnd As Long, ByVal gaFlags As Long) As Long
+    Private Declare Function GetDesktopWindow Lib "user32" () As Long
+    Private Declare Function GetParent Lib "user32.dll" (ByVal hWnd As Long) As Long
+    Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+#End If
+
+Private Const C_EXCEL_APP_WINDOWCLASS = "XLMAIN"
+Private Const C_EXCEL_DESK_WINDOWCLASS = "XLDESK"
+Private Const C_EXCEL_WINDOW_WINDOWCLASS = "EXCEL7"
+Private Const USERFORM_WINDOW_CLASS = "ThunderDFrame"
+Private Const C_VBA_USERFORM_WINDOWCLASS = "ThunderDFrame"
+
+Rem Window position and more
+Private Const SWP_NOMOVE = &H2
+Private Const SWP_NOSIZE = &H1
+Private Const HWND_TOP = 0
+Private Const HWND_BOTTOM = 1
+Private Const HWND_TOPMOST = -1
+Private Const HWND_NOTOPMOST = -2
+
+#If VBA7 Then
+    Private Declare PtrSafe Function SetWindowPos Lib "user32" (ByVal hWnd As LongPtr, ByVal hwndInsertAfter As LongPtr, ByVal x As LongPtr, ByVal Y As LongPtr, ByVal cx As LongPtr, ByVal cy As LongPtr, ByVal uFlags As LongPtr) As Long
+#Else
+    Private Declare Function SetWindowPos Lib "user32" (ByVal hWnd As LongPtr, ByVal hWndInsertAfter As LongPtr, ByVal X As LongPtr, ByVal Y As LongPtr, ByVal cx As LongPtr, ByVal cy As LongPtr, ByVal uFlags As LongPtr) As Long
+#End If
+
+Rem ---
+#If VBA7 Then
+    Private Declare PtrSafe Function SetParent Lib "user32" (ByVal hwndChild As LongPtr, ByVal hWndNewParent As LongPtr) As LongPtr
+    Private Declare PtrSafe Function SetForegroundWindow Lib "user32" (ByVal hWnd As LongPtr) As Long
+    Private Declare PtrSafe Function FormatMessage Lib "kernel32" Alias "FormatMessageA" (ByVal dwFlags As Long, lpSource As Any, ByVal dwMessageId As Long, ByVal dwLanguageId As Long, ByVal lpBuffer As String, ByVal nSize As Long, Arguments As LongPtr) As Long
+#Else
+    Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
+    Private Declare Function SetForegroundWindow Lib "user32" (ByVal hwnd As Long) As Long
+    Private Declare Function FormatMessage Lib "kernel32.dll" Alias "FormatMessageA" (ByVal dwFlags As Long, ByRef lpSource As Any, ByVal dwMessageId As Long, ByVal dwLanguageId As Long, ByVal lpBuffer As String, ByVal nSize As Long, ByRef Arguments As Long) As Long
+#End If
+
+Rem Closeby
+Private Enum CloseBy
+    User = 0
+    Code = 1
+    WindowsOS = 2
+    TaskManager = 3
+End Enum
+
+
+Private Const Black As Long = &H80000012
+Private Const Red As Long = &HFF&
+
+Rem other
+#If VBA7 Then
+    Private Declare PtrSafe Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare PtrSafe Function GetWindowLongA Lib "user32" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function SetWindowLongA Lib "user32" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+#Else
+    Private Declare Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare Function GetWindowLongA Lib "user32" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+    Private Declare Function SetWindowLongA Lib "user32" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+#End If
+
+Rem userform hwnd
+#If Win64 Then
+    Private Declare PtrSafe Function IUnknown_GetWindow Lib "shlwapi" Alias "#172" (ByVal pIUnk As IUnknown, ByVal hWnd As LongPtr) As Long
+#Else
+    Private Declare Function IUnknown_GetWindow Lib "shlwapi" Alias "#172" (ByVal pIUnk As IUnknown, ByVal hwnd As Long) As Long
+#End If
+
+Rem ___Resizeable___
+#If VBA7 Then
+    Private Declare PtrSafe Function SetFocus Lib "user32" (ByVal hWnd As Long) As Long
+    Private Declare PtrSafe Function ShowWindow Lib "user32" (ByVal hWnd As Long, ByVal nCmdShow As Long) As Long
+#Else
+    Private Declare Function SetFocus Lib "user32" (ByVal hwnd As Long) As Long
+    Private Declare Function ShowWindow Lib "user32" (ByVal hwnd As Long, ByVal nCmdShow As Long) As Long
+#End If
+Private mdWidth As Double
+Private mdHeight As Double
+Private Const WS_THICKFRAME As Long = &H40000
+Private Const SW_SHOW As Long = 5
+
+
+
+#If VBA7 Then
+    Private Declare PtrSafe Function getFrequency Lib "kernel32" Alias "QueryPerformanceFrequency" (cyFrequency As Currency) As Long
+    Private Declare PtrSafe Function getTickCount Lib "kernel32" Alias "QueryPerformanceCounter" (cyTickCount As Currency) As Long
+#Else
+    Private Declare Function getFrequency Lib "kernel32" Alias "QueryPerformanceFrequency" (cyFrequency As Currency) As Long
+    Private Declare Function getTickCount Lib "kernel32" Alias "QueryPerformanceCounter" (cyTickCount As Currency) As Long
+#End If
+
+
+Public Sub Transition(ParamArray Elements() As Variant)
+Rem By Robert Todaer
+'__usage__
+'with aUserform
+'    .Transition .Effect(Box, "Top", Me.InsideHeight - Box.Height, 1000) _
+                , .Effect(box2, "Top", 0, 100) _
+                , .Effect(GoButton, "fontsize", 12, 1000) _
+                , .Effect(Me, "Top", 20, 2000)
+'End with
+
+    If IsArray(Elements(LBound(Elements, 1))) Then
+        Dim Temp As Variant
+        Temp = Elements(LBound(Elements, 1))
+        Elements = Temp
+    End If
+    Dim Form As MSForms.UserForm
+    Set Form = Elements(LBound(Elements, 1))("form")
+    MicroTimer True
+    Do
+        Dim Index As Integer
+        For Index = LBound(Elements, 1) To UBound(Elements, 1)
+            IncRementElement Elements(Index), MicroTimer
+        Next Index
+        Sleep 40
+        Form.Repaint
+    Loop Until AllTransitionsComplete(CVar(Elements))
+End Sub
+
+Public Function Effect(obj As Object, Property As String, Destination As Double, MilSecs As Double) As scripting.Dictionary
+    Dim Temp As New scripting.Dictionary
+    Set Temp("obj") = obj
+    Temp("property") = Property
+    Temp("startValue") = CallByName(obj, Property, VbGet)
+    Temp("destination") = Destination
+    Temp("travel") = Destination - Temp("startValue")
+    Temp("milSec") = MilSecs
+    Temp("complete") = False
+    On Error GoTo Catch:
+    Set Temp("form") = obj.Parent
+    Set Effect = Temp
+    Exit Function
+Catch:
+    Set Temp("form") = obj
+    Resume Next
+End Function
+
+Private Function MicroTimer(Optional StartTime As Boolean = False) As Double
+    Static dTime As Double
+    Dim cyTicks1 As Currency
+    Dim cyTicks2 As Currency
+    Static cyFrequency As Currency
+    MicroTimer = 0
+    If cyFrequency = 0 Then getFrequency cyFrequency
+    getTickCount cyTicks1
+    getTickCount cyTicks2
+    If cyTicks2 < cyTicks1 Then cyTicks2 = cyTicks1
+    If cyFrequency Then MicroTimer = cyTicks2 / cyFrequency
+    If StartTime = True Then
+        dTime = MicroTimer
+        MicroTimer = 0
+    Else
+        MicroTimer = (MicroTimer - dTime) * 1000
+    End If
+End Function
+
+Private Function AllTransitionsComplete(Elements As Variant) As Boolean
+    '@INCLUDE TransitionComplete
+    Dim el As Object
+    Dim Index As Integer
+    For Index = LBound(Elements, 1) To UBound(Elements, 1)
+        Set el = Elements(Index)
+        If Not TransitionComplete(el) Then
+            AllTransitionsComplete = False
+            Exit Function
+        End If
+    Next Index
+    AllTransitionsComplete = True
+End Function
+
+Private Function TransitionComplete(ByVal el As scripting.Dictionary) As Boolean
+    If Math.Round(el("destination")) = Math.Round(CallByName(el("obj"), el("property"), VbGet)) Then
+        TransitionComplete = True
+    End If
+End Function
+
+Private Function IncRementElement(ByVal el As scripting.Dictionary, CurrentTime As Double) As Boolean
+    '@INCLUDE TransitionComplete
+    '@INCLUDE easeInAndOut
+    Dim IncRementValue As Double
+    Dim CurrentValue As Double
+    If TransitionComplete(el) Then
+        Exit Function
+    End If
+    Dim o As Object
+    Dim P As String
+    Dim Value As Double
+    Dim d As Double
+    IncRementValue = easeInAndOut(CurrentTime, el("startValue"), el("travel"), el("milSec"))
+    If el("travel") < 0 Then
+        If Math.Round(IncRementValue, 4) < el("destination") Then
+            CallByName el("obj"), el("property"), VbLet, el("destination")
+        Else
+            CallByName el("obj"), el("property"), VbLet, IncRementValue
+        End If
+    Else
+        If Math.Round(IncRementValue, 4) > el("destination") Then
+            CallByName el("obj"), el("property"), VbLet, el("destination")
+        Else
+            CallByName el("obj"), el("property"), VbLet, IncRementValue
+        End If
+    End If
+End Function
+
+Private Function easeInAndOut(ByVal t As Double, ByVal b As Double, ByVal c As Double, ByVal d As Double) As Double
+    d = d / 2
+    t = t / d
+    If (t < 1) Then
+        easeInAndOut = c / 2 * t * t * t + b
+    Else
+        t = t - 2
+        easeInAndOut = c / 2 * (t * t * t + 2) + b
+    End If
+End Function
+
+
+
+Public Sub FormResize()
+'
+'from STEPHEN BULLEN's USERFORM RESIZER CLASS
+'
+' _______IN USERFORM_________________
+'
+' Dim moResizer As New CFormResizer
+' Private Sub UserForm_Activate()
+'     Set moResizer.Form = Me
+' End Sub
+' Private Sub UserForm_Resize()
+'     moResizer.FormResize
+' End Sub
+'
+' _______Instructions_______
+'
+' To specify which control(s) to resize (and how), you set the control's .Tag property at design time to
+' indicate that the control's top, left, width and height should be adjusted as the form's size changes.
+'
+' Use the letters t, l, w and h in any order (or not at all) to state that the property should change as the form
+' is resized.  Follow the property by a decimal to indicate that the control should change by a percentage of the
+' form's change.
+'
+' For example:
+'   hw           Sets the control's height and width to change with the form (e.g. if there's a single list box on the form)
+'   tl           Sets the contol's top and left to change in line with the form (e.g. to keep it in the bottom-right corner)
+'   w0.5         Sets the control's width to change by 0.5 that of the form's width change
+'   w0.5l0.5     Sets the control's width and position to change by 0.5 that of the form's width change
+
+    Dim dWidthAdj As Double, dHeightAdj As Double, sTag As String
+    Dim oCtl As MSForms.control
+    If mdWidth = 0 Then mdWidth = oForm.Width
+    If mdHeight = 0 Then mdHeight = oForm.Height
+    dWidthAdj = oForm.Width - mdWidth
+    dHeightAdj = oForm.Height - mdHeight
+    For Each oCtl In oForm.Controls
+        If TypeName(oCtl) = "ListView4" Then Stop
+        With oCtl
+            sTag = UCase(.Tag)
+            If InStr(1, sTag, "L", vbBinaryCompare) Then
+                If .Left + dWidthAdj <= 0 Then oForm.Width = mdWidth
+            End If
+            If InStr(1, sTag, "W", vbBinaryCompare) Then
+                If .Width + dWidthAdj <= 0 Then oForm.Width = mdWidth
+            End If
+            If InStr(1, sTag, "T", vbBinaryCompare) Then
+                If .Top + dHeightAdj <= 0 Then oForm.Height = mdHeight
+            End If
+            If InStr(1, sTag, "H", vbBinaryCompare) Then
+                If .Height + dHeightAdj <= 0 Then oForm.Height = mdHeight
+            End If
+        End With
+    Next
+    dWidthAdj = oForm.Width - mdWidth
+    dHeightAdj = oForm.Height - mdHeight
+    For Each oCtl In oForm.Controls
+        With oCtl
+            sTag = UCase(.Tag)
+            If InStr(1, sTag, "L", vbBinaryCompare) Then .Left = .Left + dWidthAdj * ResizeFactor(sTag, "L")
+            If InStr(1, sTag, "T", vbBinaryCompare) Then .Top = .Top + dHeightAdj * ResizeFactor(sTag, "T")
+            If InStr(1, sTag, "W", vbBinaryCompare) Then .Width = .Width + dWidthAdj * ResizeFactor(sTag, "W")
+            If InStr(1, sTag, "H", vbBinaryCompare) Then .Height = .Height + dHeightAdj * ResizeFactor(sTag, "H")
+            
+        End With
+    Next
+    mdWidth = oForm.Width
+    mdHeight = oForm.Height
+End Sub
+
+Private Function ResizeFactor(sTag As String, sChange As String)
+    Dim i As Integer, d As Double
+    i = InStr(1, sTag, sChange, vbBinaryCompare)
+    If i > 0 Then
+        d = val(Mid$(sTag, i + 1))
+        If d = 0 Then d = 1
+    End If
+    ResizeFactor = d
+End Function
+
+Public Sub Resizable()
+    Dim hWndForm As Long, iStyle As Long
+    If val(Application.version) < 9 Then
+        hWndForm = FindWindow("ThunderXFrame", oForm.Caption)
+    Else
+        hWndForm = FindWindow("ThunderDFrame", oForm.Caption)
+    End If
+    iStyle = GetWindowLong(hWndForm, GWL_STYLE)
+    iStyle = iStyle Or WS_THICKFRAME
+    SetWindowLong hWndForm, GWL_STYLE, iStyle
+    ShowWindow hWndForm, SW_SHOW
+    DrawMenuBar hWndForm
+    SetFocus hWndForm
+    mdWidth = oForm.Width
+    mdHeight = oForm.Height
+End Sub
+
+
+
+Public Function Init(Form As Object) As aUserform
+    Set oForm = Form
+    Set Init = Me
+End Function
+
+Private Sub Class_Initialize()
+'do something
+End Sub
+
+
+
+' #If VBA7 Then
+'    Private Declare PtrSafe Function WindowFromAccessibleObject Lib "oleacc" (ByVal pacc As IAccessible, phwnd As LongPtr) As Long
+'#Else
+'    Private Declare Function WindowFromAccessibleObject Lib "oleacc" (ByVal pacc As IAccessible, phwnd As Long) As Long
+'#End If
+'
+'
+'#If VBA7 Then
+'    Function GetUserformHwnd(ByVal ufmTarget As MSForms.UserForm) As LongPtr
+'#Else
+'    Function GetUserformHwnd(ByVal ufmTarget As MSForms.UserForm) As Long
+'#End If
+'    WindowFromAccessibleObject ufmTarget, GetUserformHwnd
+'End Function
+
+Private Function GetUserformHwnd(ByVal ufmTarget As MSForms.UserForm) As Long
+     IUnknown_GetWindow ufmTarget, VarPtr(GetUserformHwnd)
+End Function
+
+'Function GetUserformHwnd(Form As Object)
+'    GetUserformHwnd = FindWindow(vbNullString, Form.Caption)
+'End Function
+
+Public Sub Transparent(Optional Color As Variant)
+    '@INCLUDE MakeFormBorderless
+    Dim formhandle As Long
+    Dim bytOpacity As Byte
+    formhandle = CLng(FindWindow(vbNullString, oForm.Caption))
+    If IsMissing(Color) Then Color = vbWhite
+    bytOpacity = 100
+    SetWindowLong formhandle, GWL_EXSTYLE, GetWindowLong(formhandle, GWL_EXSTYLE) Or WS_EX_LAYERED
+    oForm.BackColor = Color
+    SetLayeredWindowAttributes formhandle, Color, bytOpacity, LWA_COLORKEY
+End Sub
+
+Public Sub Borderless()
+    Dim lngWindow As Long
+    Dim lFrmHdl As Long
+    lFrmHdl = CLng(FindWindow(vbNullString, oForm.Caption))
+    lngWindow = GetWindowLong(lFrmHdl, GWL_STYLE)
+    lngWindow = lngWindow And (Not WS_CAPTION)
+    SetWindowLong lFrmHdl, GWL_STYLE, lngWindow
+    lngWindow = GetWindowLong(lFrmHdl, GWL_EXSTYLE)
+    lngWindow = lngWindow And Not WS_EX_DLGMODALFRAME
+    SetWindowLong lFrmHdl, GWL_EXSTYLE, lngWindow
+    DrawMenuBar lFrmHdl
+End Sub
+
+Public Sub OnTop()
+    Const C_VBA6_USERFORM_CLASSNAME = "ThunderDFrame"
+    Dim Ret As Long
+    Dim formHWnd As Long
+    formHWnd = CLng(FindWindow(C_VBA6_USERFORM_CLASSNAME, oForm.Caption))
+    If formHWnd = 0 Then
+        Debug.Print Err.LastDllError
+    End If
+    Ret = SetWindowPos(formHWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE)
+    If Ret = 0 Then
+        Debug.Print Err.LastDllError
+    End If
+End Sub
+
+Sub ParentIsVBE()
+    '@INCLUDE DisplayErrorText
+    Dim GivenFormCaption As String
+        GivenFormCaption = oForm.Caption
+    #If VBA7 Then
+        Dim VBEWindowPointer As LongPtr
+        Dim UserFormWindowPointer As LongPtr
+        Dim ReturnOfSetParentAPI As LongPtr
+    #Else
+        Dim VBEWindowPointer As Long
+        Dim UserFormWindowPointer As Long
+        Dim ReturnOfSetParentAPI As Long
+    #End If
+    Dim ErrorNumber As Long
+    VBEWindowPointer = Application.VBE.MainWindow.hWnd
+    UserFormWindowPointer = FindWindow(lpClassName:=USERFORM_WINDOW_CLASS, lpWindowName:=GivenFormCaption)
+    Const ERROR_NUMBER_FOR_SETPARENT_API = 0
+    ReturnOfSetParentAPI = SetParent(hwndChild:=UserFormWindowPointer, hWndNewParent:=VBEWindowPointer)
+    If ReturnOfSetParentAPI = ERROR_NUMBER_FOR_SETPARENT_API Then
+        ErrorNumber = Err.LastDllError
+        DisplayErrorText "Error With SetParent", ErrorNumber
+    Else
+        Debug.Print GivenFormCaption & " is child of VBE Window."
+    End If
+    SetForegroundWindow UserFormWindowPointer
+    Application.VBE.MainWindow.SetFocus
+End Sub
+
+Private Sub DisplayErrorText(Context As String, ErrNum As Long)
+    Rem  Displays a standard error message box. For this
+    Rem  procedure, ErrNum should be the number returned
+    Rem  by the GetLastError API function or the value
+    Rem  of Err.LastDllError. It is NOT the number
+    Rem  returned by Err.Number.
+    '@INCLUDE GetSystemErrorMessageText
+    Dim ErrText As String
+    ErrText = GetSystemErrorMessageText(ErrNum)
+    Debug.Print Context & vbCrLf & _
+    "Error Number: " & CStr(ErrNum) & vbCrLf & _
+    "Error Text:   " & ErrText, vbOKOnly
+End Sub
+
+Private Function GetSystemErrorMessageText(ErrorNumber As Long) As String
+    Rem  This function gets the system error message text that corresponds to the error code returned by the
+    Rem  GetLastError API function or the Err.LastDllError property. It may be used ONLY for these error codes.
+    Rem  These are NOT the error numbers returned by Err.Number (for these errors, use Err.Description to get the description of the message).
+    Rem  The error number MUST be the value returned by GetLastError or Err.LastDLLError.
+    Rem
+    Rem  In general, you should use Err.LastDllError rather than GetLastError because under some circumstances the value of
+    Rem  GetLastError will be reset to 0 before the value is returned to VB. Err.LastDllError will always reliably return
+    Rem  the last error number raised in a DLL.
+    Dim ErrorText As String
+    Dim ErrorTextLength As Long
+    Dim FormatMessageResult As Long
+    Dim LanguageID As Long
+    LanguageID = 0&
+    ErrorText = String$(FORMAT_MESSAGE_TEXT_LEN, " ")
+    ErrorTextLength = Len(ErrorText)
+    FormatMessageResult = 0&
+    #If VBA7 Then
+        Dim FormatMessageAPILastArgument As LongPtr
+        FormatMessageAPILastArgument = 0
+    #Else
+        Dim FormatMessageAPILastArgument As Long
+        FormatMessageAPILastArgument = 0
+    #End If
+    FormatMessageResult = FormatMessage( _
+    dwFlags:=FORMAT_MESSAGE_FROM_SYSTEM Or FORMAT_MESSAGE_IGNORE_INSERTS, _
+    lpSource:=0&, _
+    dwMessageId:=ErrorNumber, _
+    dwLanguageId:=0&, _
+    lpBuffer:=ErrorText, _
+    nSize:=ErrorTextLength, _
+    Arguments:=FormatMessageAPILastArgument)
+    If FormatMessageResult > 0 Then
+        ErrorText = TrimToNull(ErrorText)
+        GetSystemErrorMessageText = ErrorText
+    Else
+        GetSystemErrorMessageText = "NO ERROR DESCRIPTION AVAILABLE"
+    End If
+End Function
+
+Private Function TrimToNull(TEXT As String) As String
+    Rem  Returns all the text in Text to the left of the vbNullChar
+    Dim NullCharIndex As Integer
+    NullCharIndex = InStr(1, TEXT, vbNullChar, vbTextCompare)
+    If NullCharIndex > 0 Then
+        TrimToNull = Left(TEXT, NullCharIndex - 1)
+    Else
+        TrimToNull = TEXT
+    End If
+End Function
+
+Public Sub MinimizeButton()
+    Dim cap     As String:  cap = oForm.Caption
+    Dim hWnd    As Long:    hWnd = FindWindowA(vbNullString, cap)
+    Dim exLong  As Long:    exLong = GetWindowLongA(hWnd, -16)
+    
+    If (exLong And &H20000) = 0 Then SetWindowLongA hWnd, -16, exLong Or &H20000
+End Sub
+
+Public Sub SaveOptions( _
+                Optional includeCheckbox As Boolean = True, _
+                Optional includeOptionButton As Boolean = True, _
+                Optional includeTextBox As Boolean = True, _
+                Optional includeListbox As Boolean = True, _
+                Optional includeToggleButton As Boolean = True, _
+                Optional includeCombobox As Boolean = True)
+    Dim WS As Worksheet
+    Set WS = CreateOrSetSheet(oForm.Name & "_Settings", ThisWorkbook)
+    WS.Cells.clear
+    Dim coll As New Collection
+    Dim cell As Range
+    Set cell = WS.Cells(1, 1)
+    Dim c As MSForms.control
+    For Each c In oForm.Controls
+        If TypeName(c) Like "CheckBox" Then
+            If Not includeCheckbox Then GoTo SKIP
+        ElseIf TypeName(c) Like "OptionButton" Then
+            If Not includeOptionButton Then GoTo SKIP
+        ElseIf TypeName(c) Like "TextBox" Then
+            If Not includeTextBox Then GoTo SKIP
+        ElseIf TypeName(c) = "ListBox" Then
+            If Not includeListbox Then GoTo SKIP
+        ElseIf TypeName(c) Like "ToggleButton" Then
+            If Not includeToggleButton Then GoTo SKIP
+        ElseIf TypeName(c) Like "ComboBox" Then
+            If Not includeCombobox Then GoTo SKIP
+        Else
+            GoTo SKIP
+        End If
+        cell = c.Name
+        Select Case TypeName(c)
+        Case "TextBox", "CheckBox", "OptionButton", "ToggleButton", "ComboBox"
+            cell.Offset(0, 1) = c.Value
+        Case "ListBox"
+            Set coll = aListBox.Init(c).selectedIndexes
+            If coll.Count > 0 Then
+                cell.Offset(0, 1) = aCollection.Init(coll).ToString(",")
+            Else
+                cell.Offset(0, 1) = -1
+            End If
+        End Select
+        Set cell = cell.Offset(1, 0)
+SKIP:
+    Next
+End Sub
+
+Public Sub LoadOptions(Optional ExcludeThese As Variant)
+'ExcludeThese:=array("ListBox1","TextBox1")     '<--control names
+    Dim WS As Worksheet
+    Set WS = CreateOrSetSheet(oForm.Name & "_Settings", ThisWorkbook)
+    If WS.Range("A1") = "" Then Exit Sub
+    Dim cell As Range
+    Set cell = WS.Cells(1, 1)
+    Dim c As MSForms.control
+    Dim v
+    On Error Resume Next
+    Do While cell <> ""
+        Set c = oForm.Controls(cell.TEXT)
+        If Not TypeName(c) = "Nothing " Then
+            If Not ArrayContains(cell, ExcludeThese) Then
+                Select Case TypeName(c)
+                Case "TextBox", "CheckBox", "OptionButton", "ToggleButton", "ComboBox"
+                    c.Value = cell.Offset(0, 1)
+                Case "ListBox"
+                    If InStr(1, cell.Offset(0, 1), ",") > 0 Then
+                        aListBox.Init(c).SelectItems Split(cell.Offset(0, 1), ","), True
+                    Else
+                        c.Selected(CInt(cell.Offset(0, 1))) = True
+                    End If
+                End Select
+            End If
+        End If
+        Set cell = cell.Offset(1, 0)
+    Loop
+End Sub
+
+Public Sub SavePosition()
+    SaveSetting "My Settings Folder", oForm.Name, "Left Position", oForm.Left
+    SaveSetting "My Settings Folder", oForm.Name, "Top Position", oForm.Top
+End Sub
+
+Public Sub LoadPosition()
+    If GetSetting("My Settings Folder", oForm.Name, "Left Position") = "" _
+        And GetSetting("My Settings Folder", oForm.Name, "Top Position") = "" Then
+        oForm.StartUpPosition = 1
+    Else
+        oForm.Left = GetSetting("My Settings Folder", oForm.Name, "Left Position")
+        oForm.Top = GetSetting("My Settings Folder", oForm.Name, "Top Position")
+    End If
+End Sub
+
+Public Sub ResizeToFitControls()
+    oForm.Width = 0
+    oForm.Height = 0
+    Dim ctr As MSForms.control
+    Dim myWidth:    myWidth = oForm.InsideWidth
+    Dim myHeight:   myHeight = oForm.InsideHeight
+    For Each ctr In oForm.Controls
+        If ctr.Visible = True Then
+            If ctr.Left + ctr.Width > myWidth Then myWidth = ctr.Left + ctr.Width
+            If ctr.Top + ctr.Height > myHeight Then myHeight = ctr.Top + ctr.Height
+        End If
+    Next
+    oForm.Width = myWidth + oForm.Width - oForm.InsideWidth + 50
+    oForm.Height = myHeight + oForm.Height - oForm.InsideHeight + 10
+End Sub
+
+'aListBox	Class
+
+Option Explicit
+
+Private LB As Object
+Private oForm As UserForm
+
+#If VBA7 Then
+    Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
+#Else
+    Private Declare Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
+#End If
+
+
+'Private oList As Variant
+'Public Function List() As Variant
+'    List = LB.List
+'End Function
+'Public Sub RememberList()
+'    oList = List
+'End Sub
+'Public Sub LoadList()
+'    LB.List = List
+'End Sub
+
+Public Sub HeightToEntries(ByVal NumberOfEntries As Long)
+    Const SM_CYEDGE = 46&
+    With LB
+        NumberOfEntries = IIf(NumberOfEntries > .ListCount, .ListCount, NumberOfEntries)
+        .Height = ((9.75 * NumberOfEntries) + IIf(.SpecialEffect = fmSpecialEffectFlat, 0, GetSystemMetrics(SM_CYEDGE)))
+    End With
+End Sub
+
+Public Function Init(TargetListBox As Object) As aListBox
+    Set LB = TargetListBox
+    Set oForm = LB.Parent
+    Set Init = Me
+End Function
+
+Public Sub LoadVBProjects()
+    Dim coll As New Collection
+    Dim WB As Workbook
+    For Each WB In Workbooks
+        If Len(WB.path) > 0 Then
+            If WorkbookProjectProtected(WB) = False Then
+                On Error Resume Next
+                coll.Add WB.Name, WB.Name
+                On Error GoTo 0
+            End If
+        End If
+    Next
+    Rem list addins
+    Dim vbProj As VBProject
+    Dim wbPath As String
+    For Each vbProj In Application.VBE.VBProjects
+        On Error GoTo ErrorHandler
+        wbPath = vbProj.FileName
+        If Right(wbPath, 4) = "xlam" Or Right(wbPath, 3) = "xla" Then
+            Dim wbName As String
+            wbName = Mid(wbPath, InStrRev(wbPath, "\") + 1)
+            If WorkbookProjectProtected(Workbooks(wbName)) = False Then
+                On Error Resume Next
+                coll.Add wbName, wbName
+                On Error GoTo 0
+            End If
+        End If
+SKIP:
+    Next vbProj
+
+    Dim el As Variant
+    For Each el In coll
+    LB.AddItem el
+    Next
+
+    Exit Sub
+ErrorHandler:
+    If Err.Number = 76 Then GoTo SKIP
+End Sub
+
+Public Sub SelectItems(This As Variant, Optional ByIndex As Boolean)
+    Dim i As Long
+    Select Case TypeName(This)
+    Case Is = "String", "Long", "Integer"
+        For i = 0 To LB.ListCount - 1
+            If LB.List(i) = CStr(This) Then
+                LB.Selected(i) = True
+                DoEvents
+                If LB.multiSelect = fmMultiSelectSingle Then Exit Sub
+            End If
+        Next
+    Case Else
+        Dim el As Variant
+        If ByIndex Then
+            For Each el In This
+                LB.Selected(el) = True
+            Next
+        Else
+            For Each el In This
+                For i = 0 To LB.ListCount - 1
+                    If LB.List(i) = el Then
+                        LB.Selected(i) = True
+                        DoEvents
+                    End If
+                Next
+            Next
+        End If
+    End Select
+End Sub
+
+Public Sub AddHeader(Header As MSForms.ListBox, arrHeaders)
+    Header.Width = LB.Width
+    Dim i As Long
+    Header.ColumnCount = LB.ColumnCount
+    Header.ColumnWidths = LB.ColumnWidths
+    Header.clear
+    Header.AddItem
+    If ArrayDimensions(arrHeaders) = 1 Then
+        For i = 0 To UBound(arrHeaders)
+            Header.List(0, i) = arrHeaders(i)
+        Next i
+    Else
+        For i = 1 To UBound(arrHeaders, 2)
+            Header.List(0, i - 1) = arrHeaders(1, i)
+        Next i
+    End If
+'    LB.ZOrder (1)
+'    Header.ZOrder (0)
+    Header.SpecialEffect = fmSpecialEffectFlat
+    Header.BackColor = RGB(200, 200, 200)
+    Header.Height = 15
+    Header.Width = LB.Width
+    Header.Left = LB.Left
+    Header.Top = LB.Top - Header.Height - 1
+    Header.Font.Bold = True
+    Header.Font.Name = "Comic Sans MS"
+    Header.Font.Size = LB.Font.Size
+End Sub
+
+Public Function Contains(This As String, _
+                Optional ColumnIndexZeroBased As Long = -1, _
+                Optional CaseSensitive As Boolean = False) As Boolean
+    Dim i      As Long
+    Dim N      As Long
+    Dim sTemp  As String
+    If ColumnIndexZeroBased > LB.ColumnCount - 1 Or ColumnIndexZeroBased < 0 Then
+        ColumnIndexZeroBased = -1
+    End If
+    N = LB.ListCount
+    If ColumnIndexZeroBased <> -1 Then
+        For i = N - 1 To 0 Step -1
+            If CaseSensitive = True Then
+                sTemp = LB.List(i, ColumnIndexZeroBased)
+            Else
+                This = LCase(This)
+                sTemp = LCase(LB.List(i, ColumnIndexZeroBased))
+            End If
+            If InStr(1, sTemp, This) > 0 Then
+                Contains = True
+                Exit Function
+            End If
+        Next i
+    Else
+        Dim ColumnCount As Long
+        N = LB.ListCount
+        For i = N - 1 To 0 Step -1
+            For ColumnCount = 0 To LB.ColumnCount - 1
+                If CaseSensitive = True Then
+                    sTemp = LB.List(i, ColumnCount)
+                Else
+                    This = LCase(This)
+                    sTemp = LCase(LB.List(i, ColumnCount))
+                End If
+                If InStr(1, sTemp, This) > 0 Then
+                    Contains = True
+                    Exit Function
+                End If
+            Next ColumnCount
+        Next i
+    End If
+End Function
+
+Public Sub FilterByColumn(This As String, _
+                            Optional ColumnIndexZeroBased As Long = -1, _
+                            Optional CaseSensitive As Boolean = False)
+    Dim i               As Long
+    Dim N               As Long
+    Dim sTemp           As String
+    If ColumnIndexZeroBased > LB.ColumnCount - 1 Or ColumnIndexZeroBased < 0 Then
+        ColumnIndexZeroBased = -1
+    End If
+    N = LB.ListCount
+    If ColumnIndexZeroBased <> -1 Then
+        For i = N - 1 To 0 Step -1
+            If CaseSensitive = True Then
+                sTemp = LB.List(i, ColumnIndexZeroBased)
+            Else
+                This = LCase(This)
+                sTemp = LCase(LB.List(i, ColumnIndexZeroBased))
+            End If
+            If InStr(1, sTemp, This) = 0 Then
+                LB.RemoveItem (i)
+            End If
+        Next i
+    Else
+        Dim ColumnCount As Long
+        N = LB.ListCount
+        For i = N - 1 To 0 Step -1
+            For ColumnCount = 0 To LB.ColumnCount - 1
+                If CaseSensitive = True Then
+                    sTemp = LB.List(i, ColumnCount)
+                Else
+                    This = LCase(This)
+                    sTemp = LCase(LB.List(i, ColumnCount))
+                End If
+                If InStr(1, sTemp, This) > 0 Then
+                Else
+                    If ColumnCount = LB.ColumnCount - 1 Then
+                        LB.RemoveItem (i)
+                    End If
+                End If
+            Next ColumnCount
+        Next i
+    End If
+End Sub
+
+Public Sub SortOnColumn(OnColumn As Long)
+    Dim vntData As Variant
+    Dim vntTempItem As Variant
+    Dim lngOuterIndex As Long
+    Dim lngInnerIndex As Long
+    Dim lngSubItemIndex As Long
+    vntData = LB.List
+    For lngOuterIndex = LBound(vntData, 1) To UBound(vntData, 1) - 1
+        For lngInnerIndex = lngOuterIndex + 1 To UBound(vntData, 1)
+            If vntData(lngOuterIndex, OnColumn) > vntData(lngInnerIndex, OnColumn) Then
+                For lngSubItemIndex = 0 To LB.ColumnCount - 1
+                    vntTempItem = vntData(lngOuterIndex, lngSubItemIndex)
+                    vntData(lngOuterIndex, lngSubItemIndex) = vntData(lngInnerIndex, lngSubItemIndex)
+                    vntData(lngInnerIndex, lngSubItemIndex) = vntTempItem
+                Next
+            End If
+        Next lngInnerIndex
+    Next lngOuterIndex
+    LB.clear
+    LB.List = vntData
+End Sub
+
+Public Function selectedIndexes() As Collection
+    Dim i As Long
+    Dim coll As New Collection
+    If LB.ListCount > 0 Then
+        For i = 0 To LB.ListCount - 1
+            If LB.Selected(i) Then coll.Add i
+        Next i
+    End If
+    Set selectedIndexes = coll
+End Function
+
+Public Function SelectedValues() As Collection
+    Dim i As Long
+    Dim listItem As Long
+    Dim selectedCollection As Collection
+    Set selectedCollection = New Collection
+    Dim listboxCount As Long
+
+        If LB.ListCount > 0 Then
+            For i = 0 To LB.ListCount - 1
+                If LB.Selected(i) Then
+                    selectedCollection.Add LB.List(i, LB.BoundColumn - 1)
+                End If
+            Next i
+        End If
+
+    Set SelectedValues = selectedCollection
+End Function
+
+Public Function SelectedCount() As Long
+    Dim i As Long
+    Dim listItem As Long
+    Dim selectedCollection As Collection
+    Set selectedCollection = New Collection
+    Dim listboxCount As Long
+    Dim counter As Long
+
+        If LB.ListCount > 0 Then
+            For i = 0 To LB.ListCount - 1
+                If LB.Selected(i) = True Then
+                    counter = counter + 1
+                End If
+            Next i
+        End If
+    SelectedCount = counter
+End Function
+
+Public Sub ResizeColumns(Optional ResizeControl As Boolean, Optional ResizeListbox As Boolean)
+    If LB.ListCount = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    Dim WS As Worksheet
+    Set WS = CreateOrSetSheet("ListboxColumnwidth", ThisWorkbook)
+    Dim rng As Range
+    Set rng = WS.Range("A1")
+    Set rng = rng.RESIZE(UBound(LB.List) + 1, LB.ColumnCount)
+    rng = LB.List
+    rng.Font.Name = LB.Font.Name
+    rng.Font.Size = LB.Font.Size + 2
+    rng.Columns.AutoFit
+    Dim sWidth As String
+    Dim vR() As Variant
+    Dim N As Integer
+    Dim cell As Range
+    For Each cell In rng.RESIZE(1)
+        N = N + 1
+        ReDim Preserve vR(1 To N)
+        vR(N) = cell.EntireColumn.Width
+    Next cell
+    sWidth = Join(vR, ";")
+    With LB
+        .ColumnWidths = sWidth
+        .BorderStyle = fmBorderStyleSingle
+    End With
+    Application.DisplayAlerts = False
+    WS.Delete
+    Application.DisplayAlerts = True
+    Application.ScreenUpdating = True
+    If ResizeListbox = False Then Exit Sub
+    Dim W As Long
+    Dim i As Long
+    For i = LBound(vR) To UBound(vR)
+        W = W + vR(i)
+    Next
+    DoEvents
+    LB.Width = W + 10
+End Sub
+
+Public Sub DeselectAll()
+    If LB.ListCount <> 0 Then
+        Dim i As Long
+        For i = 0 To LB.ListCount - 1
+            LB.Selected(i) = False
+        Next i
+    End If
+End Sub
+Public Sub SelectAll()
+    If LB.ListCount <> 0 Then
+        Dim i As Long
+        For i = 0 To LB.ListCount - 1
+            LB.Selected(i) = True
+        Next i
+    End If
+End Sub
+Public Sub SelectLike(This As String)
+    DeselectAll
+    If This = "" Then Exit Sub
+    Dim i As Long
+    For i = 0 To LB.ListCount - 1
+        If UCase(LB.List(i, 1)) Like "*" & UCase(This) & "*" Then
+            LB.Selected(i) = True
+        End If
+    Next i
+End Sub
+
+Public Sub SortAZ()
+    Dim j As Long
+    Dim i As Long
+    Dim Temp As Variant
+    With LB
+        For j = 0 To .ListCount - 2
+            For i = 0 To .ListCount - 2
+                If LCase(.List(i)) > LCase(.List(i + 1)) Then
+                    Temp = .List(i)
+                    .List(i) = .List(i + 1)
+                    .List(i + 1) = Temp
+                End If
+            Next i
+        Next j
+    End With
+End Sub
+
+Public Sub SortZA()
+    Dim j As Long
+    Dim i As Long
+    Dim Temp As Variant
+    With LB
+        For j = 0 To .ListCount - 2
+            For i = 0 To .ListCount - 2
+                If LCase(.List(i)) < LCase(.List(i + 1)) Then
+                    Temp = .List(i)
+                    .List(i) = .List(i + 1)
+                    .List(i + 1) = Temp
+                End If
+            Next i
+        Next j
+    End With
+End Sub
+
+'Sub ToRangeSelect(cell As Range)
+'    cell.RESIZE(lBox.ListCount, LB.ColumnCount) = CollectionsToArray2D(SelectedValues)
+'End Sub
+
+Public Sub SelectedToRange()
+   Dim rng As Range
+    If GetInputRange(rng, "Range picker", "Select range to output listbox' list") = False Then Exit Sub
+    Dim var: var = aCollection.CollectionsToArray2D(SelectedValues)
+    rng.RESIZE(UBound(var, 1), LB.ColumnCount) = var
+End Sub
+
+
+
+
+
+'------------------
+'in userform
+'------------------
+'
+'Private Type POINTAPI
+'  X As Long
+'  Y As Long
+'End Type
+'
+'#If VBA7 Then
+'    Private Type MSG
+'        hWnd As LongPtr
+'        message As Long
+'        wParam As LongPtr
+'        lParam As LongPtr
+'        time As Long
+'        pt As POINTAPI
+'    End Type
+'
+'    Private Declare PtrSafe Function GetMessage Lib "user32" Alias "GetMessageA" (lpMsg As MSG, ByVal hWnd As LongPtr, ByVal wMsgFilterMin As Long, ByVal wMsgFilterMax As Long) As Long
+'    Private Declare PtrSafe Function DispatchMessage Lib "user32" Alias "DispatchMessageA" (lpMsg As MSG) As LongPtr
+'    Private Declare PtrSafe Function TranslateMessage Lib "user32" (lpMsg As MSG) As Long
+'    Private Declare PtrSafe Function WindowFromAccessibleObject Lib "oleacc" (ByVal pacc As IAccessible, phwnd As LongPtr) As Long
+'    Private Declare PtrSafe Function IsWindow Lib "user32" (ByVal hWnd As LongPtr) As Long
+'    Private Declare PtrSafe Sub DragAcceptFiles Lib "shell32.dll" (ByVal hWnd As LongPtr, ByVal fAccept As Long)
+'    Private Declare PtrSafe Sub DragFinish Lib "shell32.dll" (ByVal HDROP As LongPtr)
+'    Private Declare PtrSafe Function DragQueryFile Lib "shell32.dll" Alias "DragQueryFileA" (ByVal HDROP As LongPtr, ByVal UINT As Long, ByVal lpStr As String, ByVal ch As Long) As Long
+'#Else
+'
+'    Private Type MSG
+'        hWnd As Long
+'        message As Long
+'        wParam As Long
+'        lParam As Long
+'        time As Long
+'        pt As POINTAPI
+'    End Type
+'
+'    Private Declare Function GetMessage Lib "user32" Alias "GetMessageA" (lpMsg As MSG, ByVal hwnd As Long, ByVal wMsgFilterMin As Long, ByVal wMsgFilterMax As Long) As Long
+'    Private Declare Function DispatchMessage Lib "user32" Alias "DispatchMessageA" (lpMsg As MSG) As Long
+'    Private Declare Function TranslateMessage Lib "user32" (lpMsg As MSG) As Long
+'    Private Declare Function WindowFromAccessibleObject Lib "oleacc" (ByVal pacc As IAccessible, phwnd As Long) As Long
+'    Private Declare Function IsWindow Lib "user32" (ByVal hwnd As Long) As Long
+'    Private Declare Sub DragAcceptFiles Lib "shell32.dll" (ByVal hwnd As Long, ByVal fAccept As Long)
+'    Private Declare Sub DragFinish Lib "shell32.dll" (ByVal HDROP As Long)
+'    Private Declare Function DragQueryFile Lib "shell32.dll" Alias "DragQueryFileA" (ByVal HDROP As Long, ByVal UINT As Long, ByVal lpStr As String, ByVal ch As Long) As Long
+'#End If
+'
+'Private Sub UserForm_Activate()
+'
+'   #If VBA7 Then
+'        Dim hWnd As LongPtr, HDROP As LongPtr
+'    #Else
+'        Dim hWnd As Long, HDROP As Long
+'    #End If
+'
+'    Const WM_DROPFILES = &H233
+'    Dim tMsg As MSG, sFileName As String * 256
+'    Dim lFilesCount As Long, i As Long
+'
+'
+'    Call WindowFromAccessibleObject(Me, hWnd)
+'    Call DragAcceptFiles(ListBox1.[_GethWnd], True)
+'
+'    Do While GetMessage(tMsg, 0, 0, 0) And IsWindow(hWnd)
+'        If tMsg.message = WM_DROPFILES Then
+'            HDROP = tMsg.wParam
+'            lFilesCount = DragQueryFile(HDROP, &HFFFFFFFF, 0, 0)
+'            If lFilesCount Then
+'                For i = 0 To lFilesCount - 1
+'                    Dim CleanName As String
+'                    CleanName = Left(sFileName, DragQueryFile(HDROP, i, sFileName, Len(sFileName)))
+'                    If isFDU(CleanName) = "F" Then
+'                        ListBox1.AddItem
+'                        ListBox1.List(ListBox1.ListCount - 1, 0) = Mid(CleanName, InStrRev(CleanName, "\") + 1)
+'                        ListBox1.List(ListBox1.ListCount - 1, 1) = CleanName
+'                    Else
+'                        Dim element As Variant
+'                        Dim out As New Collection
+'                        FilesAndOrFoldersInFolderOrZip CleanName, oLogFolders, oLogFiles, oSearchInSubfolders, out
+'                        For Each element In out
+'                            ListBox1.AddItem element
+'                            ListBox1.List(ListBox1.ListCount - 1, 0) = Mid(element, InStrRev(element, "\") + 1)
+'                            ListBox1.List(ListBox1.ListCount - 1, 1) = element
+'                        Next
+'                    End If
+'                Next i
+'            End If
+'            Call DragFinish(HDROP)
+'        End If
+'        Call TranslateMessage(tMsg)
+'        Call DispatchMessage(tMsg)
+'    Loop
+'End Sub
+
+
+'aCollection	Class
+
+Option Explicit
+Public RestrictionTypename As String
+Private myCollection As Collection
+
+Public Property Get Items() As Collection
+    Set Items = myCollection
+End Property
+
+Public Function Init(coll As Collection) As aCollection
+    Select Case RestrictionTypename
+    Case ""
+        Set myCollection = coll
+ 
+    Case Else
+        Set myCollection = New Collection
+        Dim element
+        For Each element In coll
+            Add element
+        Next
+    End Select
+    Set Init = Me
+End Function
+
+Public Property Get Item(NameOrNumber As Variant) As Variant
+  Set Item = myCollection(IndexOf(NameOrNumber))
+End Property
+
+Public Function IndexOf(ByVal Item As Variant, _
+                        Optional ByVal StartIndex As Long = 1) As Long
+    Dim collindex As Long
+    Dim collitemtype As Integer
+    Dim itemtype As Integer
+
+    itemtype = VarType(Item)
+    For collindex = StartIndex To myCollection.Count
+        collitemtype = VarType(myCollection(collindex))
+        If collitemtype = itemtype Then
+            Select Case collitemtype
+                Case 0 To 1: IndexOf = collindex: Exit Function
+                Case 2 To 8, 11, 14, 17: If myCollection(collindex) = Item Then IndexOf = collindex: Exit Function
+                Case 9: If myCollection(collindex) Is Item Then IndexOf = collindex: Exit Function
+                Case Else
+                    Debug.Print "Unsupported type for CollectionIndexOf."
+                    Debug.Assert False
+            End Select
+        End If
+    Next
+    IndexOf = 0
+End Function
+
+Public Sub RestrictionSet(ByVal Value As String)
+    RestrictionTypename = Value
+End Sub
+
+Public Sub RestrictionRemove()
+    RestrictionTypename = ""
+End Sub
+
+Public Sub Add(NewItem As Variant, Optional Description As String)
+    Err.clear
+    Select Case RestrictionTypename
+    Case ""
+        myCollection.Add NewItem
+    Case Else
+        If TypeName(NewItem) <> RestrictionTypename Then
+            MsgBox "TypeName does not match restriction: " & RestrictionTypename
+        Else
+            On Error Resume Next
+            myCollection.Add NewItem, Description
+            On Error GoTo 0
+            If Err.Number <> 0 Then Debug.Print "Item " & Description & " already contained"
+        End If
+    End Select
+End Sub
+
+Public Property Get Count() As Long
+    Count = myCollection.Count
+End Property
+
+Public Sub Remove(NameOrNumber As Variant)
+  myCollection.Remove NameOrNumber
+End Sub
+
+Public Function ToString(delim As String) As String
+    Dim element
+    Dim out As String
+    For Each element In myCollection
+        out = IIf(out = "", element, out & delim & element)
+    Next
+    ToString = out
+End Function
+
+Public Function Distinct() As aCollection
+    Dim Result As Collection: Set Result = New Collection
+    Dim eachItem As Variant
+    On Error Resume Next
+    For Each eachItem In myCollection
+        Result.Add eachItem, CStr(eachItem)
+    Next
+    On Error GoTo 0
+    Set myCollection = Result
+    Set Distinct = Me
+End Function
+
+Public Function Unique() As aCollection
+    '-----------------------------------------------------------------------------------------------------------
+    ' CollectionUnique     - Returns a collection of unique values from a full collection
+    '                                   - In : myCollection As Collection
+    '                                   - Out: Result of values, or error
+    '                                   - Last Updated: 8/7/11 by AJS
+    '-----------------------------------------------------------------------------------------------------------
+    Dim Result As New Collection
+    Dim eachItem As Variant, eachUnique As Variant
+    Dim MatchFound As Boolean
+'    On Error GoTo IsError:
+        For Each eachItem In myCollection
+            MatchFound = False
+            For Each eachUnique In Result
+                If eachItem = eachUnique Then
+                    MatchFound = True
+                    Exit For
+                End If
+            Next
+            If MatchFound = False Then Result.Add eachItem
+        Next
+        Set myCollection = Result
+        Set Unique = Me
+'    Exit Function
+'IsError:
+'    Unique = CVErr(xlErrNA)
+'    Debug.Print "Error in aCollection.Unique: " & Err.Number & ": " & Err.Description
+End Function
+
+Public Function Sort() As aCollection
+    Dim iCounter As Integer
+    Dim iCounter2 As Integer
+    Dim Temp As Variant
+    For iCounter = 1 To myCollection.Count - 1
+        For iCounter2 = iCounter + 1 To myCollection.Count
+            If myCollection(iCounter) > myCollection(iCounter2) Then
+                Temp = myCollection(iCounter2)
+                myCollection.Remove iCounter2
+                myCollection.Add Temp, , iCounter
+            End If
+        Next iCounter2
+    Next iCounter
+    Set Sort = Me
+End Function
+
+Public Function Contains( _
+                        Optional key As Variant, _
+                        Optional Item As Variant) As Boolean
+    Dim strKey As String
+    Dim var As Variant
+    If Not IsMissing(key) Then
+        strKey = CStr(key)
+        On Error Resume Next
+        Contains = True
+        var = myCollection(strKey)
+        If Err.Number = 91 Then GoTo CheckForObject
+        If Err.Number = 5 Then GoTo NotFound
+        On Error GoTo 0
+        Exit Function
+CheckForObject:
+        If IsObject(myCollection(strKey)) Then
+            Contains = True
+            On Error GoTo 0
+            Exit Function
+        End If
+NotFound:
+        Contains = False
+        On Error GoTo 0
+        Exit Function
+    ElseIf Not IsMissing(Item) Then
+        Contains = False
+        For Each var In myCollection
+            If var = Item Then
+                Contains = True
+                Exit Function
+            End If
+        Next var
+    Else
+        Contains = False
+    End If
+End Function
+
+Function ToArray() As Variant
+    Dim a() As Variant: ReDim a(0 To myCollection.Count - 1)
+    Dim i As Long
+    For i = 1 To myCollection.Count
+        a(i - 1) = myCollection.Item(i)
+    Next
+    ToArray = a
+End Function
+
+Public Function Reverse() As aCollection
+    Dim Output As New Collection
+    Dim i As Long
+    For i = myCollection.Count To 1 Step -1
+        Output.Add myCollection.Item(i)
+    Next i
+    Set myCollection = Output
+    Set Reverse = Me
+End Function
+
+'------------------------------------------------------------------------'
+'Function Mid : returns subset of a collection                       '
+'  Similar to Mid$() on strings.                                         '
+'See also: FromToColl, LeftColl, RightColl, ButLastColl                  '
+'------------------------------------------------------------------------'
+Public Function Mid(ByVal Start As Long, Optional ByVal Length As Variant) As aCollection
+    Dim Result As New Collection
+    Dim Count As Long
+    Dim c As Long
+
+    Count = myCollection.Count
+    If Start < 1 Then Error 5
+    If Start > Count Then
+        Set Result = Result
+    Else
+        If IsMissing(Length) Then
+            For c = Start To Count
+                Result.Add myCollection(c)
+            Next
+        ElseIf (Length >= (Count + 1 - Start)) Then
+            For c = Start To Count
+                Result.Add myCollection(c)
+            Next
+        ElseIf Length < 0 Then
+            Error 5
+        Else
+            For c = Start To Start + Count - 1
+                Result.Add myCollection(c)
+            Next
+        End If
+    End If
+    Set myCollection = Result
+    Set Mid = Me
+End Function
+
+'------------------------------------------------------------------------'
+'Function FromTo : returns subset of a collection                    '
+'See also: MidColl, LeftColl, RightColl                                  '
+'------------------------------------------------------------------------'
+Public Function FromTo(ByVal FromOffset As Long, ByVal ToOffset As Long) As aCollection
+    Dim Result As New Collection
+    Dim c As Long
+
+    If FromOffset > myCollection.Count Then
+        Set FromTo = Result
+        Exit Function
+    ElseIf FromOffset < 1 Then
+        Error 5
+    End If
+
+    If ToOffset > myCollection.Count Then
+        ToOffset = myCollection.Count
+    ElseIf ToOffset < 1 Then
+        Error 5
+    End If
+
+    If ToOffset < FromOffset Then
+        Set FromTo = Result
+        Exit Function
+    Else
+        For c = FromOffset To ToOffset
+            Result.Add myCollection(c)
+        Next
+    End If
+
+    Set myCollection = Result
+    Set FromTo = Me
+End Function
+
+'------------------------------------------------------------------------'
+'Function LeftColl : returns left-most elements of a collection          '
+'  Similar to Left$() on strings.                                        '
+'See also: MidColl, RightColl, ButLastColl                               '
+'------------------------------------------------------------------------'
+Public Function Left(ByVal Length As Long) As aCollection
+    Dim Result As New Collection
+    Dim c As Long
+
+    If Length > myCollection.Count Then Length = myCollection.Count
+    For c = 1 To Length
+        Result.Add myCollection(c)
+    Next
+    Set myCollection = Result
+    Set Left = Me
+End Function
+
+'------------------------------------------------------------------------'
+'Function RightColl : returns right-most elements of a collection        '
+'  Similar to Right$() on strings.                                       '
+'See also: MidColl, LeftColl                                             '
+'------------------------------------------------------------------------'
+Public Function Right(ByVal Length As Long) As aCollection
+    Dim Result As New Collection
+    Dim c As Long
+
+    If Length > myCollection.Count Then Length = myCollection.Count
+    For c = myCollection.Count - Length + 1 To myCollection.Count
+        Result.Add myCollection(c)
+    Next
+    Set myCollection = Result
+    Set Right = Me
+
+End Function
+
+Function Filter( _
+            Match As String, _
+            IgnoreCase As Boolean, _
+            Include As Boolean) As aCollection
+    Dim Result As New Collection
+    If IgnoreCase Then Match = UCase(Match)
+    Dim element
+    For Each element In myCollection
+        If IgnoreCase Then
+            If Include Then
+                If UCase(element) Like Match Then Result.Add element
+            Else
+                If Not UCase(element) Like Match Then Result.Add element
+            End If
+        Else
+            If Include Then
+                If UCase(element) Like Match Then Result.Add element
+            Else
+                If UCase(element) Like Match Then Result.Add element
+            End If
+        End If
+    Next
+    Set myCollection = Result
+    Set Filter = Me
+End Function
+
+
+Public Function CollectionsToArray2D(collections As Collection) As Variant
+    If collections.Count = 0 Then Exit Function
+    Dim ColumnCount As Long:    ColumnCount = collections.Count
+    Dim RowCount As Long:       RowCount = collections.Item(1).Count
+    Dim var As Variant
+    ReDim var(1 To RowCount, 1 To ColumnCount)
+    Dim cols As Long
+    Dim rows As Long
+    For rows = 1 To RowCount
+        For cols = 1 To collections.Count
+            var(rows, cols) = collections(cols).Item(rows)
+        Next cols
+    Next rows
+    CollectionsToArray2D = var
+End Function
+
+'Test Page	Document
+
+
