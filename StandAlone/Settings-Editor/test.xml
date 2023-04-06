@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<compactdiscs>
+  <compactdisc>
+    <artist type="individual">Frank Sinatra</artist>
+    <title numberoftracks="4">In The Wee Small Hours</title>
+   <tracks>
+      <track>In The Wee Small Hours</track>
+      <track>Mood Indigo</track>
+      <track>Glad To Be Unhappy</track>
+      <track>I Get Along Without You Very Well</track>
+   </tracks>
+    <price>$12.99</price>
+  </compactdisc>
+</compactdiscs>
