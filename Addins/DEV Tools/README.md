@@ -11,3 +11,6 @@ The vbe relevant classes are maintained in repo VBA-Library > CLASSES
 For workbook and vbe commandbars view repo VBA-Projects > Standalone > CommandBar Builder
 
 For customizable Ribbon view repo VBA-Projects > Standalone > Dynamic Ribbon
+
+VIDEO:  
+[![Settings Editor](https://img.youtube.com/vi/CijT9hZ3Z_g/0.jpg)](https://www.youtube.com/watch?v=CijT9hZ3Z_g)
