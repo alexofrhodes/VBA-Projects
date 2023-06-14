@@ -17,8 +17,8 @@ To Show Addin Projects in the VBE Window you have to Modify Your Registry
   You will now be able to see any PowerPoint add-in VBA code that is currently running
 
 
-If you modify the addin project's vbproject (modules / procedures) the changes will NOT be saved.
-You have to keep the original .PPTM, modify that after disabling the addin, overwrite the addin and reenable.
+If you modify the addin project's vbproject (modules / procedures) the changes will NOT be saved.  
+You have to keep the original .PPTM, modify that after disabling the addin, overwrite the addin and reenable.  
 This Tool offers a userform facilitate the addin editing (@TODO add xml to created .PPTM) 
 or simply export the components.
  
