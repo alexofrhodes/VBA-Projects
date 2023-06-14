@@ -1,0 +1,49 @@
+
+---------- HOW TO -------------------------
+
+in a folder call cmd and run:
+
+for only folders:
+
+    tree /a > output.txt    (or .doc)
+
+to include files:
+
+    tree /a /f > output.txt       (or .doc)
+
+-------------------------------------------
+
+Folder Structure
+
++---Addins
+|   +---Addin Manager
+|   |   \---code
+|   +---DataEntry
+|   +---DEV Tools
+|   +---File Converter
+|   +---File Manager
+|   +---Finder
+|   +---FormBuilder
+|   +---Image Control
+|   +---Immediate Windows
+|   +---Memory Knots
+|   +---Mouse Recorder
+|   +---Powerpoint Addin
+|   +---Project Manager
+|   +---Range Control
+|   +---Sessions
+|   +---Snippet Manager
+|   +---Userform Navigator
+|   \---Worksheet Navigator
++---Games
+|   \---Go-Baduk-WeiQi
+\---StandAlone
+    +---Code-Printer
+    +---Commandbars-Builder
+    +---Dynamic-Ribbon
+    +---Multilanguage-Presentations
+    +---MultiView-Calendar
+    +---oleVba-Extract-Analyze-Code
+    +---Settings-Editor
+    \---Web
+        \---vbArc-GetGoogleURLS
