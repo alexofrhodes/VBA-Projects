@@ -9,9 +9,8 @@ To Show Addin Projects in the VBE Window you have to Modify Your Registry
 	HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\PowerPoint\Options		
 	(16.0 may be a different number based on your Office version)
 
-* Find or create the key name DebugAddins and Set the DWORD value to 1
-	 ________/_________________________   
-	 Edit > New > DWORD (32b-it)) Value
+* Find or create the key name DebugAddins and Set the DWORD value to 1  
+	( Edit > New > DWORD (32b-it) Value )
 
 * Launch PowerPoint and go into your Visual Basic Editor (Alt+F11).  
   You will now be able to see any PowerPoint add-in VBA code that is currently running
