@@ -20,7 +20,9 @@ If you modify the addin project's vbproject (modules / procedures) the changes w
 You have to keep the original .PPTM, modify that after disabling the addin, overwrite the addin and reenable.  
 This Tool offers a userform facilitate the addin editing (@TODO add xml to created .PPTM) 
 or simply export the components.
- 
+  
+This project features a dynamic ribbon, just modify the ini file and refresh the ribbon!
+
 [![PowerPointAddin](https://img.youtube.com/vi/oPLJNNdK_bc/0.jpg)](https://www.youtube.com/watch?v=oPLJNNdK_bc)
 
 
