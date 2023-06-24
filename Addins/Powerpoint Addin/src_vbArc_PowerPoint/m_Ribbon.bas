@@ -60,62 +60,62 @@ Sub createRibbonIni()
     MsgBox "The ribbon ini was not found. It will be created now." & vbNewLine & _
               "It will take only a moment, do not interrupt!"
 
-    Dim IniFile As String
-        IniFile = RibbonIni
+    Dim iniFile As String
+        iniFile = RibbonIni
         
-    IniWriteKey IniFile, "T1", "Label", "vbArc"
-    IniWriteKey IniFile, "T1", "Visible", True
+    IniWriteKey iniFile, "T1", "Label", "vbArc"
+    IniWriteKey iniFile, "T1", "Visible", True
     
     'the following loop can faster
     'change to append a string variable and write it to the file
     Dim g As Long, b As Long, s As Long, m As Long
     For g = 1 To 5
-        IniWriteKey IniFile, "T1_G" & g, "Label", "Group" & g
-        IniWriteKey IniFile, "T1_G" & g, "Visible", IIf(g = 1, True, False)
+        IniWriteKey iniFile, "T1_G" & g, "Label", "Group" & g
+        IniWriteKey iniFile, "T1_G" & g, "Visible", IIf(g = 1, True, False)
         For b = 1 To 10
-            IniWriteKey IniFile, "T1_G" & g & "_B" & b, "Size", True
-            IniWriteKey IniFile, "T1_G" & g & "_B" & b, "Label", "T1_G" & g & "_B" & b
-            IniWriteKey IniFile, "T1_G" & g & "_B" & b, "ShowLabel", True
-            IniWriteKey IniFile, "T1_G" & g & "_B" & b, "Visible", IIf(g = 1, True, False)
-            IniWriteKey IniFile, "T1_G" & g & "_B" & b, "Enabled", True
-            IniWriteKey IniFile, "T1_G" & g & "_B" & b, "Description", ""
-            IniWriteKey IniFile, "T1_G" & g & "_B" & b, "ScreenTip", ""
-            IniWriteKey IniFile, "T1_G" & g & "_B" & b, "SuperTip", ""
-            IniWriteKey IniFile, "T1_G" & g & "_B" & b, "Image", "FileSaveAsPowerPointPptx"
-            IniWriteKey IniFile, "T1_G" & g & "_B" & b, "ShowImage", False
+            IniWriteKey iniFile, "T1_G" & g & "_B" & b, "Size", True
+            IniWriteKey iniFile, "T1_G" & g & "_B" & b, "Label", "T1_G" & g & "_B" & b
+            IniWriteKey iniFile, "T1_G" & g & "_B" & b, "ShowLabel", True
+            IniWriteKey iniFile, "T1_G" & g & "_B" & b, "Visible", IIf(g = 1, True, False)
+            IniWriteKey iniFile, "T1_G" & g & "_B" & b, "Enabled", True
+            IniWriteKey iniFile, "T1_G" & g & "_B" & b, "Description", ""
+            IniWriteKey iniFile, "T1_G" & g & "_B" & b, "ScreenTip", ""
+            IniWriteKey iniFile, "T1_G" & g & "_B" & b, "SuperTip", ""
+            IniWriteKey iniFile, "T1_G" & g & "_B" & b, "Image", "FileSaveAsPowerPointPptx"
+            IniWriteKey iniFile, "T1_G" & g & "_B" & b, "ShowImage", False
         Next
         
         For s = 1 To 9
-            IniWriteKey IniFile, "T1_G" & g & "_S" & s, "Size", False
-            IniWriteKey IniFile, "T1_G" & g & "_S" & s, "Visible", IIf(g = 1, True, False)
+            IniWriteKey iniFile, "T1_G" & g & "_S" & s, "Size", False
+            IniWriteKey iniFile, "T1_G" & g & "_S" & s, "Visible", IIf(g = 1, True, False)
             
             For b = 1 To 10
-                IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_B", "Label", "T1_G" & g & "_S" & s & "_B"
-                IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_B", "ShowLabel", True
-                IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_B", "Enabled", True
-                IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_B", "Description", ""
-                IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_B", "ScreenTip", ""
-                IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_B", "SuperTip", ""
-                IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_B", "Image", "FileSaveAsPowerPointPptx"
-                IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_B", "ShowImage", False
+                IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_B", "Label", "T1_G" & g & "_S" & s & "_B"
+                IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_B", "ShowLabel", True
+                IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_B", "Enabled", True
+                IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_B", "Description", ""
+                IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_B", "ScreenTip", ""
+                IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_B", "SuperTip", ""
+                IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_B", "Image", "FileSaveAsPowerPointPptx"
+                IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_B", "ShowImage", False
 
                 For m = 1 To 10
-                    IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_M" & m, "Label", "T1_G" & g & "_S" & s & "_M" & m
-                    IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_M" & m, "ShowLabel", True
-                    IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_M" & m, "Visible", True
-                    IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_M" & m, "Enabled", True
-                    IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_M" & m, "Description", ""
-                    IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_M" & m, "ScreenTip", ""
-                    IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_M" & m, "SuperTip", ""
-                    IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_M" & m, "Image", "FileSaveAsPowerPointPptx"
-                    IniWriteKey IniFile, "T1_G" & g & "_S" & s & "_M" & m, "ShowImage", False
+                    IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_M" & m, "Label", "T1_G" & g & "_S" & s & "_M" & m
+                    IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_M" & m, "ShowLabel", True
+                    IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_M" & m, "Visible", True
+                    IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_M" & m, "Enabled", True
+                    IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_M" & m, "Description", ""
+                    IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_M" & m, "ScreenTip", ""
+                    IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_M" & m, "SuperTip", ""
+                    IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_M" & m, "Image", "FileSaveAsPowerPointPptx"
+                    IniWriteKey iniFile, "T1_G" & g & "_S" & s & "_M" & m, "ShowImage", False
                 Next
             Next
         Next
     Next
     
     Dim content As Variant
-        content = Split(TxtRead(IniFile), vbLf)
+        content = Split(TxtRead(iniFile), vbLf)
     Dim output As String
     Dim element As String
     Dim i As Long
@@ -124,11 +124,11 @@ Sub createRibbonIni()
         If Left(element, 1) = "[" Then
             output = output & element
         Else
-            output = output & vbTab & element
+            output = output & vbTab & element   'REPLACE(ELEMENT,"=",VBTAB & "=" & VBTAB)
         End If
         If i < UBound(content) Then output = output & vbLf
     Next
-    TxtOverwrite IniFile, output
+    TxtOverwrite iniFile, output
     Debug.Print "Ini created"
 End Sub
 
@@ -144,19 +144,26 @@ Function Ribbon_GetValue(id, TargetProperty)
     Ribbon_GetValue = IniReadKey(RibbonIni, id, TargetProperty)
 End Function
 
-
+Sub OpenRibbonINI()
+    FollowLink RibbonIni
+End Sub
 
 Sub Ribbon_ButtonClick(control As IRibbonControl)
-    Select Case Ribbon_GetValue(control.id, "Label")
-    Case "Reload Ribbon"
-        Ribbon_RefreshRibbon
-    Case "Dev"
-        uDEV.Show
-    Case "IO"
-        uVBProjects.Show
-    Case "NewName"
-        MsgBox "hello world"
-    End Select
+    Dim ControlLabel As String
+    ControlLabel = Ribbon_GetValue(control.id, "Label")
+    If ProcedureExists(ThisProject, ControlLabel) Then
+        Application.Run (ControlLabel)
+    Else
+        Select Case control.id
+            Case "T1_G1_B1": uIniEditor.Show vbModeless
+            Case "T1_G1_B2": Ribbon_RefreshRibbon
+            Case "T1_G1_B3": uAuthor.Show
+            Case Else
+                Select Case ControlLabel
+                    Case "IO": uVBProjects.Show
+                End Select
+        End Select
+    End If
 End Sub
 
 Sub Ribbon_CheckboxClick(control As IRibbonControl, pressed As Boolean)

@@ -1,7 +1,6 @@
 Attribute VB_Name = "m_INI"
 Option Explicit
 
-
 '____API METHOD______
 
 #If VBA7 Then
@@ -14,40 +13,7 @@ Option Explicit
     public declare Function GetPrivateProfileSection Lib "kernel32" Alias "GetPrivateProfileSectionA" (ByVal lpAppName As String, ByVal lpReturnedString As String, ByVal nSize As Long, ByVal lpFileName As String) As Long
 #End If
 
-Sub TestINI()
-
-    Dim FilePath As String: FilePath = ThisProjectPath & "config.INI"
-    
-    IniWriteKey FilePath, "Settings1", "KeyName1", "Value1"
-    IniWriteKey FilePath, "Settings1", "KeyName2", "2"
-    IniWriteKey FilePath, "Settings1", "KeyName3", "3"     'SEE THE FILE
-    Stop
-    IniWriteKey FilePath, "Settings1", "KeyName1", "Updated Value" 'SEE THE FILE
-    Stop
-    
-    Dim i  As Long
-    For i = 1 To 5
-        IniWriteKey FilePath, "Settings" & i, "KeyName" & i, i
-    Next
-    'SEE THE FILE
-    Stop
-    dp String(20, "~") & " Printing sections of " & FilePath
-    dp IniSections(FilePath)
-    Stop
-    dp String(20, "~") & " Printing keys of section Settings1"
-    dp IniSectionKeys(FilePath, "Settings1")
-    Stop
-    dp String(20, "~") & " Printing all lines of section Settings1"
-    dp IniReadSection(FilePath, "Settings1")
-    Stop
-    dp String(20, "~") & " Printing value of Section: Settings1, Keyname: Keyname1"
-    dp IniReadKey(FilePath, "Settings1", "KeyName1")
-    
-End Sub
-
-
 Public Function IniReadKey(IniFileName As String, ByVal Sect As String, ByVal Keyname As String) As String
-'@INCLUDE DECLARATION GetPrivateProfileString
     Dim Worked As Long
     Dim RetStr As String * 128
     Dim StrSize As Long
@@ -71,9 +37,6 @@ Public Function IniReadKey(IniFileName As String, ByVal Sect As String, ByVal Ke
 End Function
 
 Public Sub IniWriteKey(IniFileName As String, ByVal Sect As String, ByVal Keyname As String, ByVal Wstr As String)
-'@INCLUDE DECLARATION WritePrivateProfileString
-
-'This macro also creates the file & section & key if they doesn't exist
 
     Dim Worked As Long
     Dim iNoOfCharInIni As Long
@@ -90,51 +53,31 @@ Public Sub IniWriteKey(IniFileName As String, ByVal Sect As String, ByVal Keynam
         End If
     End If
     
-'---- result for writing "settings1", "string1", "newval" ----
-'[settings1]
-'    string1 = newval
-'    string2 = bbb
-'[settings2]
-'    string1 = ccc
-'    string2 = ddd
+    'This macro also creates the file & section & key if they doesn't exist
+    'or overwrites the value for existing key
+    
+'    Example
+'        IniWriteKey iniFile, "settings1", "string1", "newval"
+'    Result
+'        [settings1]
+'            string1 = newval
 
-'---- result for writing "settings1", "string3", "newkey" ----
-'[settings1]
-'    string1 = newval
-'    string2 = bbb
-'    string3 = newkey
-'[settings2]
-'    string1 = ccc
-'    string2 = ddd
 End Sub
 
-Public Function IniSections(IniFile As String) As Variant
-'@INCLUDE PROCEDURE TxtRead
+Public Function IniSections(iniFile As String) As Variant
+    IniSections = Split(Replace(Replace(Join(Filter(Split(Replace(TxtRead(iniFile), vbLf, vbNewLine), vbNewLine), "[", True), vbNewLine), "[", ""), "]", ""), vbNewLine)
 
-'---sample file content---
-'[settings1]
-'    string1 = aaa
-'    string2 = bbb
-'[settings2]
-'    string1 = ccc
-'    string2 = ddd
-'-------------------------
-    IniSections = Split(Replace(Replace(Join(Filter(Split(Replace(TxtRead(IniFile), vbLf, vbNewLine), vbNewLine), "[", True), vbNewLine), "[", ""), "]", ""), vbNewLine)
-'------Result------------------
-'Array("settings1","settings2")
-End Function
-
-Public Function IniReadSection(FileName As String, Section As String) As Variant
-'@INCLUDE DECLARATION GetPrivateProfileSection
-'@INCLUDE PROCEDURE ArrayRemoveEmptyElements
-    Dim RetVal As String * 255
-    Dim v As Long:      v = GetPrivateProfileSection(Section, RetVal, 255, FileName)
-    Dim s As String:    s = Left(RetVal, v + 0)
-    Dim VL As Variant:  VL = Split(s, Chr$(0))
-    VL = ArrayRemoveEmptyElements(VL)
-    IniReadSection = VL
-'-----result for reading "settings1"-----
-'Array("string1=aaa","string2=bbb")
+'    file content
+'        [settings1]
+'            string1 = aaa
+'            string2 = bbb
+'        [settings2]
+'            string1 = ccc
+'            string2 = ddd
+'    Example
+'        var = IniSections(iniFile)
+'    Result
+'        Array("settings1","settings2")
 End Function
 
 Public Function IniSectionKeys(FileName As String, Section As String) As Variant
@@ -147,8 +90,24 @@ Public Function IniSectionKeys(FileName As String, Section As String) As Variant
         out(i) = Trim(Split(arr(i), "=")(0))
     Next i
     IniSectionKeys = out
-'-----result for reading "settings1"-----
-'string1
-'string2
+    
+'    Example
+'        var = IniSectionKeys IniFile, "Settings1"
+'    Result
+'        Array("string1", "string2"
+End Function
+
+Public Function IniReadSection(FileName As String, Section As String) As Variant
+    Dim RetVal As String * 255
+    Dim v As Long:      v = GetPrivateProfileSection(Section, RetVal, 255, FileName)
+    Dim s As String:    s = Left(RetVal, v + 0)
+    Dim VL As Variant:  VL = Split(s, Chr$(0))
+    VL = ArrayRemoveEmptyElements(VL)
+    IniReadSection = VL
+    
+'    Example
+'        var = IniReadSection IniFile, "settings1"
+'    Result
+'        Array("string1=aaa","string2=bbb")
 End Function
 

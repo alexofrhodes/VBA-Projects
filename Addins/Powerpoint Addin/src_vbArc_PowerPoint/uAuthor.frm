@@ -1,33 +1,21 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} uDEV 
-   Caption         =   "vbArc ~ Anastasiou Alex"
-   ClientHeight    =   7308
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} uAuthor 
+   Caption         =   "UserForm1"
+   ClientHeight    =   10068
    ClientLeft      =   108
    ClientTop       =   456
-   ClientWidth     =   10356
-   OleObjectBlob   =   "uDEV.frx":0000
-   ShowModal       =   0   'False
-   StartUpPosition =   1  'CenterOwner
+   ClientWidth     =   19380
+   OleObjectBlob   =   "uAuthor.frx":0000
+   StartUpPosition =   2  'CenterScreen
 End
-Attribute VB_Name = "uDEV"
+Attribute VB_Name = "uAuthor"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
-
-Option Explicit
-
-Const AUTHOR_EMAIL = "anastasioualex@gmail.com"
-
-#If VBA7 Then
-    Private Declare PtrSafe Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwFlags As Long, ByVal dwReserved As Long) As Long
-#Else
-    Private Declare Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwflags As Long, ByVal dwReserved As Long) As Long
-#End If
-
 '* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-'* Module     : uDEV
+'* Module     : uAuthor
 '* Created    : 06-10-2022 10:34
 '* Author     : Anastasiou Alex
 '* Contacts   : AnastasiouAlex@gmail.com
@@ -35,16 +23,37 @@ Const AUTHOR_EMAIL = "anastasioualex@gmail.com"
 '* GITHUB     : https://github.com/AlexOfRhodes
 '* YOUTUBE    : https://www.youtube.com/channel/UC5QH3fn1zjx0aUjRER_rOjg
 '* VK         : https://vk.com/video/playlist/735281600_1
+'* DONATE     : http://paypal.me/alexofrhodes
 '* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Rem MakeFormTransparent me
-Rem MakeFormBorderless Me
-Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
-Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
-Private Declare PtrSafe Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
-Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
-Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
-Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+Option Explicit
+
+Const AUTHOR_EMAIL = "anastasioualex@gmail.com"
+
+#If VBA7 Then
+    Private Declare PtrSafe Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwFlags As Long, ByVal dwReserved As Long) As Long
+    Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
+    
+    Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+    Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare PtrSafe Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
+    Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+#Else
+    Private Declare Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwflags As Long, ByVal dwReserved As Long) As Long
+    Private Declare Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
+    
+    
+    Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+    Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+    Private Declare Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
+    Private Declare Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+#End If
+
+
 Private Const GWL_STYLE As Long = (-16)
 Private Const GWL_EXSTYLE As Long = (-20)
 Private Const WS_CAPTION As Long = &HC00000
@@ -87,12 +96,12 @@ Private Sub LVK_Click()
     FollowLink ("https://vk.com/video/playlist/735281600_1")
 End Sub
 
-Private Sub Label2_Click()
+Private Sub LExit_Click()
     Unload Me
 End Sub
 
-Private Sub LFaceBook_Click()
-    MsgBox "No longer exists."
+Private Sub LBLOG_Click()
+    FollowLink ("https://alexofrhodes.github.io")
 End Sub
 
 Private Sub LGitHub_Click()
@@ -108,13 +117,13 @@ Private Sub LBuyMeACoffee_Click()
 End Sub
 
 Private Function CLIP(Optional StoreText As String) As String
-    Dim x As Variant
-    x = StoreText
+    Dim X As Variant
+    X = StoreText
     With CreateObject("htmlfile")
         With .parentWindow.clipboardData
             Select Case True
             Case Len(StoreText)
-                .SetData "text", x
+                .SetData "text", X
             Case Else
                 CLIP = .GetData("text")
             End Select
@@ -170,10 +179,22 @@ Sub MailDev()
     Set OutApp = Nothing
 End Sub
 
-
-
 Private Sub UserForm_Initialize()
-    MakeFormBorderless Me
-    MakeFormTransparent Me, vbBlack
+
+    Dim screenWidth As Long
+    Dim screenHeight As Long
+    
+    screenWidth = GetSystemMetrics(0)  ' SM_CXSCREEN
+    screenHeight = GetSystemMetrics(1)  ' SM_CYSCREEN
+    
+    Me.Width = screenWidth
+    Me.Height = screenHeight
+    
+    Frame1.Left = Me.Width / 2 - Image1.Width
+    Frame1.Top = Me.Height / 2 - Image1.Height
+        MakeFormBorderless Me
+'    MakeFormTransparent Me, vbYellow
 End Sub
+
+
 

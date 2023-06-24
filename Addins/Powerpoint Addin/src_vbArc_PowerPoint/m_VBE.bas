@@ -34,16 +34,14 @@ Sub ListVBProjects(lbox As ListBox)
     Dim ProjectFileName As String
     For Each Project In Application.VBE.VBProjects
         ProjectFileName = Project.FileName
-'        If ProjectFileName <> ThisProject.FileName Then
-            If Project.Protection = 0 Then
-                If InStr(1, ProjectFileName, ".ppa") > 0 Then
-                    If AddIns(ProjectFileName).Loaded = 0 Then GoTo ResumeNext
-                End If
-                lbox.AddItem
-                lbox.List(UBound(lbox.List), 0) = Mid(ProjectFileName, InStrRev(ProjectFileName, "\") + 1)
-                lbox.List(UBound(lbox.List), 1) = ProjectFileName
+        If Project.Protection = 0 Then
+            If InStr(1, ProjectFileName, ".ppa") > 0 Then
+                If AddIns(ProjectFileName).Loaded = 0 Then GoTo ResumeNext
             End If
-'        End If
+            lbox.AddItem
+            lbox.List(UBound(lbox.List), 0) = Mid(ProjectFileName, InStrRev(ProjectFileName, "\") + 1)
+            lbox.List(UBound(lbox.List), 1) = ProjectFileName
+        End If
 ResumeNext:
     Next
 End Sub
@@ -63,7 +61,7 @@ Sub EditAddin(Project As vbProject)
     Dim AddinName        As String: AddinName = Mid(Ad.FullName, InStrRev(Ad.FullName, "\") + 1)
     Dim extension        As String: extension = Right(AddinName, InStrRev(AddinName, "."))
     Dim PresentationPath As String: PresentationPath = Ad.Path & "\" & Replace(AddinName, extension, ".pptm")
-    
+    Dim ProjectName      As String: ProjectName = Project.Name
     Dim Pres As Presentation
     If FileExists(PresentationPath) Then
         Ad.Loaded = False
@@ -72,8 +70,9 @@ Sub EditAddin(Project As vbProject)
     Else
         ExportModules Project
         Set Pres = Presentations.Add
+        Pres.vbProject.Name = ProjectName
         Pres.SaveAs PresentationPath, ppSaveAsOpenXMLPresentationMacroEnabled
-        ImportModules Pres.vbProject
+        ImportModules Pres.vbProject, False
         Pres.SaveAs PresentationPath, ppSaveAsOpenXMLPresentationMacroEnabled
         Ad.Loaded = False
         Ad.Registered = msoFalse
@@ -156,10 +155,11 @@ Public Sub ExportModules(Project As vbProject)
             cmpComponent.Export szExportPath & szFileName
         End If
     Next cmpComponent
+    
 '    MsgBox "Export is ready"
 End Sub
 
-Public Sub ImportModules(Project As vbProject)
+Public Sub ImportModules(Project As vbProject, alert As Boolean)
     'WARNING!
     'DELETES OLD MODULES AND USERFORMS BEFORE IMPORTING NEW
 
@@ -239,5 +239,42 @@ Function DeleteVBAModulesAndUserForms(Project As vbProject)
     Next vbComp
 End Function
 
-'----------------------------------------------
+
+Function ProceduresOfProject(TargetProject As vbProject) As Collection
+    Dim Module As VBComponent
+    Dim ProcKind As VBIDE.vbext_ProcKind
+    Dim lineNum As Long
+    Dim coll As New Collection
+    Dim ProcedureName As String
+    For Each Module In TargetProject.VBComponents
+        If Module.Type = vbext_ct_StdModule Then
+            With Module.CodeModule
+                lineNum = .CountOfDeclarationLines + 1
+                Do Until lineNum >= .CountOfLines
+                    ProcedureName = .ProcOfLine(lineNum, ProcKind)
+                    ' _ is used in events. Events may have the same name in different components
+                    If InStr(1, ProcedureName, "_") = 0 Then
+                        coll.Add ProcedureName
+                    End If
+                    lineNum = .ProcStartLine(ProcedureName, ProcKind) + .ProcCountLines(ProcedureName, ProcKind) + 1
+                Loop
+            End With
+        End If
+    Next Module
+    Set ProceduresOfProject = coll
+End Function
+
+Function ProcedureExists( _
+                        TargetProject As vbProject, _
+                        ProcedureName As Variant) As Boolean
+    Dim Procedures As Collection
+    Set Procedures = ProceduresOfProject(TargetProject)
+    Dim Procedure As Variant
+    For Each Procedure In Procedures
+        If UCase(CStr(Procedure)) = UCase(ProcedureName) Then
+            ProcedureExists = True
+            Exit Function
+        End If
+    Next
+End Function
 

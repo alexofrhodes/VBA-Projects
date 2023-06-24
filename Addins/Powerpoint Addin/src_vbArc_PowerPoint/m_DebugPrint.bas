@@ -185,17 +185,17 @@ Private Sub DebugPrintHairetu(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional
 End Sub
 
 Function ReptText(ByVal Text As String, ByVal count As Integer) As String
-    Dim result As String
-    result = ""
+    Dim Result As String
+    Result = ""
     
     If count > 0 Then
         Dim i As Integer
         For i = 1 To count
-            result = result & Text
+            Result = Result & Text
         Next i
     End If
     
-    ReptText = result
+    ReptText = Result
 End Function
 
 Function MaxValue(ParamArray values() As Variant) As Variant
@@ -339,5 +339,7 @@ Function LargestLength(MyObj) As Long
     Case Else
     End Select
 End Function
+
+
 
 

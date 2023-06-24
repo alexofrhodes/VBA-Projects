@@ -1,16 +1,46 @@
 Attribute VB_Name = "m_General"
 Option Explicit
 
+Enum MyColors
+    FormBackgroundDarkGray = 4208182            ' BACKGROUND DARK GRAY
+    FormSidebarMediumGray = 5457992             ' TILE COLORS LIGHTER GRAY
+    FormSidebarMouseOverLightGray = &H808080    ' lighter light gray
+    FormSelectedGreen = 8435998                 ' green tile
+End Enum
 
-Function CountFilesInFolder(strDir As String, Optional strType As String)
-    Dim file As Variant, i As Integer
-    If Right(strDir, 1) <> "\" Then strDir = strDir & "\"
-    file = Dir(strDir & strType)
-    While (file <> "")
-        i = i + 1
-        file = Dir
-    Wend
-    CountFilesInFolder = i
+Sub TestFolderContents()
+    Dim out As New Collection
+    Set out = FolderContents("C:\Users\acer\Documents\GitHub\AutoHotkey\File Ops", False, True, True, out)
+    dp out
+End Sub
+
+Function FolderContents( _
+            FolderOrZipFilePath As Variant, _
+            LogFolders As Boolean, _
+            LogFiles As Boolean, _
+            ScanInSubfolders As Boolean, _
+            out As Collection, _
+            Optional Filter As String = "*") As Collection
+    
+    Dim oShell As Object
+    Set oShell = CreateObject("Shell.Application")
+    Dim oFi As Object
+    For Each oFi In oShell.Namespace(FolderOrZipFilePath).Items
+        If oFi.IsFolder Then
+            If LogFolders Then
+                out.Add oFi.Path & "\"
+            End If
+            If ScanInSubfolders Then FolderContents oFi.Path, LogFolders, LogFiles, ScanInSubfolders, out, Filter
+        Else
+            If LogFiles Then
+                If UCase(oFi.Name) Like UCase(Filter) Then
+                    out.Add oFi.Path
+                End If
+            End If
+        End If
+    Next
+    Set FolderContents = out
+    Set oShell = Nothing
 End Function
 
 Function getFileName(FilePath As String)
@@ -94,20 +124,19 @@ Public Function ArrayRemoveEmptyElements(varArray As Variant) As Variant
 End Function
 
 Function Transpose2DArray(inputArray As Variant) As Variant
-    Dim x As Long, yUbound As Long
-    Dim y As Long, xUbound As Long
+    Dim X As Long, yUbound As Long
+    Dim Y As Long, xUbound As Long
     Dim TempArray As Variant
     xUbound = UBound(inputArray, 2)
     yUbound = UBound(inputArray, 1)
     ReDim TempArray(1 To xUbound, 1 To yUbound)
-    For x = 1 To xUbound
-        For y = 1 To yUbound
-            TempArray(x, y) = inputArray(y, x)
-        Next y
-    Next x
+    For X = 1 To xUbound
+        For Y = 1 To yUbound
+            TempArray(X, Y) = inputArray(Y, X)
+        Next Y
+    Next X
     Transpose2DArray = TempArray
 End Function
-
 
 Sub FoldersCreate(FolderPath As String)
     On Error Resume Next

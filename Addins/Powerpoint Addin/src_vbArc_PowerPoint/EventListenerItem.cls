@@ -180,17 +180,17 @@ Private Sub Form_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     Emitter.EmitEvent this.control, DoubleClick, ToCollection("Cancel", Cancel)
 End Sub
 
-Private Sub Form_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub Form_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     CheckIfHoveredControl
-    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
-Private Sub Form_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Emitter.EmitEvent this.control, MouseDown, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+Private Sub Form_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Emitter.EmitEvent this.control, MouseDown, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
-Private Sub Form_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Emitter.EmitEvent this.control, MouseUp, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+Private Sub Form_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Emitter.EmitEvent this.control, MouseUp, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
 '------------------------------------------------------------------------
@@ -204,18 +204,18 @@ Private Sub CommandButton_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     Emitter.EmitEvent this.control, DoubleClick, ToCollection("Cancel", Cancel)
 End Sub
 
-Private Sub CommandButton_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub CommandButton_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     CheckIfHoveredControl
-    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
-Private Sub CommandButton_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub CommandButton_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     CheckIfFocusedControl
-    Emitter.EmitEvent this.control, MouseUp, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+    Emitter.EmitEvent this.control, MouseUp, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
-Private Sub CommandButton_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Emitter.EmitEvent this.control, MouseDown, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+Private Sub CommandButton_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Emitter.EmitEvent this.control, MouseDown, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
 Private Sub CommandButton_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
@@ -238,17 +238,17 @@ Private Sub Label_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     Emitter.EmitEvent this.control, DoubleClick, ToCollection("Cancel", Cancel)
 End Sub
 
-Private Sub Label_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub Label_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     CheckIfHoveredControl
-    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
-Private Sub Label_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Emitter.EmitEvent this.control, MouseDown, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+Private Sub Label_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Emitter.EmitEvent this.control, MouseDown, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
-Private Sub Label_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Emitter.EmitEvent this.control, MouseUp, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+Private Sub Label_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Emitter.EmitEvent this.control, MouseUp, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
 '------------------------------------------------------------------------
@@ -262,18 +262,18 @@ Private Sub Frame_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     Emitter.EmitEvent this.control, DoubleClick, ToCollection("Cancel", Cancel)
 End Sub
 
-Private Sub Frame_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub Frame_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     CheckIfHoveredControl
-    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
-Private Sub Frame_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub Frame_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     CheckIfFocusedControl        'FRAME DOESN'T TAKE FOCUS BUT ACTIVE CONTROL IN FRAME DOES
     Emitter.EmitEvent this.control, MouseDown
 End Sub
 
-Private Sub Frame_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Emitter.EmitEvent this.control, MouseUp, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+Private Sub Frame_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Emitter.EmitEvent this.control, MouseUp, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
 '------------------------------------------------------------------------
@@ -287,18 +287,18 @@ Private Sub Textbox_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     Emitter.EmitEvent this.control, DoubleClick, ToCollection("Cancel", Cancel)
 End Sub
 
-Private Sub Textbox_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub Textbox_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     CheckIfHoveredControl
-    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
-Private Sub Textbox_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub Textbox_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     CheckIfFocusedControl
-    Emitter.EmitEvent this.control, MouseUp, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+    Emitter.EmitEvent this.control, MouseUp, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
-Private Sub Textbox_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Emitter.EmitEvent this.control, MouseDown, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+Private Sub Textbox_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Emitter.EmitEvent this.control, MouseDown, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 
 Private Sub Textbox_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
@@ -321,8 +321,8 @@ Private Sub ComboBox_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     Emitter.EmitEvent this.control, DoubleClick, ToCollection("Cancel", Cancel)
 End Sub
 
-Private Sub ComboBox_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+Private Sub ComboBox_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
     CheckIfHoveredControl
-    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", x, "Y", y)
+    Emitter.EmitEvent this.control, MouseMove, ToCollection("Button", Button, "Shift", Shift, "X", X, "Y", Y)
 End Sub
 

@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} uVBProjects 
    Caption         =   "Export code - Edit Addins"
-   ClientHeight    =   3228
+   ClientHeight    =   3708
    ClientLeft      =   108
    ClientTop       =   456
-   ClientWidth     =   6048
+   ClientWidth     =   6684
    OleObjectBlob   =   "uVBProjects.frx":0000
    ShowModal       =   0   'False
    StartUpPosition =   1  'CenterOwner
@@ -28,11 +28,11 @@ Private Sub UserForm_Initialize()
 End Sub
 
 Private Sub Emitter_LabelMouseOut(Label As MSForms.Label)
-    If Label.BackColor <> &H80B91E Then Label.BackColor = &H534848
+    If Label.BackColor <> MyColors.FormBackgroundDarkGray Then Label.BackColor = MyColors.FormBackgroundDarkGray '&H80B91E'&H534848
 End Sub
 
 Private Sub Emitter_LabelMouseOver(Label As MSForms.Label)
-    If Label.BackColor <> &H80B91E Then Label.BackColor = &H808080
+    If Label.BackColor <> MyColors.FormSelectedGreen Then Label.BackColor = MyColors.FormSelectedGreen  '&H80B91E '&H808080
 End Sub
 
 Private Sub bEdit_Click()
@@ -62,11 +62,11 @@ Private Sub bExport_Click()
 End Sub
 
 Private Sub bImport_Click()
-    ImportModules Project
+    ImportModules Project, True
 End Sub
 
-Private Sub Image1_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    uDEV.Show
+Private Sub Image1_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    uAuthor.Show
 End Sub
 
 Private Sub ListBox1_Click()
