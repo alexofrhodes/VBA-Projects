@@ -29,4 +29,6 @@ This project features a dynamic ribbon, just modify the ini file and refresh the
 
 [![PowerPointAddin](https://img.youtube.com/vi/oPLJNNdK_bc/0.jpg)](https://www.youtube.com/watch?v=oPLJNNdK_bc)
 
+Update video:  
+[![PowerPointAddin](https://img.youtube.com/vi/7dywk5Xm4Mo/0.jpg)](https://www.youtube.com/watch?v=7dywk5Xm4Mo)
 
