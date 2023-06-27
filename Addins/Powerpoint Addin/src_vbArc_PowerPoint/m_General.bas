@@ -49,7 +49,9 @@ Function getFileName(FilePath As String)
 End Function
 
 Function getFileExtension(FilePath As String)
-    getFileExtension = Mid(FilePath, InStrRev(FilePath, "."))
+    Dim pos As Long: pos = InStrRev(FilePath, ".")
+    If pos = 0 Then End
+    getFileExtension = Mid(FilePath, pos)
 End Function
 
 Function getFileFolder(FilePath As String)
@@ -64,13 +66,14 @@ Sub FollowLink(FolderPath As String)
     Set oShell = CreateObject("Shell.Application")
     For Each Wnd In oShell.Windows
         If Wnd.Name = "File Explorer" Then
-            If Wnd.document.Folder.Self.Path = FolderPath Then Exit Sub
+            If Wnd.document.folder.Self.Path = FolderPath Then Exit Sub
         End If
     Next Wnd
     ActivePresentation.FollowHyperlink Address:=FolderPath, NewWindow:=True
 End Sub
 
 Function TxtRead(sPath As Variant) As String
+    If sPath = "" Or InStr(1, sPath, ":\") = 0 Then Exit Function
     Dim sTXT As String
     If Dir(sPath) = "" Then
         Debug.Print "File was not found."
@@ -108,6 +111,7 @@ ERR_HANDLER:
 End Sub
 
 Public Function ArrayRemoveEmptyElements(varArray As Variant) As Variant
+    If UBound(varArray) = -1 Then ArrayRemoveEmptyElements = varArray: Exit Function
     Dim TempArray() As Variant
     Dim OldIndex As Integer
     Dim NewIndex As Integer

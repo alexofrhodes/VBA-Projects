@@ -1,9 +1,7 @@
 Attribute VB_Name = "m_Ribbon"
 Option Explicit
 
-'Rem https://www.thespreadsheetguru.com/vba/refresh-ribbon-ui-custom-excel-add-in
-'
-Public myRibbon As IRibbonUI
+'Public myRibbon As IRibbonUI
 
 #If VBA7 Then
     Public Declare PtrSafe Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (Destination As Any, source As Any, ByVal Length As LongPtr)
@@ -11,38 +9,20 @@ Public myRibbon As IRibbonUI
     Public Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (Destination As Any, source As Any, ByVal Length As Long)
 #End If
 
-
-Sub Ribbon_OnLoad(ribbon As IRibbonUI)
-
+Sub Ribbon_OnLoad(Ribbon As IRibbonUI)
     'PURPOSE: Run code when Ribbon loads the UI to store Ribbon Object's Pointer ID code
-    'Handle variable declaration if 32-bit or 64-bit Excel
     #If VBA7 Then
         Dim StoreRibbonPointer As LongPtr
     #Else
         Dim StoreRibbonPointer As Long
     #End If
-    Set myRibbon = ribbon                   'Store Ribbon Object to Public variable
-    StoreRibbonPointer = ObjPtr(ribbon)     'Store pointer to IRibbonUI
+'    Set myRibbon = ribbon                  'Store Ribbon Object to Public variable
+    StoreRibbonPointer = ObjPtr(Ribbon)     'Store pointer to IRibbonUI
     IniWriteKey RibbonIni, "Ribbon", "Pointer", StoreRibbonPointer
     If IniReadKey(RibbonIni, "T1", "Label") = "" Then
         createRibbonIni
     End If
-    
     FoldersCreate IMAGE_FOLDER
-    
-End Sub
-
-Sub Ribbon_RefreshRibbon()
-    If IniReadKey(RibbonIni, "Ribbon", "Pointer") = "" Then GoTo ErrorHandler
-    On Error GoTo ErrorHandler
-    If myRibbon Is Nothing Then
-        Set myRibbon = GetRibbon(IniReadKey(RibbonIni, "Ribbon", "Pointer"))
-    End If
-    myRibbon.Invalidate
-    On Error GoTo 0
-    Exit Sub
-ErrorHandler:
-    MsgBox "Ribbon UI Refresh Failed"
 End Sub
 
 #If VBA7 Then
@@ -55,6 +35,26 @@ Function GetRibbon(ByVal lRibbonPointer As Long) As Object
     Set GetRibbon = objRibbon
     Set objRibbon = Nothing
 End Function
+
+Public Function Ribbon() As IRibbonUI
+    If IniReadKey(RibbonIni, "Ribbon", "Pointer") = "" Then GoTo ErrorHandler
+    On Error GoTo ErrorHandler
+    Set Ribbon = GetRibbon(IniReadKey(RibbonIni, "Ribbon", "Pointer"))
+    On Error GoTo 0
+    Exit Function
+ErrorHandler:
+    MsgBox "Could not get the Ribbon"
+End Function
+
+Sub Ribbon_RefreshRibbon()
+    If IniReadKey(RibbonIni, "Ribbon", "Pointer") = "" Then GoTo ErrorHandler
+    On Error GoTo ErrorHandler
+    Ribbon.Invalidate
+    On Error GoTo 0
+    Exit Sub
+ErrorHandler:
+    MsgBox "Failed to refresh the Ribbon UI"
+End Sub
 
 Sub createRibbonIni()
     MsgBox "The ribbon ini was not found. It will be created now." & vbNewLine & _
@@ -136,6 +136,10 @@ Function RibbonIni() As String
     RibbonIni = ThisProjectPath & getFileName(ThisProject.FileName) & "_ribbon.ini"
 End Function
 
+Sub OpenRibbonINI()
+    FollowLink RibbonIni
+End Sub
+
 Function Ribbon_SetValue(id, TargetProperty, NewValue)
     IniWriteKey RibbonIni, id, TargetProperty, NewValue
 End Function
@@ -144,26 +148,47 @@ Function Ribbon_GetValue(id, TargetProperty)
     Ribbon_GetValue = IniReadKey(RibbonIni, id, TargetProperty)
 End Function
 
-Sub OpenRibbonINI()
-    FollowLink RibbonIni
-End Sub
-
 Sub Ribbon_ButtonClick(control As IRibbonControl)
     Dim ControlLabel As String
     ControlLabel = Ribbon_GetValue(control.id, "Label")
     If ProcedureExists(ThisProject, ControlLabel) Then
-        Application.Run (ControlLabel)
+        Application.Run ControlLabel
     Else
         Select Case control.id
-            Case "T1_G1_B1": uIniEditor.Show vbModeless
-            Case "T1_G1_B2": Ribbon_RefreshRibbon
-            Case "T1_G1_B3": uAuthor.Show
+            Case "T1_G1_B1": FollowLink ThisProjectPath
+            Case "T1_G1_B2": uAuthor.Show
+            Case "T1_G1_B3": uIniEditor.Show vbModeless
+            Case "T1_G1_B4": Ribbon_RefreshRibbon
+            Case "T1_G1_B5": uVBProjects.Show
             Case Else
                 Select Case ControlLabel
                     Case "IO": uVBProjects.Show
                 End Select
         End Select
     End If
+End Sub
+
+Function IMAGE_FOLDER() As String
+    IMAGE_FOLDER = ThisProjectPath & "Ribbon Images\"
+End Function
+
+Sub Ribbon_getImage(control As IRibbonControl, ByRef returnedVal)
+    Dim image
+    Dim ImageName As String
+    ImageName = Ribbon_GetValue(control.id, "Image")
+    If InStr(1, ImageName, ".") > 0 Then
+        On Error GoTo ErrorHandler
+        Dim strPath As String
+        strPath = ThisProjectPath & "Ribbon Images\"
+        If FileExists(strPath & ImageName) Then
+            Set returnedVal = LoadPictureGDI(strPath & ImageName)
+        Else
+            returnedVal = "FileSaveAsPowerPointPptx"
+        End If
+    Else
+        returnedVal = ImageName
+    End If
+ErrorHandler:
 End Sub
 
 Sub Ribbon_CheckboxClick(control As IRibbonControl, pressed As Boolean)
@@ -224,29 +249,6 @@ End Sub
 '        End Select
 '    End Select
 'End Sub
-
-Function IMAGE_FOLDER() As String
-    IMAGE_FOLDER = ThisProjectPath & "RibbonImages\"
-End Function
-
-Sub Ribbon_getImage(control As IRibbonControl, ByRef returnedVal)
-    Dim image
-    Dim ImageName As String
-    ImageName = Ribbon_GetValue(control.id, "Image")
-    If InStr(1, ImageName, ".") > 0 Then
-        On Error GoTo ErrorHandler
-        Dim strPath As String
-        strPath = IMAGE_FOLDER
-        If FileExists(strPath & ImageName) Then
-            Set returnedVal = LoadPictureGDI(strPath & ImageName)
-        Else
-            returnedVal = "FileSaveAsPowerPointPptx"
-        End If
-    Else
-        returnedVal = ImageName
-    End If
-ErrorHandler:
-End Sub
 
 Sub Ribbon_getVisible(control As IRibbonControl, ByRef returnedVal)
     returnedVal = Ribbon_GetValue(control.id, "Visible")

@@ -239,7 +239,7 @@ Private Function IsArrayEmpty(arr As Variant) As Boolean
     ' been allocated.
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-    Err.clear
+    Err.Clear
     On Error Resume Next
     If IsArray(arr) = False Then
         ' we weren't passed an array, return True
@@ -259,7 +259,7 @@ Private Function IsArrayEmpty(arr As Variant) As Boolean
         ' UBound is -1. To accommodate the weird behavior, test to see if LB > UB.
         ' If so, the array is not allocated.
         ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        Err.clear
+        Err.Clear
         Dim LB As Long
         LB = LBound(arr)
         If LB > UB Then

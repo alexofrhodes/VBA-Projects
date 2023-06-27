@@ -28,11 +28,11 @@ Private Sub UserForm_Initialize()
 End Sub
 
 Private Sub Emitter_LabelMouseOut(Label As MSForms.Label)
-    If Label.BackColor <> MyColors.FormBackgroundDarkGray Then Label.BackColor = MyColors.FormBackgroundDarkGray '&H80B91E'&H534848
+    If Label.Picture = 0 Then If Label.BackColor <> MyColors.FormBackgroundDarkGray Then Label.BackColor = MyColors.FormBackgroundDarkGray '&H80B91E'&H534848
 End Sub
 
 Private Sub Emitter_LabelMouseOver(Label As MSForms.Label)
-    If Label.BackColor <> MyColors.FormSelectedGreen Then Label.BackColor = MyColors.FormSelectedGreen  '&H80B91E '&H808080
+    If Label.Picture = 0 Then If Label.BackColor <> MyColors.FormSelectedGreen Then Label.BackColor = MyColors.FormSelectedGreen '&H80B91E '&H808080
 End Sub
 
 Private Sub bEdit_Click()
@@ -59,13 +59,14 @@ End Sub
 Private Sub bExport_Click()
     If ListBox1.ListIndex = -1 Then Exit Sub
     ExportModules Project
+    MsgBox "Complete"
 End Sub
 
 Private Sub bImport_Click()
     ImportModules Project, True
 End Sub
 
-Private Sub Image1_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub GetInfo_Click()
     uAuthor.Show
 End Sub
 

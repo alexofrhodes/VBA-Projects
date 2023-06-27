@@ -23,6 +23,10 @@ or simply export the components.
   
 This project features a dynamic ribbon, just modify the ini file and refresh the ribbon!
 
+|Version|Mods|Description|
+|---|---|---|
+|1.0.1|+ Added an ini editor|edit or create ini files - key/values
+
 [![PowerPointAddin](https://img.youtube.com/vi/oPLJNNdK_bc/0.jpg)](https://www.youtube.com/watch?v=oPLJNNdK_bc)
 
 

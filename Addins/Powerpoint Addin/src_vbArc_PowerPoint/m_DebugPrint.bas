@@ -118,7 +118,7 @@ End Function
 Private Sub DebugPrintHairetu(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional HairetuName$)
 'https://gist.github.com/YujiFukami/15c922d41ff06c9b12ad450a14131080#file-
 
-    Dim i&, j&, k&, m&, n&
+    Dim i&, j&, k&, m&, N&
     Dim TateMin&, TateMax&, YokoMin&, YokoMax&
     Dim WithTableHairetu
     Dim NagasaList, MaxNagasaList
@@ -145,13 +145,13 @@ Private Sub DebugPrintHairetu(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional
             WithTableHairetu(i + 1, j + 1) = Hairetu(i - 1 + TateMin, j - 1 + YokoMin)
         Next j
     Next i
-    n = UBound(WithTableHairetu, 1)
+    N = UBound(WithTableHairetu, 1)
     m = UBound(WithTableHairetu, 2)
-    ReDim NagasaList(1 To n, 1 To m)
+    ReDim NagasaList(1 To N, 1 To m)
     ReDim MaxNagasaList(1 To m)
     Dim tmpStr$
     For j = 1 To m
-        For i = 1 To n
+        For i = 1 To N
             If j > 1 And HyoujiMaxNagasa <> 0 Then
                 tmpStr = WithTableHairetu(i, j)
                 WithTableHairetu(i, j) = ShortenToByteCharacters(tmpStr, HyoujiMaxNagasa)
@@ -160,16 +160,16 @@ Private Sub DebugPrintHairetu(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional
             MaxNagasaList(j) = MaxValue(MaxNagasaList(j), NagasaList(i, j))
         Next i
     Next j
-    ReDim NagasaOnajiList(1 To n, 1 To m)
+    ReDim NagasaOnajiList(1 To N, 1 To m)
     Dim TmpMaxNagasa&
     For j = 1 To m
         TmpMaxNagasa = MaxNagasaList(j)
-        For i = 1 To n
+        For i = 1 To N
             NagasaOnajiList(i, j) = WithTableHairetu(i, j) & ReptText(" ", TmpMaxNagasa - NagasaList(i, j))
         Next i
     Next j
-    ReDim OutputList(1 To n)
-    For i = 1 To n
+    ReDim OutputList(1 To N)
+    For i = 1 To N
         For j = 1 To m
             If j = 1 Then
                 OutputList(i) = NagasaOnajiList(i, j)
@@ -179,7 +179,7 @@ Private Sub DebugPrintHairetu(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional
         Next j
     Next i
     Debug.Print HairetuName
-    For i = 1 To n
+    For i = 1 To N
         Debug.Print OutputList(i)
     Next i
 End Sub
@@ -238,9 +238,9 @@ Public Function ShortenToByteCharacters(Mojiretu$, ByteNum%)
         BunkaiMojiretu = TextDecomposition(Mojiretu)
         Dim AddMoji$
         AddMoji = "."
-        Dim i&, n&
-        n = Len(Mojiretu)
-        For i = 1 To n
+        Dim i&, N&
+        N = Len(Mojiretu)
+        For i = 1 To N
             If RuikeiByteList(i) < ByteNum Then
                 output = output & BunkaiMojiretu(i)
             ElseIf RuikeiByteList(i) = ByteNum Then
@@ -280,11 +280,11 @@ End Function
 
 Private Function TextDecomposition(Mojiretu$)
 'https://gist.github.com/YujiFukami/15c922d41ff06c9b12ad450a14131080#file-
-    Dim i&, n&
+    Dim i&, N&
     Dim output
-    n = Len(Mojiretu)
-    ReDim output(1 To n)
-    For i = 1 To n
+    N = Len(Mojiretu)
+    ReDim output(1 To N)
+    For i = 1 To N
         output(i) = Mid(Mojiretu, i, 1)
     Next i
     TextDecomposition = output

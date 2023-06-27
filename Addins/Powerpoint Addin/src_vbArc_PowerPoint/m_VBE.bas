@@ -26,7 +26,7 @@ Function getProjectFromModuleName(UniqueModuleName As String) As vbProject
 End Function
 
 Sub ListVBProjects(lbox As ListBox)
-    lbox.ColumnCount = 2
+    lbox.columnCount = 2
 '    lbox.Font.Name = "Elephant"
     lbox.Font.Size = 9
     lbox.ColumnWidths = "200;0"
@@ -276,5 +276,48 @@ Function ProcedureExists( _
             Exit Function
         End If
     Next
+End Function
+
+Function ListContains(ctrl As control, str As String, _
+                        Optional ColumnIndexZeroBased As Long = -1, _
+                        Optional CaseSensitive As Boolean = False) As Boolean
+    Dim i      As Long
+    Dim N      As Long
+    Dim sTemp  As String
+        If ColumnIndexZeroBased > ctrl.columnCount - 1 Or ColumnIndexZeroBased < 0 Then
+            ColumnIndexZeroBased = -1
+        End If
+        N = ctrl.ListCount
+        If ColumnIndexZeroBased <> -1 Then
+            For i = N - 1 To 0 Step -1
+                If CaseSensitive = True Then
+                    sTemp = ctrl.List(i, ColumnIndexZeroBased)
+                Else
+                    str = LCase(str)
+                    sTemp = LCase(ctrl.List(i, ColumnIndexZeroBased))
+                End If
+                If InStr(1, sTemp, str) > 0 Then
+                    ListContains = True
+                    Exit Function
+                End If
+            Next i
+        Else
+            Dim columnCount As Long
+            N = ctrl.ListCount
+            For i = N - 1 To 0 Step -1
+                For columnCount = 0 To ctrl.columnCount - 1
+                    If CaseSensitive = True Then
+                        sTemp = ctrl.List(i, columnCount)
+                    Else
+                        str = LCase(str)
+                        sTemp = LCase(ctrl.List(i, columnCount))
+                    End If
+                    If InStr(1, sTemp, str) > 0 Then
+                        ListContains = True
+                        Exit Function
+                    End If
+                Next columnCount
+            Next i
+        End If
 End Function
 

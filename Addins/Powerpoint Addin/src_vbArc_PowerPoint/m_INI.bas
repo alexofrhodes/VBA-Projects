@@ -80,6 +80,10 @@ Public Function IniSections(iniFile As String) As Variant
 '        Array("settings1","settings2")
 End Function
 
+Public Function IniSectionExists(iniFile As String, Section As String)
+    IniSectionExists = (InStr(1, TxtRead(iniFile), "[" & Section & "]") > 0)
+End Function
+
 Public Function IniSectionKeys(FileName As String, Section As String) As Variant
     Dim arr As Variant
     arr = IniReadSection(FileName, Section)
