@@ -14,3 +14,6 @@ For customizable Ribbon view repo VBA-Projects > Standalone > Dynamic Ribbon
 
 VIDEO:  
 [![Settings Editor](https://img.youtube.com/vi/CijT9hZ3Z_g/0.jpg)](https://www.youtube.com/watch?v=CijT9hZ3Z_g)
+
+Multipage:  
+[![Settings Editor](https://img.youtube.com/vi/KpFNGfNe_Ls/0.jpg)](https://www.youtube.com/watch?v=KpFNGfNe_Ls)
