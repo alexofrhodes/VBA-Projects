@@ -20,3 +20,6 @@ Multipage:
 
 Update:  
 [![Settings Editor](https://img.youtube.com/vi/O8ZDGW06z_I/0.jpg)](https://www.youtube.com/watch?v=O8ZDGW06z_I)
+
+Color Schemes:  
+[![Settings Editor](https://img.youtube.com/vi/BfmRm5kRqMA/0.jpg)](https://www.youtube.com/watch?v=BfmRm5kRqMA)
