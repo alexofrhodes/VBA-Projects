@@ -1,5 +1,5 @@
 Tools to work with the VBE.
-The addin will open vbaGUI.exe which is an autohotkey gui to run vba macros.
+If you save in as an addin, on start it will open vbaGUI.exe which is an autohotkey gui to run vba macros.
 
 The functionality is not limited to the 1 liner examples. Explore.
 Read and test the code, some programmatic operations may be irreversible. No liability.
@@ -16,4 +16,7 @@ VIDEO:
 [![Settings Editor](https://img.youtube.com/vi/CijT9hZ3Z_g/0.jpg)](https://www.youtube.com/watch?v=CijT9hZ3Z_g)
 
 Multipage:  
-[![Settings Editor](https://img.youtube.com/vi/KpFNGfNe_Ls/0.jpg)](https://www.youtube.com/watch?v=KpFNGfNe_Ls)
+[![Settings Editor](https://img.youtube.com/vi/KpFNGfNe_Ls/0.jpg)](https://www.youtube.com/watch?v=KpFNGfNe_Ls)  
+
+Update:  
+[![Settings Editor](https://img.youtube.com/vi/O8ZDGW06z_I/0.jpg)](https://www.youtube.com/watch?v=O8ZDGW06z_I)
