@@ -56,9 +56,9 @@ Sub ReferencesList()
     Next myRef
 End Sub
 
-Sub AddReferenceFromFile(FilePath As String)
+Sub AddReferenceFromFile(filepath As String)
     Dim oRefs As REFERENCES: Set oRefs = oWorkbook.VBProject.REFERENCES
-    oRefs.AddFromFile FilePath
+    oRefs.AddFromFile filepath
 End Sub
 
 Sub AddReferenceFromGUID(GUID As String, Major As String, Minor As String)
@@ -100,19 +100,19 @@ Sub RemoveReferenceByGUID(refGUID As String)
     Next oRef
 End Sub
 
-Public Sub ExportReferences(FilePath As String)
+Public Sub ExportReferences(filepath As String)
     Dim Result As String
     Dim oRef As Reference
     For Each oRef In oWorkbook.VBProject.REFERENCES
         Result = Result & IIf(Result <> "", vbNewLine, "") & oRef.Name & vbTab & oRef.GUID & vbTab & oRef.Major & vbTab & oRef.Minor
     Next
-    TxtOverwrite FilePath, Result
+    TxtOverwrite filepath, Result
 End Sub
 
 
-Public Sub ImportReferences(FilePath As String)
+Public Sub ImportReferences(filepath As String)
     Dim fso As New scripting.FileSystemObject
-    With fso.OpenTextFile(FilePath, ForReading, True)
+    With fso.OpenTextFile(filepath, ForReading, True)
         Dim Line As Long
         Do While Not .AtEndOfStream
             Dim Values As Variant
@@ -379,7 +379,7 @@ Public Sub ExportProject( _
     Else
         exportPath = Environ("USERprofile") & "\Documents\" & "vbArc\Backups\" & NameClean & "\"
     End If
-    exportPath = exportPath & "src " & Format(Now, "YY-MM-DD HH-NN") & "\"
+    exportPath = exportPath & "src " & NameClean & " " & Format(Now, "YY-MM-DD HH-NN") & "\"
     
     FoldersCreate exportPath
     Dim ams As aModules:    Set ams = aModules.Init(oWorkbook)

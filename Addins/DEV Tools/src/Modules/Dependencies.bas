@@ -9,9 +9,9 @@ Rem Repos          https://github.com/alexofrhodes/
 Rem YouTube        https://bit.ly/3aLZU9M
 
 #If VBA7 Then
-    Public Declare PtrSafe Function CloseClipboard Lib "USER32" () As Long
-    Public Declare PtrSafe Function EmptyClipboard Lib "USER32" () As Long
-    Public Declare PtrSafe Function OpenClipboard Lib "USER32" (ByVal hWnd As Long) As Long
+    Public Declare PtrSafe Function CloseClipboard Lib "user32" () As Long
+    Public Declare PtrSafe Function EmptyClipboard Lib "user32" () As Long
+    Public Declare PtrSafe Function OpenClipboard Lib "user32" (ByVal hwnd As Long) As Long
 #Else
     Public Declare Function CloseClipboard Lib "user32" () As Long
     Public Declare Function EmptyClipboard Lib "user32" () As Long
@@ -292,14 +292,14 @@ Public Function ArrayToCollection(Items As Variant) As Collection
 End Function
 
 Function CleanTrim(ByVal s As String, Optional ConvertNonBreakingSpace As Boolean = True) As String
-    Dim X As Long, CodesToClean As Variant
+    Dim x As Long, CodesToClean As Variant
     CodesToClean = Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, _
                          21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 127, 129, 141, 143, 144, 157)
     If ConvertNonBreakingSpace Then s = Replace(s, Chr(160), " ")
     s = Replace(s, vbCr, "")
-    For X = LBound(CodesToClean) To UBound(CodesToClean)
-        If InStr(s, Chr(CodesToClean(X))) Then
-            s = Replace(s, Chr(CodesToClean(X)), vbNullString)
+    For x = LBound(CodesToClean) To UBound(CodesToClean)
+        If InStr(s, Chr(CodesToClean(x))) Then
+            s = Replace(s, Chr(CodesToClean(x)), vbNullString)
         End If
     Next
     CleanTrim = s
@@ -442,7 +442,7 @@ End Function
 Public Function ActiveCodepaneWorkbook() As Workbook
     On Error GoTo ErrorHandler
     Dim WorkbookName As String
-    WorkbookName = Application.VBE.SelectedVBComponent.Collection.Parent.Filename
+    WorkbookName = Application.VBE.SelectedVBComponent.Collection.Parent.FileName
     WorkbookName = Right(WorkbookName, Len(WorkbookName) - InStrRev(WorkbookName, "\"))
     Set ActiveCodepaneWorkbook = Workbooks(WorkbookName)
     Exit Function
@@ -863,15 +863,15 @@ Sub ExportProcedure( _
         Next
         If ExportMergedTxt Then
             Dim MergedName As String:   MergedName = "Merged_" & ProcedureName
-            Dim Filename As String:     Filename = LOCAL_LIBRARY_PROCEDURES & MergedName & ".txt"
+            Dim FileName As String:     FileName = LOCAL_LIBRARY_PROCEDURES & MergedName & ".txt"
             Dim MergedString As String
     
             For Each Procedure In ExportedProcedures
                 MergedString = MergedString & vbNewLine & ProcedureCode(TargetWorkbook, , Procedure)
             Next
             Debug.Print "OVERWROTE " & MergedName
-            TxtOverwrite Filename, MergedString
-            TxtPrependContainedProcedures Filename
+            TxtOverwrite FileName, MergedString
+            TxtPrependContainedProcedures FileName
         End If
     End If
     
@@ -924,10 +924,10 @@ Sub ExportTargetProcedure( _
     Next
 End Sub
 
-Public Function FileExists(ByVal Filename As String) As Boolean
-    If InStr(1, Filename, "\") = 0 Then Exit Function
-    If Right(Filename, 1) = "\" Then Filename = Left(Filename, Len(Filename) - 1)
-    FileExists = (Dir(Filename, vbArchive + vbHidden + vbReadOnly + vbSystem) <> "")
+Public Function FileExists(ByVal FileName As String) As Boolean
+    If InStr(1, FileName, "\") = 0 Then Exit Function
+    If Right(FileName, 1) = "\" Then FileName = Left(FileName, Len(FileName) - 1)
+    FileExists = (Dir(FileName, vbArchive + vbHidden + vbReadOnly + vbSystem) <> "")
 End Function
 
 Function FolderExists(ByVal strPath As String) As Boolean
@@ -1029,15 +1029,15 @@ Sub ImportClass( _
     If TargetWorkbook Is Nothing Then Set TargetWorkbook = ActiveCodepaneWorkbook
     If ClassName = "" Then ClassName = CodepaneSelection
     If ClassName = "" Or InStr(1, ClassName, " ") > 0 Then Exit Sub
-    Dim FilePath As String
-    FilePath = LOCAL_LIBRARY_CLASSES & ClassName & ".cls"
-    If CheckPath(FilePath) = "I" Then
+    Dim filepath As String
+    filepath = LOCAL_LIBRARY_CLASSES & ClassName & ".cls"
+    If CheckPath(filepath) = "I" Then
         On Error Resume Next
         Dim Code As String
         Code = TXTReadFromUrl(GITHUB_LIBRARY_CLASSES & ClassName & ".cls")
         On Error GoTo 0
         If Len(Code) > 0 And Not UCase(Code) Like ("*NOT FOUND*") Then
-            TxtOverwrite FilePath, Code
+            TxtOverwrite filepath, Code
         Else
             MsgBox "File " & ClassName & ".cls not found neither localy nor online"
             Exit Sub
@@ -1051,7 +1051,7 @@ Sub ImportClass( _
             Exit Sub
         End If
     End If
-    TargetWorkbook.VBProject.VBComponents.Import FilePath
+    TargetWorkbook.VBProject.VBComponents.Import filepath
 End Sub
 
 
@@ -1063,11 +1063,11 @@ Sub ImportDeclaration( _
     If TargetWorkbook Is Nothing Then Set TargetWorkbook = ActiveCodepaneWorkbook
     If DeclarationName = "" Then DeclarationName = CodepaneSelection
     If DeclarationName = "" Or InStr(1, DeclarationName, " ") > 0 Then Exit Sub
-    Dim FilePath As String
-    FilePath = LOCAL_LIBRARY_DECLARATIONS & DeclarationName & ".txt"
+    Dim filepath As String
+    filepath = LOCAL_LIBRARY_DECLARATIONS & DeclarationName & ".txt"
     Dim Code As String
     On Error Resume Next
-    Code = TxtRead(FilePath)
+    Code = TxtRead(filepath)
     On Error GoTo 0
 
     If Len(Code) = 0 Then 'CheckPath(filePath) = "I" Then
@@ -1076,7 +1076,7 @@ Sub ImportDeclaration( _
         On Error GoTo 0
         If Len(Code) > 0 And Not UCase(Code) Like ("*NOT FOUND*") Then
             Code = FormatVBA7(Code)
-            TxtOverwrite FilePath, Code
+            TxtOverwrite filepath, Code
         Else
             Debug.Print "File " & DeclarationName & ".txt not found localy or online"
             Exit Sub
@@ -1834,29 +1834,29 @@ Function ProceduresOfTXT( _
 End Function
 
 Sub CallSeparateProcedures()
-    Dim FilePath As Variant
-    FilePath = DataFilePicker("*.txt", False)
-    If FilePath = vbNullString Then Exit Sub
+    Dim filepath As Variant
+    filepath = DataFilePicker("*.txt", False)
+    If filepath = vbNullString Then Exit Sub
     Dim OutputFolder As Variant
-    OutputFolder = SelectFolder(Left(FilePath, InStrRev(FilePath, "\")))
+    OutputFolder = SelectFolder(Left(filepath, InStrRev(filepath, "\")))
     
-    TxtSeparateProcedures FilePath, OutputFolder
+    TxtSeparateProcedures filepath, OutputFolder
     
 End Sub
 
-Sub TxtSeparateProcedures(FilePath As Variant, Optional OutputFolder As Variant)
+Sub TxtSeparateProcedures(filepath As Variant, Optional OutputFolder As Variant)
 
 '@AssignedModule F_FileFolder
 '@INCLUDE PROCEDURE TxtOverwrite
 '@INCLUDE PROCEDURE TxtRead
     Dim fname As String
     If OutputFolder = "" Then
-        OutputFolder = Left(FilePath, InStrRev(FilePath, "\"))
+        OutputFolder = Left(filepath, InStrRev(filepath, "\"))
     Else
         FoldersCreate CStr(OutputFolder)
     End If
     Dim Code As Variant
-        Code = Split(TxtRead(FilePath), vbLf)
+        Code = Split(TxtRead(filepath), vbLf)
     Dim out As String
     Dim i As Long
     For i = LBound(Code) To UBound(Code)
@@ -2006,27 +2006,27 @@ ERR_HANDLER:
     GoTo Exit_Err_Handler
 End Sub
 
-Sub TxtPrepend(FilePath As String, txt As String)
+Sub TxtPrepend(filepath As String, txt As String)
     Dim s As String
-    s = TxtRead(FilePath)
-    TxtOverwrite FilePath, txt & vbNewLine & s
+    s = TxtRead(filepath)
+    TxtOverwrite filepath, txt & vbNewLine & s
 End Sub
 
 
 Sub CallTxtPrepend()
-    Dim FilePath As Variant
-    FilePath = DataFilePicker("*.txt", False)
-    If FilePath = vbNullString Then Exit Sub
-    TxtPrependContainedProcedures CStr(FilePath)
+    Dim filepath As Variant
+    filepath = DataFilePicker("*.txt", False)
+    If filepath = vbNullString Then Exit Sub
+    TxtPrependContainedProcedures CStr(filepath)
 End Sub
 
-Sub TxtPrependContainedProcedures(Filename As String)
-    Dim s As String: s = TxtRead(Filename)
+Sub TxtPrependContainedProcedures(FileName As String)
+    Dim s As String: s = TxtRead(FileName)
     Dim v As New Collection
     Set v = ProceduresOfTXT(s)
     If v.count = 0 Then Exit Sub
     Dim Line As String: Line = String(30, "'")
-    TxtPrepend Filename, _
+    TxtPrepend FileName, _
     "'Contains the following " & "#" & v.count & " procedures " & vbNewLine & Line & vbNewLine & _
     "'" & collectionToString(v, vbNewLine & "'") & vbNewLine & Line & vbNewLine & vbNewLine
 End Sub
@@ -2103,7 +2103,7 @@ Function WorkbookOfModule(vbcomp As VBComponent) As Workbook
 End Function
 
 Function WorkbookOfProject(vbProj As VBProject) As Workbook
-    tmpStr = vbProj.Filename
+    tmpStr = vbProj.FileName
     tmpStr = Right(tmpStr, Len(tmpStr) - InStrRev(tmpStr, "\"))
     Set WorkbookOfProject = Workbooks(tmpStr)
 End Function
@@ -2335,13 +2335,13 @@ Public Function ClearClipboard()
 End Function
 
 Public Function CLIP(Optional StoreText As String) As String
-    Dim X As Variant
-    X = StoreText
+    Dim x As Variant
+    x = StoreText
     With CreateObject("htmlfile")
         With .parentWindow.clipboardData
             Select Case True
             Case Len(StoreText)
-                .SetData "text", X
+                .SetData "text", x
             Case Else
                 CLIP = .GetData("text")
             End Select

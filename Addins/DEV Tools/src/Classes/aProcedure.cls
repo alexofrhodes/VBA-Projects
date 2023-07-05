@@ -888,11 +888,11 @@ End Function
 Public Sub ExportLinkedCode()
     Dim Code       As String:   Code = LinkedCode
     Dim MergedName As String:   MergedName = "Merged_" & oProcedure
-    Dim Filename   As String:   Filename = LOCAL_LIBRARY_PROCEDURES & MergedName & ".txt"
+    Dim FileName   As String:   FileName = LOCAL_LIBRARY_PROCEDURES & MergedName & ".txt"
     Debug.Print "OVERWROTE " & MergedName
-    TxtOverwrite Filename, Code
-    TxtPrependContainedProcedures Filename
-    FollowLink Filename
+    TxtOverwrite FileName, Code
+    TxtPrependContainedProcedures FileName
+    FollowLink FileName
 End Sub
 
 Private Function LinkedCode() As String
@@ -990,11 +990,11 @@ Public Sub ImportProcedure( _
 End Sub
 
 Sub ImportDeclaration(DeclarationName As String)
-    Dim FilePath As String
-    FilePath = LOCAL_LIBRARY_DECLARATIONS & DeclarationName & ".txt"
+    Dim filepath As String
+    filepath = LOCAL_LIBRARY_DECLARATIONS & DeclarationName & ".txt"
     Dim Result As String
     On Error Resume Next
-    Result = TxtRead(FilePath)
+    Result = TxtRead(filepath)
     On Error GoTo 0
 
     If Len(Result) = 0 Then 'CheckPath(filePath) = "I" Then
@@ -1002,7 +1002,7 @@ Sub ImportDeclaration(DeclarationName As String)
         Result = TXTReadFromUrl(GITHUB_LIBRARY_DECLARATIONS & DeclarationName & ".txt")
         On Error GoTo 0
         If Len(Result) > 0 And Not UCase(Result) Like ("*NOT FOUND*") Then
-            TxtOverwrite FilePath, Result
+            TxtOverwrite filepath, Result
         Else
             Debug.Print "File " & DeclarationName & ".txt not found localy or online"
             Exit Sub
@@ -1054,15 +1054,15 @@ End Sub
 Sub ImportClass(ClassName As String, _
                 Overwrite As Boolean)
 
-    Dim FilePath As String
-    FilePath = LOCAL_LIBRARY_CLASSES & ClassName & ".cls"
-    If CheckPath(FilePath) = "I" Then
+    Dim filepath As String
+    filepath = LOCAL_LIBRARY_CLASSES & ClassName & ".cls"
+    If CheckPath(filepath) = "I" Then
         On Error Resume Next
         Dim Code As String
         Code = TXTReadFromUrl(GITHUB_LIBRARY_CLASSES & ClassName & ".cls")
         On Error GoTo 0
         If Len(Code) > 0 And Not UCase(Code) Like ("*NOT FOUND*") Then
-            TxtOverwrite FilePath, Code
+            TxtOverwrite filepath, Code
         Else
             MsgBox "File " & ClassName & ".cls not found neither localy nor online"
             Exit Sub
@@ -1076,7 +1076,7 @@ Sub ImportClass(ClassName As String, _
             Exit Sub
         End If
     End If
-    oWorkbook.VBProject.VBComponents.Import FilePath
+    oWorkbook.VBProject.VBComponents.Import filepath
 End Sub
 
 Public Sub Replace(Result As String)
@@ -1213,9 +1213,9 @@ End Sub
 Public Function IndexInModule() As Long
     Dim Procedures As New Collection
     Set Procedures = aModule.Init(oModule).ProceduresNames
-    Dim Index As Long
-        Index = aCollection.Init(Procedures).IndexOf(oProcedure)
-    IndexInModule = Index
+    Dim index As Long
+        index = aCollection.Init(Procedures).IndexOf(oProcedure)
+    IndexInModule = index
 End Function
 
 Public Sub MoveToTop()

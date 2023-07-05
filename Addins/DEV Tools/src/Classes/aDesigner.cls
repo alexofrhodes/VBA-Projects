@@ -116,7 +116,7 @@ End Sub
 Private Sub AssignHandCursor(control As MSForms.control)
     On Error GoTo Catch
     With control
-        .MouseIcon = LoadPicture(ThisWorkbook.Path & "\Hand Cursor Pointer.ico")
+        .MouseIcon = LoadPicture(ThisWorkbook.Path & "\img\Hand Cursor Pointer.ico")
         .MousePointer = fmMousePointerCustom
     End With
 Catch:

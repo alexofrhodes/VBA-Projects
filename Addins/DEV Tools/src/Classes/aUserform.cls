@@ -39,8 +39,8 @@ Public TrackLeft As New Collection
 Rem Transparent Declarations
 Rem Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
 #If VBA7 Then
-    Private Declare PtrSafe Function DrawMenuBar Lib "USER32" (ByVal hWnd As Long) As Long
-    Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "USER32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+    Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hwnd As Long) As Long
+    Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hwnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
 #Else
     Private Declare Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
     Private Declare Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
@@ -75,9 +75,9 @@ Private Const GWL_HWNDPARENT As Long = -8
 Private Const GW_OWNER = 4
 
 #If VBA7 Then
-    Private Declare PtrSafe Function GetWindowText Lib "user32.dll" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
-    Private Declare PtrSafe Function GetClassName Lib "USER32" Alias "GetClassNameA" (ByVal hWnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
-    Private Declare PtrSafe Function GetWindowLong Lib "user32.dll" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function GetWindowText Lib "user32.dll" Alias "GetWindowTextA" (ByVal hwnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
+    Private Declare PtrSafe Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hwnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+    Private Declare PtrSafe Function GetWindowLong Lib "user32.dll" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
 #Else
     Private Declare Function GetWindowText Lib "user32.dll" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
     Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hWnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
@@ -95,12 +95,12 @@ Private Const GA_ROOTOWNER As Long = 3
 Private Const GA_PARENT As Long = 1
 
 #If VBA7 Then
-    Private Declare PtrSafe Function GetWindow Lib "USER32" (ByVal hWnd As Long, ByVal wCmd As Long) As Long
-    Private Declare PtrSafe Function FindWindowEx Lib "USER32" Alias "FindWindowExA" (ByVal hWnd1 As Long, ByVal hWnd2 As Long, ByVal lpsz1 As String, ByVal lpsz2 As String) As Long
-    Private Declare PtrSafe Function GetAncestor Lib "user32.dll" (ByVal hWnd As Long, ByVal gaFlags As Long) As Long
-    Private Declare PtrSafe Function GetDesktopWindow Lib "USER32" () As Long
-    Private Declare PtrSafe Function GetParent Lib "user32.dll" (ByVal hWnd As Long) As Long
-    Private Declare PtrSafe Function SetWindowLong Lib "USER32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+    Private Declare PtrSafe Function GetWindow Lib "user32" (ByVal hwnd As Long, ByVal wCmd As Long) As Long
+    Private Declare PtrSafe Function FindWindowEx Lib "user32" Alias "FindWindowExA" (ByVal hWnd1 As Long, ByVal hWnd2 As Long, ByVal lpsz1 As String, ByVal lpsz2 As String) As Long
+    Private Declare PtrSafe Function GetAncestor Lib "user32.dll" (ByVal hwnd As Long, ByVal gaFlags As Long) As Long
+    Private Declare PtrSafe Function GetDesktopWindow Lib "user32" () As Long
+    Private Declare PtrSafe Function GetParent Lib "user32.dll" (ByVal hwnd As Long) As Long
+    Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
 #Else
     Private Declare Function GetWindow Lib "user32" (ByVal hWnd As Long, ByVal wCmd As Long) As Long
     Private Declare Function FindWindowEx Lib "user32" Alias "FindWindowExA" (ByVal hWnd1 As Long, ByVal hWnd2 As Long, ByVal lpsz1 As String, ByVal lpsz2 As String) As Long
@@ -125,15 +125,15 @@ Private Const HWND_TOPMOST = -1
 Private Const HWND_NOTOPMOST = -2
 
 #If VBA7 Then
-    Private Declare PtrSafe Function SetWindowPos Lib "USER32" (ByVal hWnd As LongPtr, ByVal hwndInsertAfter As LongPtr, ByVal X As LongPtr, ByVal Y As LongPtr, ByVal cx As LongPtr, ByVal cy As LongPtr, ByVal uFlags As LongPtr) As Long
+    Private Declare PtrSafe Function SetWindowPos Lib "user32" (ByVal hwnd As LongPtr, ByVal hwndInsertAfter As LongPtr, ByVal x As LongPtr, ByVal y As LongPtr, ByVal cx As LongPtr, ByVal cy As LongPtr, ByVal uFlags As LongPtr) As Long
 #Else
     Private Declare Function SetWindowPos Lib "user32" (ByVal hWnd As LongPtr, ByVal hWndInsertAfter As LongPtr, ByVal X As LongPtr, ByVal Y As LongPtr, ByVal cx As LongPtr, ByVal cy As LongPtr, ByVal uFlags As LongPtr) As Long
 #End If
 
 Rem ---
 #If VBA7 Then
-    Private Declare PtrSafe Function SetParent Lib "USER32" (ByVal hwndChild As LongPtr, ByVal hWndNewParent As LongPtr) As LongPtr
-    Private Declare PtrSafe Function SetForegroundWindow Lib "USER32" (ByVal hWnd As LongPtr) As Long
+    Private Declare PtrSafe Function SetParent Lib "user32" (ByVal hwndChild As LongPtr, ByVal hWndNewParent As LongPtr) As LongPtr
+    Private Declare PtrSafe Function SetForegroundWindow Lib "user32" (ByVal hwnd As LongPtr) As Long
     Private Declare PtrSafe Function FormatMessage Lib "kernel32" Alias "FormatMessageA" (ByVal dwFlags As Long, lpSource As Any, ByVal dwMessageId As Long, ByVal dwLanguageId As Long, ByVal lpBuffer As String, ByVal nSize As Long, Arguments As LongPtr) As Long
 #Else
     Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
@@ -150,15 +150,15 @@ Private Enum CloseBy
 End Enum
 
 
-Private Const Black As Long = &H80000012
-Private Const Red As Long = &HFF&
+Private Const black As Long = &H80000012
+Private Const red As Long = &HFF&
 
 Rem other
 #If VBA7 Then
-    Private Declare PtrSafe Function FindWindow Lib "USER32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
-    Private Declare PtrSafe Function FindWindowA Lib "USER32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
-    Private Declare PtrSafe Function GetWindowLongA Lib "USER32" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
-    Private Declare PtrSafe Function SetWindowLongA Lib "USER32" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+    Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare PtrSafe Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare PtrSafe Function GetWindowLongA Lib "user32" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function SetWindowLongA Lib "user32" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
 #Else
     Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
     Private Declare Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
@@ -168,7 +168,7 @@ Rem other
 
 Rem userform hwnd
 #If Win64 Then
-    Private Declare PtrSafe Function IUnknown_GetWindow Lib "shlwapi" Alias "#172" (ByVal pIUnk As IUnknown, ByVal hWnd As LongPtr) As Long
+    Private Declare PtrSafe Function IUnknown_GetWindow Lib "shlwapi" Alias "#172" (ByVal pIUnk As IUnknown, ByVal hwnd As LongPtr) As Long
 #Else
     Private Declare Function IUnknown_GetWindow Lib "shlwapi" Alias "#172" (ByVal pIUnk As IUnknown, ByVal hwnd As Long) As Long
 #End If
@@ -177,8 +177,8 @@ Rem ___Resizeable___
 
 Public isResizable As Boolean
 #If VBA7 Then
-    Private Declare PtrSafe Function SetFocus Lib "USER32" (ByVal hWnd As Long) As Long
-    Private Declare PtrSafe Function ShowWindow Lib "USER32" (ByVal hWnd As Long, ByVal nCmdShow As Long) As Long
+    Private Declare PtrSafe Function SetFocus Lib "user32" (ByVal hwnd As Long) As Long
+    Private Declare PtrSafe Function ShowWindow Lib "user32" (ByVal hwnd As Long, ByVal nCmdShow As Long) As Long
 #Else
     Private Declare Function SetFocus Lib "user32" (ByVal hwnd As Long) As Long
     Private Declare Function ShowWindow Lib "user32" (ByVal hwnd As Long, ByVal nCmdShow As Long) As Long
@@ -212,11 +212,11 @@ Rem get hwnd
 
 
 #If VBA7 Then
-    Function hWnd() As LongPtr
+    Function hwnd() As LongPtr
 #Else
-    Function hWnd() As Long
+    Function hwnd() As Long
 #End If
-    WindowFromAccessibleObject oForm, hWnd
+    WindowFromAccessibleObject oForm, hwnd
 End Function
 
 
@@ -239,10 +239,10 @@ Rem By Robert Todaer
     Set Form = Elements(LBound(Elements, 1))("form")
     MicroTimer True
     Do
-        Dim Index As Integer
-        For Index = LBound(Elements, 1) To UBound(Elements, 1)
-            IncRementElement Elements(Index), MicroTimer
-        Next Index
+        Dim index As Integer
+        For index = LBound(Elements, 1) To UBound(Elements, 1)
+            IncRementElement Elements(index), MicroTimer
+        Next index
         Sleep 40
         Form.Repaint
     Loop Until AllTransitionsComplete(CVar(Elements))
@@ -288,14 +288,14 @@ End Function
 Private Function AllTransitionsComplete(Elements As Variant) As Boolean
     '@INCLUDE TransitionComplete
     Dim el As Object
-    Dim Index As Integer
-    For Index = LBound(Elements, 1) To UBound(Elements, 1)
-        Set el = Elements(Index)
+    Dim index As Integer
+    For index = LBound(Elements, 1) To UBound(Elements, 1)
+        Set el = Elements(index)
         If Not TransitionComplete(el) Then
             AllTransitionsComplete = False
             Exit Function
         End If
-    Next Index
+    Next index
     AllTransitionsComplete = True
 End Function
 
@@ -368,6 +368,7 @@ End Sub
 Public Sub DockResize_Layout()
     DockControls
 End Sub
+
 Public Sub DockControls()
 '
 'from STEPHEN BULLEN's USERFORM RESIZER CLASS
@@ -456,16 +457,16 @@ End Sub
 '    GetUserformHwnd = FindWindow(vbNullString, Form.Caption)
 'End Function
 
-Public Sub TRANSPARENT(Optional Color As Variant)
+Public Sub TRANSPARENT(Optional color As Variant)
     '@INCLUDE MakeFormBorderless
     Dim formhandle As Long
     Dim bytOpacity As Byte
     formhandle = CLng(FindWindow(vbNullString, oForm.Caption))
-    If IsMissing(Color) Then Color = vbWhite
+    If IsMissing(color) Then color = vbWhite
     bytOpacity = 100
     SetWindowLong formhandle, GWL_EXSTYLE, GetWindowLong(formhandle, GWL_EXSTYLE) Or WS_EX_LAYERED
-    oForm.BackColor = Color
-    SetLayeredWindowAttributes formhandle, Color, bytOpacity, LWA_COLORKEY
+    oForm.BackColor = color
+    SetLayeredWindowAttributes formhandle, color, bytOpacity, LWA_COLORKEY
 End Sub
 
 Public Sub Borderless()
@@ -509,7 +510,7 @@ Sub ParentIsVBE()
         Dim ReturnOfSetParentAPI As Long
     #End If
     Dim ErrorNumber As Long
-    VBEWindowPointer = Application.VBE.MainWindow.hWnd
+    VBEWindowPointer = Application.VBE.MainWindow.hwnd
     UserFormWindowPointer = FindWindow(lpClassName:=USERFORM_WINDOW_CLASS, lpWindowName:=GivenFormCaption)
     Const ERROR_NUMBER_FOR_SETPARENT_API = 0
     ReturnOfSetParentAPI = SetParent(hwndChild:=UserFormWindowPointer, hWndNewParent:=VBEWindowPointer)
@@ -590,10 +591,10 @@ End Function
 
 Public Sub MinimizeButton()
     Dim cap     As String:  cap = oForm.Caption
-    Dim hWnd    As Long:    hWnd = FindWindowA(vbNullString, cap)
-    Dim exLong  As Long:    exLong = GetWindowLongA(hWnd, -16)
+    Dim hwnd    As Long:    hwnd = FindWindowA(vbNullString, cap)
+    Dim exLong  As Long:    exLong = GetWindowLongA(hwnd, -16)
     
-    If (exLong And &H20000) = 0 Then SetWindowLongA hWnd, -16, exLong Or &H20000
+    If (exLong And &H20000) = 0 Then SetWindowLongA hwnd, -16, exLong Or &H20000
 End Sub
 
 Public Sub SaveOptions( _
@@ -787,20 +788,22 @@ Public Sub LoadPosition()
 '    End If
 End Sub
 
-Public Sub ResizeToFitControls()
+Public Sub ResizeToFitControls(Optional marginRight = 0, Optional marginBottom = 0)
     oForm.Width = 0
     oForm.Height = 0
     Dim ctr As MSForms.control
-    Dim myWidth:    myWidth = oForm.InsideWidth
-    Dim myHeight:   myHeight = oForm.InsideHeight
+    Dim myWidth:    myWidth = 0 'oForm.InsideWidth
+    Dim myHeight:   myHeight = 0 'oForm.InsideHeight
     For Each ctr In oForm.Controls
-        If ctr.Visible = True Then
-            If ctr.Left + ctr.Width > myWidth Then myWidth = ctr.Left + ctr.Width
-            If ctr.Top + ctr.Height > myHeight Then myHeight = ctr.Top + ctr.Height
+        If ctr.Parent.Name = oForm.Name Then
+            If ctr.Visible = True Then
+                If ctr.Left + ctr.Width > myWidth Then myWidth = ctr.Left + ctr.Width
+                If ctr.Top + ctr.Height > myHeight Then myHeight = ctr.Top + ctr.Height
+            End If
         End If
     Next
-    oForm.Width = myWidth + oForm.Width - oForm.InsideWidth + 50
-    oForm.Height = myHeight + oForm.Height - oForm.InsideHeight + 10
+    oForm.Width = myWidth + (oForm.Width - oForm.InsideWidth) + marginRight
+    oForm.Height = myHeight + (oForm.Height - oForm.InsideHeight) + marginBottom
 End Sub
 
 
@@ -817,17 +820,17 @@ Public Sub MouseOnControl(ctrl As Object)
 End Sub
 
 Private Function PointsPerPixelX() As Double
-    Dim hdc As Long
-    hdc = GetDC(0)
-    PointsPerPixelX = 72 / GetDeviceCaps(hdc, LOGPIXELSX)
-    ReleaseDC 0, hdc
+    Dim hDC As Long
+    hDC = GetDC(0)
+    PointsPerPixelX = 72 / GetDeviceCaps(hDC, LOGPIXELSX)
+    ReleaseDC 0, hDC
 End Function
 
 Private Function PointsPerPixelY() As Double
-    Dim hdc As Long
-    hdc = GetDC(0)
-    PointsPerPixelY = 72 / GetDeviceCaps(hdc, LOGPIXELSY)
-    ReleaseDC 0, hdc
+    Dim hDC As Long
+    hDC = GetDC(0)
+    PointsPerPixelY = 72 / GetDeviceCaps(hDC, LOGPIXELSY)
+    ReleaseDC 0, hDC
 End Function
 
 Private Function WhereIsTheMouseAt() As tCursor

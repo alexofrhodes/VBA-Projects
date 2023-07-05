@@ -27,7 +27,7 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
-Private Sub goToFolder_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub goToFolder_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     FollowLink Environ("USERprofile") & "\Documents\vbArc\"
 End Sub
 
@@ -47,7 +47,7 @@ End Sub
 Private Sub AssignPathLabel()
     If listOpenBooks.ListIndex = -1 Then Exit Sub
     Label1.Caption = IIf(UseWBpath, _
-                        Workbooks(listOpenBooks.list(listOpenBooks.ListIndex)).Path & "\", _
+                        Workbooks(listOpenBooks.List(listOpenBooks.ListIndex)).Path & "\", _
                         Environ("USERprofile") & "\Documents\" & "vbArc\Backups\")
 End Sub
 
@@ -57,7 +57,7 @@ Private Sub SelectFromList_Click()
         Exit Sub
     End If
     Dim TargetWorkbook As Workbook
-    Set TargetWorkbook = Workbooks(listOpenBooks.list(listOpenBooks.ListIndex))
+    Set TargetWorkbook = Workbooks(listOpenBooks.List(listOpenBooks.ListIndex))
     DoExport TargetWorkbook
 End Sub
 
@@ -71,7 +71,7 @@ End Sub
 Private Sub ActiveFile_Click()
     DoExport ActiveWorkbook
 End Sub
-Private Sub ActiveFile_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub ActiveFile_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     ActiveFile.Caption = ActiveWorkbook.Name
 End Sub
 
@@ -103,7 +103,7 @@ Private Sub SelectFile_Click()
     Dim fPath As String: fPath = PickExcelFile
     If fPath = "" Then Exit Sub
     Dim TargetWorkbook As Workbook
-    Set TargetWorkbook = Workbooks.Open(Filename:=fPath, UpdateLinks:=0, ReadOnly:=False)
+    Set TargetWorkbook = Workbooks.Open(FileName:=fPath, UpdateLinks:=0, ReadOnly:=False)
     DoExport TargetWorkbook
     TargetWorkbook.Close True
 End Sub

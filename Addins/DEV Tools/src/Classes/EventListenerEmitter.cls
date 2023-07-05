@@ -35,7 +35,7 @@ Public Event KeyUp(ByRef control As Object, ByRef KeyCode As MSForms.ReturnInteg
 Public Event KeyDown(ByRef control As Object, ByRef KeyCode As MSForms.ReturnInteger, ByRef Shift As Integer)
 Public Event MouseOver(ByRef control As Object)
 Public Event MouseOut(ByRef control As Object)
-Public Event MouseMove(ByRef control As Object, ByRef Shift As Integer, ByRef X As Single, ByRef Y As Single)
+Public Event MouseMove(ByRef control As Object, ByRef Shift As Integer, ByRef x As Single, ByRef y As Single)
 Public Event Focus(ByRef control As Object)
 Public Event Blur(ByRef control As Object)
 Public Event Change(ByRef control As Object)
@@ -45,7 +45,7 @@ Public Event LabelMouseOver(ByRef Label As MSForms.Label)
 Public Event LabelMouseOut(ByRef Label As MSForms.Label)
 Public Event LabelClick(ByRef Label As MSForms.Label)
 Public Event LabelDoubleClick(ByRef Label As MSForms.Label, ByRef Cancel As MSForms.ReturnBoolean)
-Public Event LabelMouseMove(ByRef Label As MSForms.Label, ByRef Shift As Integer, ByRef X As Single, ByRef Y As Single)
+Public Event LabelMouseMove(ByRef Label As MSForms.Label, ByRef Shift As Integer, ByRef x As Single, ByRef y As Single)
 
 ' Events to Textboxes
 Public Event TextboxFocus(ByRef Textbox As MSForms.Textbox)
@@ -54,14 +54,14 @@ Public Event TextboxMouseOver(ByRef Textbox As MSForms.Textbox)
 Public Event TextboxMouseOut(ByRef Textbox As MSForms.Textbox)
 Public Event TextboxClick(ByRef Textbox As MSForms.Textbox)
 Public Event TextboxDoubleClick(ByRef Textbox As MSForms.Textbox, ByRef Cancel As MSForms.ReturnBoolean)
-Public Event TextboxMouseMove(ByRef Textbox As MSForms.Textbox, ByRef Shift As Integer, ByRef X As Single, ByRef Y As Single)
+Public Event TextboxMouseMove(ByRef Textbox As MSForms.Textbox, ByRef Shift As Integer, ByRef x As Single, ByRef y As Single)
 
 ' Events to CommandButtons
 Public Event CommandButtonMouseOver(ByRef CommandButton As MSForms.CommandButton)
 Public Event CommandButtonMouseOut(ByRef CommandButton As MSForms.CommandButton)
 Public Event CommandButtonClick(ByRef CommandButton As MSForms.CommandButton)
 Public Event CommandButtonDoubleClick(ByRef CommandButton As MSForms.CommandButton, ByRef Cancel As MSForms.ReturnBoolean)
-Public Event CommandButtonMouseMove(ByRef CommandButton As MSForms.CommandButton, ByRef Shift As Integer, ByRef X As Single, ByRef Y As Single)
+Public Event CommandButtonMouseMove(ByRef CommandButton As MSForms.CommandButton, ByRef Shift As Integer, ByRef x As Single, ByRef y As Single)
 
 ' Types of events that can occur
 Public Enum EmittedEvent

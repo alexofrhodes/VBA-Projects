@@ -38,7 +38,6 @@ Option Explicit
 
 Private WithEvents Emitter As EventListenerEmitter
 Attribute Emitter.VB_VarHelpID = -1
-Dim moResizer As New CFormResizer
 
 Private Sub GetInfo_Click()
     uAuthor.Show
@@ -49,25 +48,36 @@ Private Sub UserForm_Initialize()
     startFrameForm Me
     For i = 1 To 5
         Me.Controls("Textbox" & i).Width = 800
-        Me.Controls("Textbox" & i).Height = 500
-        Me.Controls("Window" & i).Width = 500
+        Me.Controls("Textbox" & i).Height = 1500
+        Me.Controls("Window" & i).Width = 1500
+        Me.Controls("Window" & i).Height = 1500
     Next
     
     aUserform.Init(Me).LoadOptions
     Me.Height = 200
     Me.Width = 430
 
+    Dim configFolder As String: configFolder = ThisWorkbook.Path & "\configurations\"
+    FoldersCreate configFolder
+    Dim iniFile As String: iniFile = configFolder & "UserformSettings.ini"
+    If Not FileExists(iniFile) Then TxtOverwrite iniFile, ""
+    
     Dim windowName As String
-    windowName = ThisWorkbook.Sheets("uCodeOnTheFly_Settings").Range("D2").Value
+'    windowName = ThisWorkbook.Sheets("uCodeOnTheFly_Settings").Range("D2").Value
+    windowName = IniReadKey(iniFile, Me.Name, "Window")
     If windowName = "" Then windowName = "Window1"
+    
     Me.Controls(windowName).Visible = True
     Set CodeOnTheFlyTextbox = Me.Controls("Textbox" & Right(windowName, 1))
-    ThisWorkbook.Sheets("uCodeOnTheFly_Settings").Range("D1").Value = CodeOnTheFlyTextbox.Name
+'    ThisWorkbook.Sheets("uCodeOnTheFly_Settings").Range("D1").Value = CodeOnTheFlyTextbox.Name
+        IniWrite iniFile, Me.Name, "Textbox", CodeOnTheFlyTextbox.Name
+        
     Me.Controls("Label" & Right(windowName, 1)).BackColor = 8435998
 End Sub
 
 Private Sub UserForm_Activate()
-    Set moResizer.Form = Me
+    Dim myForm As New aUserform
+    myForm.Init(Me).Resizable
 End Sub
 
 Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
@@ -122,13 +132,6 @@ Private Sub CommandButton1_Click()
     End If
 End Sub
 
-
-
-Private Sub UserForm_Resize()
-    On Error Resume Next
-    moResizer.FormResize
-End Sub
-
 Private Sub Emitter_LabelMouseOut(Label As MSForms.Label)
     If InStr(1, Label.Tag, "reframe", vbTextCompare) > 0 Then
         If Label.BackColor <> &H80B91E Then Label.BackColor = &H534848
@@ -145,8 +148,16 @@ Private Sub Emitter_LabelClick(ByRef Label As MSForms.Label)
     If InStr(1, Label.Tag, "reframe", vbTextCompare) > 0 Then
         Reframe Me, Label
         Set CodeOnTheFlyTextbox = Me.Controls("Textbox" & Right(Label.Caption, 1))
-        ThisWorkbook.Sheets("uCodeOnTheFly_Settings").Range("D1").Value = CodeOnTheFlyTextbox.Name
-        ThisWorkbook.Sheets("uCodeOnTheFly_Settings").Range("D2").Value = Label.Caption
+        
+        Dim configFolder As String: configFolder = ThisWorkbook.Path & "\configurations\"
+        FoldersCreate configFolder
+        Dim iniFile As String: iniFile = configFolder & "UserformSettings.ini"
+        If Not FileExists(iniFile) Then TxtOverwrite iniFile, ""
+        IniWrite iniFile, Me.Name, "Window", Label.Caption
+        IniWrite iniFile, Me.Name, "Textbox", CodeOnTheFlyTextbox.Name
+        
+'        ThisWorkbook.Sheets("uCodeOnTheFly_Settings").Range("D1").Value = CodeOnTheFlyTextbox.Name
+'        ThisWorkbook.Sheets("uCodeOnTheFly_Settings").Range("D2").Value = Label.Caption
     End If
 End Sub
 

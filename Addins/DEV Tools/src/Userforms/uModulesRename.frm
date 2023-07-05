@@ -27,14 +27,16 @@ Attribute VB_Exposed = False
 '* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Option Explicit
-
+Private Sub UserForm_Initialize()
+    aListBox.Init(listOpenBooks).LoadVBProjects
+End Sub
 
 Private Sub GetInfo_Click()
     uAuthor.Show
 End Sub
 
 Private Sub listOpenBooks_Click()
-    addCompsList Workbooks(listOpenBooks.list(listOpenBooks.ListIndex))
+    addCompsList Workbooks(listOpenBooks.List(listOpenBooks.ListIndex))
 End Sub
 
 Private Sub RenameComponents_Click()
@@ -43,13 +45,13 @@ Private Sub RenameComponents_Click()
         Exit Sub
     End If
     Dim TargetWorkbook As Workbook
-    Set TargetWorkbook = Workbooks(listOpenBooks.list(listOpenBooks.ListIndex))
+    Set TargetWorkbook = Workbooks(listOpenBooks.List(listOpenBooks.ListIndex))
     Dim NewNames As Variant
     Dim i As Long
     NewNames = Split(textboxNewName, vbNewLine)
     For i = 0 To UBound(NewNames)
         If NewNames(i) = vbNullString Then
-            NewNames(i) = LComponents.list(i)
+            NewNames(i) = LComponents.List(i)
         End If
     Next i
     For i = 0 To UBound(NewNames)
@@ -57,8 +59,8 @@ Retry:
         On Error GoTo EH
 '        Select Case LComponents.list(i, 0)
 '        Case Is = "Module", "Class", "UserForm"
-            If LComponents.list(i, 1) <> NewNames(i) Then
-                TargetWorkbook.VBProject.VBComponents(LComponents.list(i, 1)).Name = NewNames(i)
+            If LComponents.List(i, 1) <> NewNames(i) Then
+                TargetWorkbook.VBProject.VBComponents(LComponents.List(i, 1)).Name = NewNames(i)
             End If
 '        Case Is = "Document"
 '            If LComponents.list(i, 1) <> NewNames(i) Then
@@ -67,7 +69,7 @@ Retry:
 '        End Select
     Next
     For i = 0 To LComponents.ListCount - 1
-        LComponents.list(i, 1) = NewNames(i)
+        LComponents.List(i, 1) = NewNames(i)
     Next i
     textboxNewName.TEXT = vbNullString
     Dim str As String
@@ -80,19 +82,17 @@ EH:
     Resume Retry:
 End Sub
 
-Private Sub UserForm_Initialize()
-    aListBox.Init(listOpenBooks).LoadVBProjects
-End Sub
+
 Private Sub addCompsList(TargetWorkbook As Workbook)
     LComponents.Clear
     Dim vbcomp As VBComponent
     For Each vbcomp In TargetWorkbook.VBProject.VBComponents
         If vbcomp.Name <> "ThisWorkbook" Then
             LComponents.AddItem
-            LComponents.list(LComponents.ListCount - 1, 0) = aModule.Init(vbcomp).TypeToString
-            LComponents.list(LComponents.ListCount - 1, 1) = vbcomp.Name
+            LComponents.List(LComponents.ListCount - 1, 0) = aModule.Init(vbcomp).TypeToString
+            LComponents.List(LComponents.ListCount - 1, 1) = vbcomp.Name
             If vbcomp.Type = vbext_ct_Document Then
-                LComponents.list(LComponents.ListCount - 1, 2) = GetSheetByCodeName(TargetWorkbook, vbcomp.Name).Name
+                LComponents.List(LComponents.ListCount - 1, 2) = GetSheetByCodeName(TargetWorkbook, vbcomp.Name).Name
             End If
         End If
     Next
@@ -102,10 +102,10 @@ Private Sub addCompsList(TargetWorkbook As Workbook)
 End Sub
 Private Sub SyncNames(TargetWorkbook As Workbook)
     Dim str As String
-    str = LComponents.list(0, 1)
+    str = LComponents.List(0, 1)
     Dim i As Long
     For i = 1 To LComponents.ListCount - 1
-        str = str & vbNewLine & LComponents.list(i, 1)
+        str = str & vbNewLine & LComponents.List(i, 1)
     Next
     textboxNewName.TEXT = str
 End Sub

@@ -26,17 +26,21 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
+Const AUTHOR_EMAIL = "anastasioualex@gmail.com"
+
+Private sbLeftWidth As Long
+Private sbRightWidth As Long
+Private sbBottomHeight As Long
+
 #If Win64 Then
-Public hWnd As LongPtr 'LongLong
+Public hwnd As LongPtr 'LongLong
 #Else
-Public hWnd As Long
+Public hwnd As Long
 #End If
 
 Private oForm As Object
-Private aForm As aUserform
 
 Public oMultiPage As MultiPage
-Private Initialized As Boolean
 
 Public WithEvents Emitter As EventListenerEmitter
 Attribute Emitter.VB_VarHelpID = -1
@@ -72,24 +76,26 @@ End Type
 
 
 #If VBA7 Then
+    Private Declare PtrSafe Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwFlags As Long, ByVal dwReserved As Long) As Long
     Private Declare PtrSafe Function LoadLibrary Lib "kernel32" Alias "LoadLibraryA" (ByVal lpLibFileName As String) As LongPtr
     Private Declare PtrSafe Function FreeLibrary Lib "kernel32" (ByVal hLibModule As LongPtr) As Long
     Private Declare PtrSafe Function OleCreatePictureIndirectAut Lib "oleAut32.dll" Alias "OleCreatePictureIndirect" (PicDesc As uPicDesc, RefIID As GUID, ByVal fPictureOwnsHandle As Long, iPic As IPicture) As Long
     Private Declare PtrSafe Function OleCreatePictureIndirectPro Lib "olepro32.dll" Alias "OleCreatePictureIndirect" (PicDesc As uPicDesc, RefIID As GUID, ByVal fPictureOwnsHandle As Long, iPic As IPicture) As Long
-    Private Declare PtrSafe Function CopyImage Lib "USER32" (ByVal handle As LongPtr, ByVal un1 As Long, ByVal n1 As Long, ByVal n2 As Long, ByVal un2 As Long) As LongPtr
-    Private Declare PtrSafe Function GetDC Lib "USER32" (ByVal hWnd As LongPtr) As LongPtr
-    Private Declare PtrSafe Function ReleaseDC Lib "USER32" (ByVal hWnd As LongPtr, ByVal hdc As LongPtr) As Long
-    Private Declare PtrSafe Function CreateCompatibleBitmap Lib "gdi32" (ByVal hdc As LongPtr, ByVal nWidth As Long, ByVal nHeight As Long) As LongPtr
-    Private Declare PtrSafe Function CreateCompatibleDC Lib "gdi32" (ByVal hdc As LongPtr) As LongPtr
+    Private Declare PtrSafe Function CopyImage Lib "user32" (ByVal handle As LongPtr, ByVal un1 As Long, ByVal n1 As Long, ByVal n2 As Long, ByVal un2 As Long) As LongPtr
+    Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As LongPtr
+    Private Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hwnd As LongPtr, ByVal hDC As LongPtr) As Long
+    Private Declare PtrSafe Function CreateCompatibleBitmap Lib "gdi32" (ByVal hDC As LongPtr, ByVal nWidth As Long, ByVal nHeight As Long) As LongPtr
+    Private Declare PtrSafe Function CreateCompatibleDC Lib "gdi32" (ByVal hDC As LongPtr) As LongPtr
     Private Declare PtrSafe Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
-    Private Declare PtrSafe Function SelectObject Lib "gdi32" (ByVal hdc As LongPtr, ByVal hObject As LongPtr) As LongPtr
+    Private Declare PtrSafe Function SelectObject Lib "gdi32" (ByVal hDC As LongPtr, ByVal hObject As LongPtr) As LongPtr
     Private Declare PtrSafe Function CreateSolidBrush Lib "gdi32" (ByVal crColor As Long) As LongPtr
-    Private Declare PtrSafe Function FillRect Lib "USER32" (ByVal hdc As LongPtr, lpRect As RECT, ByVal hBrush As LongPtr) As Long
-    Private Declare PtrSafe Function SetRect Lib "USER32" (lpRect As RECT, ByVal X1 As Long, ByVal Y1 As Long, ByVal X2 As Long, ByVal Y2 As Long) As Long
+    Private Declare PtrSafe Function FillRect Lib "user32" (ByVal hDC As LongPtr, lpRect As RECT, ByVal hBrush As LongPtr) As Long
+    Private Declare PtrSafe Function SetRect Lib "user32" (lpRect As RECT, ByVal X1 As Long, ByVal Y1 As Long, ByVal X2 As Long, ByVal Y2 As Long) As Long
     
-    Private hdc As LongPtr, hMemDc As LongPtr, hMemBmp As LongPtr, hBrush As LongPtr, hCopy As LongPtr, ar() As LongPtr
+    Private hDC As LongPtr, hMemDc As LongPtr, hMemBmp As LongPtr, hBrush As LongPtr, hCopy As LongPtr, ar() As LongPtr
     
 #Else
+    Private Declare Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwFlags As Long, ByVal dwReserved As Long) As Long
     Private Declare Function LoadLibrary Lib "kernel32" Alias "LoadLibraryA" (ByVal lpLibFileName As String) As Long
     Private Declare Function FreeLibrary Lib "kernel32" (ByVal hLibModule As Long) As Long
     Private Declare Function OleCreatePictureIndirectAut Lib "oleAut32.dll" Alias "OleCreatePictureIndirect" (PicDesc As uPicDesc, RefIID As GUID, ByVal fPictureOwnsHandle As Long, iPic As IPicture) As Long
@@ -105,7 +111,7 @@ End Type
     Private Declare Function FillRect Lib "user32" (ByVal hdc As Long, lpRect As RECT, ByVal hBrush As Long) As Long
     Private Declare Function SetRect Lib "user32" (lpRect As RECT, ByVal X1 As Long, ByVal Y1 As Long, ByVal X2 As Long, ByVal Y2 As Long) As Long
     
-    Private hdc As Long, hMemDc As Long, hMemBmp As Long, hBrush As Long, hCopy As Long, ar() As Long
+    Private hDC As Long, hMemDc As Long, hMemBmp As Long, hBrush As Long, hCopy As Long, ar() As Long
     
 #End If
 
@@ -135,33 +141,25 @@ Public Function Init(MP As control) As aMultiPage
     Set oForm = MP.Parent
     Set oMultiPage = MP
 '    Set oMultiPageEvent = oMultiPage
-    hWnd = MP.[_GethWnd]
+    hwnd = MP.[_GethWnd]
     Set Init = Me
-    Initialized = True
-    Set aForm = aUserform.Init(oForm)
 End Function
 
 Public Sub Test()
-    If Not Initialized Then End
 End Sub
 
 Public Sub BuildMenu()
-'    MenuLabelCounter = 0
-    'For MultiPage, TabStrip:
-    '   SetObject = Object.Add([ Name [, Caption [, index ]]])
-    '
-    'For other controls:
-    '   SetControl = object. Add(ProgID [, Name [, Visible ]] )
     Dim MP As MultiPage: Set MP = oMultiPage
     oForm.Height = MP.Height + oForm.Height - oForm.InsideHeight
     oForm.BackColor = MyColors.FormBackgroundDarkGray
 
-    Dim sidebar As Frame
-    Set sidebar = oForm.Controls.Add("forms.frame.1")
-    sidebar.Name = "Sidebar"
-    With sidebar
+    Dim SidebarLeft As Frame
+    Set SidebarLeft = oForm.Controls.Add("forms.frame.1")
+    SidebarLeft.Name = "SidebarLeft"
+    With SidebarLeft
         .Caption = ""
-        .BorderStyle = fmBorderStyleSingle
+        .SpecialEffect = fmSpecialEffectFlat
+'        .BorderStyle = fmBorderStyleSingle
         .Left = 0
         .Top = 0
         .Height = MP.Height
@@ -171,9 +169,9 @@ Public Sub BuildMenu()
     End With
     
     With MP
-        .Left = sidebar.Left + sidebar.Width
+        .Left = SidebarLeft.Left + SidebarLeft.Width
         .Top = 0
-        .Width = oForm.InsideWidth - sidebar.Width
+'        .Width = oForm.InsideWidth - SidebarLeft.Width
         .Height = oForm.InsideHeight
         .style = fmTabStyleNone
         Dim i As Long
@@ -186,18 +184,22 @@ Public Sub BuildMenu()
     
     Dim Page
     For Each Page In MP.Pages
-        Set lbl = sidebar.Controls.Add("forms.label.1")
+        Set lbl = SidebarLeft.Controls.Add("forms.label.1")
         With lbl
+            If Page.index = 0 Then .BackColor = MyColors.FormSelectedGreen
+            .BorderStyle = fmBorderStyleSingle
+'            .BorderColor = MyColors.FormSelectedGreen
             .WordWrap = False
             .AutoSize = True
             .Font.Size = 12
-            .Top = AvailableFormOrFrameRow(sidebar)
+            .Top = AvailableFormOrFrameRow(SidebarLeft)
             .Left = 0
             .ForeColor = vbWhite
-            .Caption = "  " & Page.Caption
+            .Caption = Space(4) & Page.Caption
             .AutoSize = False
             .Height = 24
-            .Tag = "page-" & Page.Index
+            .Tag = "page-" & Page.index
+            .ControlTipText = WorksheetFunction.Trim(.Caption)
         End With
 '        MenuLabelCounter = MenuLabelCounter + 1
 '        ReDim Preserve MenuLabels(1 To MenuLabelCounter)
@@ -206,38 +208,164 @@ Public Sub BuildMenu()
     
     Dim ctrl As control
     Dim maxWidth As Long: maxWidth = 0
-    For Each ctrl In sidebar.Controls
+    For Each ctrl In SidebarLeft.Controls
         If maxWidth < ctrl.Width Then maxWidth = ctrl.Width
     Next
-    For Each ctrl In sidebar.Controls
-        ctrl.Width = maxWidth + 10
+    For Each ctrl In SidebarLeft.Controls
+        ctrl.Width = maxWidth + 12
     Next
-    sidebar.Width = maxWidth + 10
+    SidebarLeft.Width = maxWidth + 12
     
-    MP.Left = sidebar.Left + sidebar.Width
+    MP.Left = SidebarLeft.Left + SidebarLeft.Width
     
-    oForm.Width = sidebar.Width + MP.Width + oForm.Width - oForm.InsideWidth
+    Dim SidebarRight As MSForms.Frame
+    Dim SidebarBottom As MSForms.Frame
+    On Error Resume Next
+        Set SidebarRight = oForm.Controls("SidebarRight")
+        Set SidebarBottom = oForm.Controls("SidebarBottom")
+        If Not SidebarRight.Visible Then Set SidebarRight = Nothing
+        If Not SidebarBottom.Visible Then Set SidebarBottom = Nothing
+    On Error GoTo 0
+    
+    If Not SidebarRight Is Nothing Then
+        If SidebarRight.Visible Then
+            With SidebarRight
+                .Caption = ""
+                .SpecialEffect = fmSpecialEffectFlat
+                .BorderStyle = fmBorderStyleNone
+                .BackColor = MyColors.FormSidebarMediumGray 'vbred
+                .Top = MP.Top
+                .Left = MP.Left + MP.Width
+                If SidebarBottom Is Nothing Then
+                    .Height = MP.Height
+                Else
+                    If SidebarBottom.Visible = True Then
+                        .Height = MP.Height + SidebarBottom.Height
+                    Else
+                        .Height = MP.Height
+                    End If
+                End If
+            End With
+        End If
+    End If
+    
+    If Not SidebarBottom Is Nothing Then
+        If SidebarBottom.Visible Then
+            SidebarLeft.Height = SidebarLeft.Height + SidebarBottom.Height
+            With SidebarBottom
+                .Caption = ""
+                .SpecialEffect = fmSpecialEffectFlat
+                .BorderStyle = fmBorderStyleNone
+                .BackColor = MyColors.FormSidebarMediumGray 'vbred
+                .Top = MP.Top & MP.Height
+                .Left = SidebarLeft.Left + SidebarLeft.Width - 1
+    '            If SidebarRight Is Nothing Then
+                    .Width = MP.Width + 2
+    '            Else
+    '                .Width = MP.Width + SidebarRight.Width
+    '            End If
+                
+            End With
+        End If
+    End If
+    
+    aUserform.Init(oForm).ResizeToFitControls
+
+    sbLeftWidth = SidebarLeft.Width
+    If Not SidebarRight Is Nothing Then sbRightWidth = SidebarRight.Width
+    If Not SidebarBottom Is Nothing Then sbBottomHeight = SidebarBottom.Height
+
+    Dim item
+    For Each item In Array("Left", "Right")
+        If Not (item = "Right" And SidebarRight Is Nothing) Then
+            Set lbl = oForm.Controls("Sidebar" & item).Controls.Add("forms.label.1", "ResizeSidebar" & item)
+            With lbl
+                .Font.Name = "Consolas"
+                .AutoSize = False
+                .Width = oForm.Controls("Sidebar" & item).Width
+                .Height = 16
+                .Left = 0
+                .Top = oForm.Controls("Sidebar" & item).Top + oForm.Controls("Sidebar" & item).Height - lbl.Height '- 6
+                .ForeColor = vbWhite
+                .Font.Bold = True
+                .Font.Size = 14
+                .Caption = "<"
+            End With
+        End If
+    Next
+    
+    AddContactsToSidebarBottom
+'    AddThemeControlsSidbarRight '@TODO FIX
+    
+    For Each ctrl In oForm.Controls
+        If TypeName(ctrl) = "Label" Then
+            ctrl.MouseIcon = LoadPicture(ThisWorkbook.Path & "\img\Hand Cursor Pointer.ico")
+            ctrl.MousePointer = fmMousePointerCustom
+        End If
+    Next
     
     Set Emitter = New EventListenerEmitter
     Emitter.AddEventListenerAll oForm
+        
+End Sub
+
+Public Sub AddThemeControlsSidbarRight()
+    aFrame.Init(oForm.Controls("SidebarRight")).AddThemeControls
+End Sub
+
+Public Sub AddContactsToSidebarBottom()
+    Dim SidebarBottom As MSForms.Frame
+    On Error Resume Next
+    Set SidebarBottom = oForm.Controls("SidebarBottom")
+    On Error GoTo 0
+    If SidebarBottom Is Nothing Then Exit Sub
+    Dim lbl As MSForms.Label
+    Dim newPicture As IPictureDisp
+    Dim filepath As String
+    Dim myLinks(1 To 5)
+    myLinks(1) = "github"
+    myLinks(2) = "blog"
+    myLinks(3) = "youtube"
+    myLinks(4) = "buymeacoffee"
+    myLinks(5) = "email"
     
+    Dim item
+    For Each item In myLinks
+        filepath = ThisWorkbook.Path & "\img\" & item & ".bmp"
+        If FileExists(filepath) Then
+            Set newPicture = LoadPicture(filepath)
+            Set lbl = SidebarBottom.Controls.Add("Forms.Label.1")
+            lbl.Visible = False
+            With lbl
+                .Top = 6
+                .Width = 24
+                .Height = 24
+                .Left = AvailableFormOrFrameColumn(SidebarBottom, 0, , 12)
+                Set .Picture = Nothing
+                .Picture = newPicture
+                .Tag = "followlink-" & item
+                .ControlTipText = item
+            End With
+            lbl.Visible = True
+        End If
+    Next
 End Sub
 
 Public Sub Emitter_LabelMouseOut(Label As MSForms.Label)
-    If InStr(1, Label.Tag, "page-") > 0 Then
+    If InStr(1, Label.Tag, "page-") > 0 Or InStr(1, Label.Name, "ResizeSidebar") > 0 Then
         If Label.BackColor <> &H80B91E Then Label.BackColor = &H534848
     End If
 End Sub
 
 Public Sub Emitter_LabelMouseOver(Label As MSForms.Label)
-    If InStr(1, Label.Tag, "page-") > 0 Then
+    If InStr(1, Label.Tag, "page-") > 0 Or InStr(1, Label.Name, "ResizeSidebar") > 0 Then
         If Label.BackColor <> &H80B91E Then Label.BackColor = &H808080
     End If
 End Sub
 
 Public Sub Emitter_LabelClick(ByRef Label As MSForms.Label)
-    Dim ctrl As control
     If InStr(1, Label.Tag, "page-") > 0 Then
+        Dim ctrl As control
         For Each ctrl In oForm.Controls
             If InStr(1, ctrl.Tag, "page-") > 0 Then ctrl.BackColor = &H534848
         Next
@@ -245,6 +373,79 @@ Public Sub Emitter_LabelClick(ByRef Label As MSForms.Label)
         If InStr(1, Label.Tag, "page-") > 0 Then
             oMultiPage.Value = Split(Label.Tag, "-")(1)
         End If
+    End If
+    
+    If InStr(1, Label.Caption, ">") > 0 Or InStr(1, Label.Caption, "<") > 0 Then
+        Dim SidebarLeft As MSForms.control
+        Dim SidebarRight As MSForms.control
+        Dim SidebarBottom As MSForms.control
+        Dim MP As MSForms.control
+        On Error Resume Next
+        Set SidebarLeft = oForm.Controls("SidebarLeft")
+        Set SidebarRight = oForm.Controls("SidebarRight")
+        Set SidebarBottom = oForm.Controls("SidebarBottom")
+        Set MP = oForm.Controls("MultiPage1")
+        On Error GoTo 0
+        
+        If InStr(1, Label.Name, "Sidebar") > 0 Then
+            If InStr(1, Label.Name, "Right") > 0 Then
+                If SidebarRight.Width <> sbRightWidth Then
+                    SidebarRight.Width = sbRightWidth
+                    oForm.Controls("ResizeSidebarRight").Caption = "<"
+                Else
+                    SidebarRight.Width = 12
+                    oForm.Controls("ResizeSidebarRight").Caption = ">"
+                End If
+                
+            ElseIf InStr(1, Label.Name, "Bottom") > 0 Then
+    '            oForm.Controls("SidebarBottom").Height = sbBottomHeight
+            ElseIf InStr(1, Label.Name, "Left") > 0 Then
+                If SidebarLeft.Width <> sbLeftWidth Then
+                    SidebarLeft.Width = sbLeftWidth
+                    oForm.Controls("ResizeSidebarLeft").Caption = "<"
+                Else
+                    SidebarLeft.Width = 12
+                    oForm.Controls("ResizeSidebarLeft").Caption = ">"
+                End If
+                MP.Left = SidebarLeft.Left + SidebarLeft.Width
+                If Not SidebarRight Is Nothing Then SidebarRight.Left = MP.Left + MP.Width
+                If Not SidebarBottom Is Nothing Then SidebarBottom.Left = SidebarLeft.Left + SidebarLeft.Width
+            End If
+            
+    '       aUserform.Init(oForm).ResizeToFitControls
+            If SidebarRight Is Nothing Then
+                oForm.Width = MP.Left + MP.Width
+            Else
+                If SidebarRight.Visible Then
+                    oForm.Width = SidebarRight.Left + SidebarRight.Width + 12
+                Else
+                    oForm.Width = MP.Left + MP.Width
+                End If
+            End If
+        End If
+    End If
+    
+    If InStr(1, Label.Tag, "followlink-") > 0 Then
+        Select Case Split(Label.Tag, "-")(1)
+            Case "youtube": FollowLink "https://www.youtube.com/channel/UC5QH3fn1zjx0aUjRER_rOjg"
+            Case "github": FollowLink "https://github.com/alexofrhodes/"
+            Case "blog": FollowLink "https://alexofrhodes.github.io/"
+            Case "buymeacoffee": FollowLink "http://paypal.me/alexofrhodes"
+            Case "email"
+                If GetInternetConnectedState = False Then
+                    MsgBox "Seems Internet is not available"
+                    Exit Sub
+                End If
+                If OutlookCheck = True Then
+                    MailDev
+                Else
+                    Dim out As String
+                    out = AUTHOR_EMAIL
+                    CLIP out
+                    MsgBox ("Seems Outlook is not available" & Chr(10) & _
+                    "DEV's email address " & vbNewLine & out & vbNewLine & "copied to clipboard")
+                End If
+        End Select
     End If
 End Sub
 
@@ -277,14 +478,14 @@ Public Sub SetBackColor(PageIndex, BackColor As Long)
     
     Page.PictureSizeMode = fmPictureSizeModeStretch
     
-    hdc = GetDC(0)
+    hDC = GetDC(0)
     SetRect R, 0, 0, 1, 1
 
     With R
-        hMemBmp = CreateCompatibleBitmap(hdc, .Right - .Left, .Bottom - .Top)
+        hMemBmp = CreateCompatibleBitmap(hDC, .Right - .Left, .Bottom - .Top)
     End With
 
-    hMemDc = CreateCompatibleDC(hdc)
+    hMemDc = CreateCompatibleDC(hDC)
     DeleteObject SelectObject(hMemDc, hMemBmp)
     hBrush = CreateSolidBrush(BackColor)
     FillRect hMemDc, R, hBrush
@@ -321,7 +522,7 @@ Public Sub SetBackColor(PageIndex, BackColor As Long)
     DeleteObject hMemBmp
     DeleteObject hMemDc
     DeleteObject hBrush
-    ReleaseDC 0, hdc
+    ReleaseDC 0, hDC
 
     ReDim Preserve ar(i)
     ar(i) = hCopy
@@ -340,3 +541,37 @@ Private Sub DeleteResources()
     Next
 
 End Sub
+
+
+Function OutlookCheck() As Boolean
+    Dim xOLApp As Object
+    Set xOLApp = CreateObject("Outlook.Application")
+    If Not xOLApp Is Nothing Then
+        OutlookCheck = True
+        Set xOLApp = Nothing
+        Exit Function
+    End If
+    OutlookCheck = False
+End Function
+
+
+Sub MailDev()
+    Dim OutApp As Object
+    Dim OutMail As Object
+    Dim strBody As String
+    Set OutApp = CreateObject("Outlook.Application")
+    Set OutMail = OutApp.CreateItem(0)
+    On Error Resume Next
+    With OutMail
+        .To = AUTHOR_EMAIL
+        .cc = vbNullString
+        .BCC = vbNullString
+        .Subject = "Feedback or request - " & ThisWorkbook.Name
+        .body = strBody
+        .display
+    End With
+    On Error GoTo 0
+    Set OutMail = Nothing
+    Set OutApp = Nothing
+End Sub
+

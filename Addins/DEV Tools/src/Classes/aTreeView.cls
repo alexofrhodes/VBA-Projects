@@ -66,7 +66,7 @@ Public Sub RemoveEmpty(ColumnLevel As Long)
         Set nod = TV.Nodes(i)
         If GetLevel(nod) = ColumnLevel Then
             If nod.Children = 0 Then
-                TV.Nodes.Remove nod.Index
+                TV.Nodes.Remove nod.index
             End If
         End If
     Next
@@ -276,19 +276,19 @@ Public Sub SelectNodes(SingleSelect As Boolean, lvl1crit As String, Optional Cri
             If SingleSelect = True Then Exit For
         End If
     Next
-    Dim X As Long
-    X = nd.Index + 1
+    Dim x As Long
+    x = nd.index + 1
     Dim crit
     Dim i As Long
     For Each crit In CriteriaByLevel
-        For i = X To TV.Nodes.count
+        For i = x To TV.Nodes.count
             If TV.Nodes.item(i).TEXT = crit Then
                 TV.Nodes.item(i).Selected = True
                 TV.Nodes.item(i).Expanded = True
                 If SingleSelect = True Then Exit For
             End If
         Next
-        X = i + 1
+        x = i + 1
     Next
 End Sub
 
@@ -355,7 +355,7 @@ Sub LoadRange( _
                 ClearPreviousNodes As Boolean, _
                 Expanded As Boolean)
     Rem example use
-    Rem    TreeviewPopulateFromRange me.Treeview1,thisworkbook.sheets("TreeviewHierarchy").range("A1"),true,false
+    Rem    LoadRange me.Treeview1,thisworkbook.sheets("TreeviewHierarchy").range("A1"),true,false
     Rem example of sheet structure
     Rem  |1|2|3
     Rem 1|A| |
@@ -412,7 +412,7 @@ Public Sub LoadTreeArray( _
     tmpSheet.Cells.Clear
     ArrayToRange2D arr, tmpSheet.Cells(1, 1)
     LoadRange tmpSheet.Cells(1, 1), ClearPreviousNodes, Expanded
-''    tmpSheet.Delete
+    tmpSheet.Delete
     
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
@@ -422,17 +422,17 @@ Sub LoadVBProjects()
     Dim nP As Node
     Dim nM As Node
     Dim nS As Node
-    Dim X, Y, s, P As Variant
+    Dim x, y, s, P As Variant
     Dim Module As VBComponent
     On Error Resume Next
     Dim element
-    For Each X In Array(Workbooks, AddIns)
-        For Each Y In X
-            If Not WorkbookProjectProtected(Workbooks(Y.Name)) Then
+    For Each x In Array(Workbooks, AddIns)
+        For Each y In x
+            If Not WorkbookProjectProtected(Workbooks(y.Name)) Then
                 If Err.Number = 0 Then
-                    Set nP = TV.Nodes.Add(, , , Y.Name)
+                    Set nP = TV.Nodes.Add(, , , y.Name)
                     For Each element In Array(vbext_ct_Document, vbext_ct_MSForm, vbext_ct_StdModule, vbext_ct_ClassModule)
-                        For Each Module In Workbooks(Y.Name).VBProject.VBComponents
+                        For Each Module In Workbooks(y.Name).VBProject.VBComponents
                             If Module.Type = element Then
                                 Set nM = TV.Nodes.Add(nP, tvwChild, , aModule.Init(Module).Name)
                                 For Each P In ProceduresOfModule(Module)
@@ -444,8 +444,8 @@ Sub LoadVBProjects()
                 End If
             End If
             Err.Clear
-        Next Y
-    Next X
+        Next y
+    Next x
 End Sub
 
 Sub ActivateProjectElement()
@@ -497,20 +497,20 @@ Public Sub FindCodeEverywhere(F As String)
     Dim nM As Node
     Dim nS As Node
     Dim nF As Node
-    Dim X, Y, s, P As Variant
+    Dim x, y, s, P As Variant
     Dim Module As VBComponent
     Dim am As aModule
     Dim AP As aProcedure
     Dim aw As aWorkbook
     Dim i As Long
     On Error Resume Next
-    For Each X In Array(Workbooks, AddIns)
-        For Each Y In X
-            If Not WorkbookProjectProtected(Workbooks(Y.Name)) Then
+    For Each x In Array(Workbooks, AddIns)
+        For Each y In x
+            If Not WorkbookProjectProtected(Workbooks(y.Name)) Then
                 If Err.Number = 0 Then
-                    Set aw = aWorkbook.Init(Workbooks(Y.Name))
+                    Set aw = aWorkbook.Init(Workbooks(y.Name))
                     If UBound(Filter(Split(aw.Code, vbNewLine), F, True, vbTextCompare)) > -1 Then
-                        Set nP = TV.Nodes.Add(, , , Y.Name)
+                        Set nP = TV.Nodes.Add(, , , y.Name)
                         For Each am In aModules.Init(aw.item).Items
                             If am.Contains(F, False, False, True) Then
                                 Set nM = TV.Nodes.Add(nP, tvwChild, , am.Name)
@@ -529,8 +529,8 @@ Public Sub FindCodeEverywhere(F As String)
                 End If
             End If
             Err.Clear
-        Next Y
-    Next X
+        Next y
+    Next x
 End Sub
 
 Sub ImageListLoadProjectIcons(imgList As ImageList)
@@ -560,7 +560,7 @@ Sub TreeviewAssignProjectImages()
         Select Case GetLevel(TV.Nodes.item(i))
         Case 1
             If InStr(1, TV.Nodes.item(i).TEXT, ".") = 0 Then GoTo SKIP
-            TV.Nodes.item(i).image = tvImages.tvProject
+            TV.Nodes.item(i).Image = tvImages.tvProject
         Case 2
             Set TargetWorkbook = Workbooks(TV.Nodes.item(i).Parent.TEXT)
             If InStr(1, TargetWorkbook.Name, ".") = 0 Then GoTo SKIP
@@ -574,18 +574,18 @@ Sub TreeviewAssignProjectImages()
             End If
             Select Case aModule.Init(Module).TypeToString
             Case "Document"
-                TV.Nodes.item(i).image = tvImages.tvSheet
+                TV.Nodes.item(i).Image = tvImages.tvSheet
             Case "UserForm"
-                TV.Nodes.item(i).image = tvImages.tvForm
+                TV.Nodes.item(i).Image = tvImages.tvForm
             Case "Module"
-                TV.Nodes.item(i).image = tvImages.tvModule
+                TV.Nodes.item(i).Image = tvImages.tvModule
             Case "Class"
-                TV.Nodes.item(i).image = tvImages.tvClass
+                TV.Nodes.item(i).Image = tvImages.tvClass
             End Select
         Case 3
-            TV.Nodes.item(i).image = tvImages.tvMacro
+            TV.Nodes.item(i).Image = tvImages.tvMacro
         Case 4
-            TV.Nodes.item(i).image = tvImages.tvText
+            TV.Nodes.item(i).Image = tvImages.tvText
         End Select
 SKIP:
     Next i

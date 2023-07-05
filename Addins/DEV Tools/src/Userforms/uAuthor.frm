@@ -33,14 +33,14 @@ Const AUTHOR_EMAIL = "anastasioualex@gmail.com"
 
 #If VBA7 Then
     Private Declare PtrSafe Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwFlags As Long, ByVal dwReserved As Long) As Long
-    Private Declare PtrSafe Function GetSystemMetrics Lib "USER32" (ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
     
-    Private Declare PtrSafe Function SetWindowLong Lib "USER32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
-    Private Declare PtrSafe Function FindWindow Lib "USER32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
-    Private Declare PtrSafe Function FindWindowA Lib "USER32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
-    Private Declare PtrSafe Function GetWindowLong Lib "USER32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
-    Private Declare PtrSafe Function DrawMenuBar Lib "USER32" (ByVal hWnd As Long) As Long
-    Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "USER32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+    Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+    Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare PtrSafe Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hwnd As Long) As Long
+    Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hwnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
 #Else
     Private Declare Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwflags As Long, ByVal dwReserved As Long) As Long
     Private Declare Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
@@ -69,15 +69,15 @@ Public Function GetInternetConnectedState() As Boolean
     GetInternetConnectedState = InternetGetConnectedState(0&, 0&)
 End Function
 
-Private Sub MakeFormTransparent(Frm As Object, Optional Color As Variant)
+Private Sub MakeFormTransparent(Frm As Object, Optional color As Variant)
     Dim formhandle As Long
     Dim bytOpacity As Byte
     formhandle = CLng(FindWindow(vbNullString, Frm.Caption))
-    If IsMissing(Color) Then Color = vbWhite
+    If IsMissing(color) Then color = vbWhite
     bytOpacity = 100
     SetWindowLong formhandle, GWL_EXSTYLE, GetWindowLong(formhandle, GWL_EXSTYLE) Or WS_EX_LAYERED
-    Frm.BackColor = Color
-    SetLayeredWindowAttributes formhandle, Color, bytOpacity, LWA_COLORKEY
+    Frm.BackColor = color
+    SetLayeredWindowAttributes formhandle, color, bytOpacity, LWA_COLORKEY
 End Sub
 
 Private Sub MakeFormBorderless(Frm As Object)
@@ -114,17 +114,17 @@ Private Sub LYouTube_Click()
 End Sub
 
 Private Sub LBuyMeACoffee_Click()
-    FollowLink ("http://paypal.me/alexofrhodes")
+    FollowLink "http://paypal.me/alexofrhodes"
 End Sub
 
 Private Function CLIP(Optional StoreText As String) As String
-    Dim X As Variant
-    X = StoreText
+    Dim x As Variant
+    x = StoreText
     With CreateObject("htmlfile")
         With .parentWindow.clipboardData
             Select Case True
             Case Len(StoreText)
-                .SetData "text", X
+                .SetData "text", x
             Case Else
                 CLIP = .GetData("text")
             End Select
@@ -171,9 +171,9 @@ Sub MailDev()
         .To = AUTHOR_EMAIL
         .cc = vbNullString
         .BCC = vbNullString
-        .Subject = "DEV REQUEST OR FEEDBACK FOR -CODE ARCHIVE-"
+        .Subject = "Feedback or request - " & ThisWorkbook.Name
         .body = strBody
-        .Display
+        .display
     End With
     On Error GoTo 0
     Set OutMail = Nothing

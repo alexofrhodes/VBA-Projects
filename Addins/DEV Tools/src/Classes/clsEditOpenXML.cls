@@ -198,8 +198,8 @@ Public Sub ZipAllFilesInFolder()
     vFileNameZip = SourceFile & sDate & ".zip"
     NewZip vFileNameZip
     Set oShellApp = CreateObject("Shell.Application")
-    lFileCt = oShellApp.Namespace(FolderName & "Unzipped " & Filename & Application.PathSeparator).Items.count
-    oShellApp.Namespace(vFileNameZip).CopyHere oShellApp.Namespace(FolderName & "Unzipped " & Filename & Application.PathSeparator).Items
+    lFileCt = oShellApp.Namespace(FolderName & "Unzipped " & FileName & Application.PathSeparator).Items.count
+    oShellApp.Namespace(vFileNameZip).CopyHere oShellApp.Namespace(FolderName & "Unzipped " & FileName & Application.PathSeparator).Items
     On Error Resume Next
     Do Until oShellApp.Namespace(vFileNameZip).Items.count = lFileCt
         Application.Wait (Now + TimeValue("0:00:01"))
@@ -208,7 +208,7 @@ Public Sub ZipAllFilesInFolder()
     Kill SourceFile
     Name vFileNameZip As SourceFile
     On Error Resume Next
-    fso.DeleteFolder FolderName & "Unzipped " & Filename, True
+    fso.DeleteFolder FolderName & "Unzipped " & FileName, True
     On Error GoTo 0
     Set oShellApp = Nothing
 End Sub
@@ -219,9 +219,9 @@ Public Sub UnzipFile()
     Set fso = CreateObject("scripting.filesystemobject")
     XMLFolderRoot = FolderName
     If Right(XMLFolderRoot, 1) <> Application.PathSeparator Then
-        XMLFolderRoot = XMLFolderRoot & "\UnZipped " & Filename & Application.PathSeparator
+        XMLFolderRoot = XMLFolderRoot & "\UnZipped " & FileName & Application.PathSeparator
     Else
-        XMLFolderRoot = XMLFolderRoot & "UnZipped " & Filename & Application.PathSeparator
+        XMLFolderRoot = XMLFolderRoot & "UnZipped " & FileName & Application.PathSeparator
     End If
     On Error Resume Next
     fso.DeleteFolder XMLFolderRoot & "*", True
@@ -280,9 +280,9 @@ Public Property Get FolderName() As Variant
     FolderName = Mid(SourceFile, 1, InStrRev(SourceFile, Application.PathSeparator))
 End Property
 
-Public Property Get Filename() As Variant
+Public Property Get FileName() As Variant
     If SourceFile <> "" Then
-        Filename = Mid(SourceFile, InStrRev(SourceFile, Application.PathSeparator) + 1, Len(SourceFile))
+        FileName = Mid(SourceFile, InStrRev(SourceFile, Application.PathSeparator) + 1, Len(SourceFile))
     End If
 End Property
 

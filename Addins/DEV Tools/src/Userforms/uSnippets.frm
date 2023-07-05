@@ -30,7 +30,6 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private SnippetsFolder As String
-Dim moResizer As New CFormResizer
 
 Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     Dim uSnipIndex As Long:     uSnipIndex = -1
@@ -41,16 +40,11 @@ Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     Unload Me
 End Sub
 
-Private Sub UserForm_Resize()
-    moResizer.FormResize
-End Sub
-
 Private Sub UserForm_Initialize()
     If ShowInVBE = True Then
         Application.VBE.MainWindow.Visible = True
         aUserform.Init(Me).ParentIsVBE
     End If
-    Set moResizer.Form = Me
     SnippetsFolder = LOCAL_LIBRARY_PROCEDURES
 
     FoldersCreate SnippetsFolder
@@ -66,7 +60,8 @@ Private Sub UserForm_Initialize()
 '    Dim uSnipIndex As String
 '    uSnipIndex = ws.Range("B2").TEXT
 '    aListBox.Init(LSnippets).SelectItems uSnipIndex
-
+    Dim myForm As New aUserform
+    myForm.Init(Me).Resizable
 End Sub
 
 Sub SwitchParent()
@@ -109,7 +104,7 @@ End Sub
 
 Private Sub LSnippets_Click()
     Dim sPath As String
-    sPath = SnippetsFolder & LSnippets.list(LSnippets.ListIndex)
+    sPath = SnippetsFolder & LSnippets.List(LSnippets.ListIndex)
     LSnippetsPreview.TEXT = TxtRead(sPath)
 End Sub
 
@@ -139,7 +134,7 @@ Private Sub cOverwriteSnippet_Click()
         isNew = True
         wasResized = True
     Else
-        sPath = SnippetsFolder & LSnippets.list(LSnippets.ListIndex)
+        sPath = SnippetsFolder & LSnippets.List(LSnippets.ListIndex)
     End If
     TxtOverwrite sPath, LSnippetsPreview.TEXT
     If isNew = True Then
@@ -153,10 +148,10 @@ End Sub
 Private Sub cSnippetDelete_Click()
     cResize_Click
     Dim Proceed As Long
-    Proceed = MsgBox("Delete " & LSnippets.list(LSnippets.ListIndex) & "?", vbYesNo)
+    Proceed = MsgBox("Delete " & LSnippets.List(LSnippets.ListIndex) & "?", vbYesNo)
     If Proceed = vbNo Then Exit Sub
     Dim sPath As String
-    sPath = SnippetsFolder & LSnippets.list(LSnippets.ListIndex)
+    sPath = SnippetsFolder & LSnippets.List(LSnippets.ListIndex)
     Dim fso As scripting.FileSystemObject
     Set fso = New scripting.FileSystemObject
     fso.DeleteFile sPath

@@ -28,15 +28,15 @@ Public oComboBox As ComboBox
 
 Rem resize combobox List Portion
 #If VBA7 Then
-    Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hdc As LongPtr, ByVal nIndex As Long) As Long
-    Private Declare PtrSafe Function CreateCompatibleDC Lib "gdi32" (ByVal hdc As LongPtr) As LongPtr
-    Private Declare PtrSafe Function DeleteDC Lib "gdi32" (ByVal hdc As LongPtr) As Long
-    Private Declare PtrSafe Function DrawText Lib "USER32" Alias "DrawTextW" (ByVal hdc As LongPtr, ByVal lpStr As LongPtr, ByVal nCount As Long, lpRect As RECT, ByVal wFormat As Long) As Long
-    Private Declare PtrSafe Function SetMapMode Lib "gdi32" (ByVal hdc As LongPtr, ByVal nMapMode As Long) As Long
-    Private Declare PtrSafe Function GetTextExtentPoint32 Lib "gdi32" Alias "GetTextExtentPoint32W" (ByVal hdc As LongPtr, ByVal lpsz As LongPtr, ByVal cbString As Long, lpSize As ComboboxListSize) As Long
-    Private Declare PtrSafe Function SelectObject Lib "gdi32" (ByVal hdc As LongPtr, ByVal hObject As LongPtr) As LongPtr
+    Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hDC As LongPtr, ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function CreateCompatibleDC Lib "gdi32" (ByVal hDC As LongPtr) As LongPtr
+    Private Declare PtrSafe Function DeleteDC Lib "gdi32" (ByVal hDC As LongPtr) As Long
+    Private Declare PtrSafe Function DrawText Lib "user32" Alias "DrawTextW" (ByVal hDC As LongPtr, ByVal lpStr As LongPtr, ByVal nCount As Long, lpRect As RECT, ByVal wFormat As Long) As Long
+    Private Declare PtrSafe Function SetMapMode Lib "gdi32" (ByVal hDC As LongPtr, ByVal nMapMode As Long) As Long
+    Private Declare PtrSafe Function GetTextExtentPoint32 Lib "gdi32" Alias "GetTextExtentPoint32W" (ByVal hDC As LongPtr, ByVal lpsz As LongPtr, ByVal cbString As Long, lpSize As ComboboxListSize) As Long
+    Private Declare PtrSafe Function SelectObject Lib "gdi32" (ByVal hDC As LongPtr, ByVal hObject As LongPtr) As LongPtr
     Private Declare PtrSafe Function DeleteObject Lib "gdi32" (ByVal hObject As LongPtr) As Long
-    Private Declare PtrSafe Function GetSystemMetrics Lib "USER32" (ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
 #Else
     Private Enum LongPtr
         [_]
@@ -99,7 +99,7 @@ Public Function AutoSizeDropDown(Optional ByVal JumpToWidestEntry As Boolean = F
         hPrevFont = SelectObject(hMemDc, IFont.hFont)
         With oComboBox
             For lIndex = 0& To .ListCount - 1&
-                sItemText = .list(lIndex)
+                sItemText = .List(lIndex)
                 Call GetTextExtentPoint32(hMemDc, StrPtr(sItemText), Len(sItemText), tSize)
                 If lMaxWidth < tSize.cx Then
                     lMaxWidth = tSize.cx
@@ -125,20 +125,20 @@ Public Function AutoSizeDropDown(Optional ByVal JumpToWidestEntry As Boolean = F
 
 End Function
 
-Private Function ScreenDPI(ByVal bVert As Boolean, ByVal hdc As LongPtr) As Long
+Private Function ScreenDPI(ByVal bVert As Boolean, ByVal hDC As LongPtr) As Long
     Const LOGPIXELSX As Long = 88&
     Const LOGPIXELSY As Long = 90&
     Static lDPI(1&) As Long
 
     If lDPI(0&) = 0& Then
-        lDPI(0&) = GetDeviceCaps(hdc, LOGPIXELSX)
-        lDPI(1&) = GetDeviceCaps(hdc, LOGPIXELSY)
+        lDPI(0&) = GetDeviceCaps(hDC, LOGPIXELSX)
+        lDPI(1&) = GetDeviceCaps(hDC, LOGPIXELSY)
     End If
     ScreenDPI = lDPI(Abs(bVert))
 End Function
 
-Private Function PXtoPT(ByVal hdc As LongPtr, ByVal Pixels As Single, ByVal bVert As Boolean) As Single
+Private Function PXtoPT(ByVal hDC As LongPtr, ByVal Pixels As Single, ByVal bVert As Boolean) As Single
     Const POINTSPERINCH As Long = 72&
-    PXtoPT = (Pixels / (ScreenDPI(bVert, hdc) / POINTSPERINCH))
+    PXtoPT = (Pixels / (ScreenDPI(bVert, hDC) / POINTSPERINCH))
 End Function
 

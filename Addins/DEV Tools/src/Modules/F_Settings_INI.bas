@@ -1,17 +1,21 @@
 Attribute VB_Name = "F_Settings_INI"
-'@FOLDER ListOfProcedures
-'--------------------
-'IniSections
-'IniReadSection
-'IniSectionKeys
-'IniReadKey
-'IniWrite
-'TestReadKey
-'IniSectionExists
-'IniKeyExists
-'TestWriteKey
-'--------------------
-'@EndFolder ListOfProcedures
+
+'* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+'* Module     : F_Settings_INI
+'* Purpose    :
+'* Copyright  :
+'*
+'* Author     : Anastasiou Alex
+'* Contacts   : AnastasiouAlex@gmail.com
+'*
+'* BLOG       : https://alexofrhodes.github.io/
+'* GITHUB     : https://github.com/alexofrhodes/
+'* YOUTUBE    : https://www.youtube.com/channel/UC5QH3fn1zjx0aUjRER_rOjg
+'* VK         : https://vk.com/video/playlist/735281600_1
+'*
+'* Modified   : Date and Time       Author              Description
+'* Created    : 30-06-2023 14:11    Alex
+'* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 '____API METHOD______
 
@@ -28,33 +32,33 @@ Attribute VB_Name = "F_Settings_INI"
 
 Sub TestINI()
 
-    Dim FilePath As String: FilePath = ThisWorkbook.Path & "\test.INI"
+    Dim filepath As String: filepath = ThisWorkbook.Path & "\test.INI"
     FollowLink ThisWorkbook.Path
     
-    IniWrite FilePath, "Settings1", "KeyName1", "Value1"
-    IniWrite FilePath, "Settings1", "KeyName2", "2"
-    IniWrite FilePath, "Settings1", "KeyName3", "3"     'SEE THE FILE
+    IniWrite filepath, "Settings1", "KeyName1", "Value1"
+    IniWrite filepath, "Settings1", "KeyName2", "2"
+    IniWrite filepath, "Settings1", "KeyName3", "3"     'SEE THE FILE
     Stop
-    IniWrite FilePath, "Settings1", "KeyName1", "Updated Value" 'SEE THE FILE
+    IniWrite filepath, "Settings1", "KeyName1", "Updated Value" 'SEE THE FILE
     Stop
     
     Dim i  As Long
     For i = 1 To 5
-        IniWrite FilePath, "Settings" & i, "KeyName" & i, i
+        IniWrite filepath, "Settings" & i, "KeyName" & i, i
     Next
     'SEE THE FILE
     Stop
-    dp String(20, "~") & " Printing sections of " & FilePath
-    dp IniSections(FilePath)
+    dp String(20, "~") & " Printing sections of " & filepath
+    dp IniSections(filepath)
     Stop
     dp String(20, "~") & " Printing keys of section Settings1"
-    dp IniSectionKeys(FilePath, "Settings1")
+    dp IniSectionKeys(filepath, "Settings1")
     Stop
     dp String(20, "~") & " Printing all lines of section Settings1"
-    dp IniReadSection(FilePath, "Settings1")
+    dp IniReadSection(filepath, "Settings1")
     Stop
     dp String(20, "~") & " Printing value of Section: Settings1, Keyname: Keyname1"
-    dp IniReadKey(FilePath, "Settings1", "KeyName1")
+    dp IniReadKey(filepath, "Settings1", "KeyName1")
     
 End Sub
 
@@ -74,11 +78,11 @@ Public Function IniSections(iniFile As String) As Variant
 'Array("settings1","settings2")
 End Function
 
-Public Function IniReadSection(Filename As String, Section As String) As Variant
+Public Function IniReadSection(FileName As String, Section As String) As Variant
 '@INCLUDE DECLARATION GetPrivateProfileSection
 '@INCLUDE PROCEDURE ArrayRemoveEmptyElements
     Dim RetVal As String * 255
-    Dim v As Long:      v = GetPrivateProfileSection(Section, RetVal, 255, Filename)
+    Dim v As Long:      v = GetPrivateProfileSection(Section, RetVal, 255, FileName)
     Dim s As String:    s = Left(RetVal, v + 0)
     Dim VL As Variant:  VL = Split(s, Chr$(0))
     VL = ArrayRemoveEmptyElements(VL)
@@ -87,10 +91,13 @@ Public Function IniReadSection(Filename As String, Section As String) As Variant
 'Array("string1=aaa","string2=bbb")
 End Function
 
-Public Function IniSectionKeys(Filename As String, Section As String) As Variant
+Public Function IniSectionKeys(FileName As String, Section As String) As Variant
     Dim arr() As Variant
-    If Not IniSectionExists(Filename, Section) Then IniSectionKeys = arr: Exit Function
-    arr = IniReadSection(Filename, Section)
+    If Not IniSectionExists(FileName, Section) Then
+        IniSectionKeys = arr
+        Exit Function
+    End If
+    arr = IniReadSection(FileName, Section)
     Dim out As Variant
     ReDim out(UBound(arr))
     Dim i As Long

@@ -19,15 +19,15 @@ Public Const LOGPIXELSY = 90
 #If VBA7 Then
     Public Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
     Private Declare PtrSafe Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwFlags As Long, ByVal dwReserved As Long) As Long
-    Public Declare PtrSafe Sub mouse_event Lib "USER32" (ByVal dwFlags As Long, ByVal dX As Long, ByVal dy As Long, ByVal cbuttons As Long, ByVal dwExtraInfo As Long)
-    Public Declare PtrSafe Function GetAsyncKeyState Lib "USER32" (ByVal vKey As Long) As Integer
-    Public Declare PtrSafe Function ClientToScreen Lib "USER32" (ByVal hWnd As Long, lpPoint As tCursor) As Long
-    Public Declare PtrSafe Function GetCursorPos Lib "USER32" (P As tCursor) As Long
-    Public Declare PtrSafe Function FindWindow Lib "USER32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
-    Public Declare PtrSafe Function GetDC Lib "USER32" (ByVal hWnd As Long) As Long
-    Public Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hdc As Long, ByVal nIndex As Long) As Long
-    Public Declare PtrSafe Function ReleaseDC Lib "USER32" (ByVal hWnd As Long, ByVal hdc As Long) As Long
-    Public Declare PtrSafe Function SetCursorPos Lib "USER32" (ByVal X As Long, ByVal Y As Long) As Long
+    Public Declare PtrSafe Sub mouse_event Lib "user32" (ByVal dwFlags As Long, ByVal dx As Long, ByVal dy As Long, ByVal cButtons As Long, ByVal dwExtraInfo As Long)
+    Public Declare PtrSafe Function GetAsyncKeyState Lib "user32" (ByVal vKey As Long) As Integer
+    Public Declare PtrSafe Function ClientToScreen Lib "user32" (ByVal hwnd As Long, lpPoint As tCursor) As Long
+    Public Declare PtrSafe Function GetCursorPos Lib "user32" (P As tCursor) As Long
+    Public Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Public Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
+    Public Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hDC As Long, ByVal nIndex As Long) As Long
+    Public Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hwnd As Long, ByVal hDC As Long) As Long
+    Public Declare PtrSafe Function SetCursorPos Lib "user32" (ByVal x As Long, ByVal y As Long) As Long
 #Else
     Public Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
     Private Declare Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwFlags As Long, ByVal dwReserved As Long) As Long
@@ -58,6 +58,26 @@ Public Const mblncTimer As Boolean = True
 Public mvarTimerName
 Public mvarTimerStart
 
+Public Function isUserform(obj As Object) As Boolean
+    Dim formNames As New Collection
+    Set formNames = aModules.Init(ThisWorkbook).UserformNames
+    Dim formName
+    For Each formName In formNames
+        If formName = obj.Name Then
+            isUserform = True
+            Exit For
+        End If
+    Next
+End Function
+Function IsFileFolderURL(Path) As String
+    Dim RetVal As String
+    RetVal = "I"
+    If (RetVal = "I") And FileExists(Path) Then RetVal = "F"
+    If (RetVal = "I") And FolderExists(Path) Then RetVal = "D"
+    If (RetVal = "I") And URLExists(Path) Then RetVal = "U"
+    ' I => Invalid | F => File | D => Directory | U => Valid Url
+    IsFileFolderURL = RetVal
+End Function
 
 Public Function PadRight(ByVal str As String, ByVal Length As Long, Optional Character As String = " ", Optional RemoveExcess As Boolean)
     If Len(str) < Length Then
@@ -280,8 +300,8 @@ Function GetInputRange(ByRef rInput As Excel.Range, _
                     sTitle As String, _
                     Optional ByVal sDefault As String, _
                     Optional ByVal bActivate As Boolean, _
-                    Optional X, _
-                    Optional Y) As Boolean
+                    Optional x, _
+                    Optional y) As Boolean
 
 'assigns range to variable passed
 'GetInputRange(rng, "Range picker", "Select range to output listbox' list") = False Then Exit Sub
@@ -306,7 +326,7 @@ Function GetInputRange(ByRef rInput As Excel.Range, _
     Set rInput = Nothing
     For nAttempt = 1 To 3
         vReturn = False
-        vReturn = Application.InputBox(sPrompt, sTitle, sDefault, X, Y, Type:=0)
+        vReturn = Application.InputBox(sPrompt, sTitle, sDefault, x, y, Type:=0)
         If False = vReturn Or Len(vReturn) = 0 Then
             Exit For
         Else
@@ -475,20 +495,20 @@ Function Parser_Tab(ByVal s As String) As String
 '@AssignedModule F_String
     'https://sites.google.com/site/e90e50/random-topics/tool-for-parsing-formulas-in-excel
     Dim SS As String, ch As String
-    Dim t As Long, z As Long, X As Long
+    Dim t As Long, z As Long, x As Long
 
     SS = String(10000, " ")
 
     t = 1
     z = 1
-    For X = 1 To Len(s)
-        ch = Mid(s, X, 1)
-        If ch = vbCr And X > 1 Then
+    For x = 1 To Len(s)
+        ch = Mid(s, x, 1)
+        If ch = vbCr And x > 1 Then
 
-            If Mid(s, X - 1, 1) = "(" Then
+            If Mid(s, x - 1, 1) = "(" Then
                 z = z + 1
             Else
-                If Mid(s, X + 1, 1) = ")" Then
+                If Mid(s, x + 1, 1) = ")" Then
                     z = z - 1
                 End If
             End If
@@ -579,15 +599,15 @@ Public Function ArrayToString(SourceArray As Variant, Optional Delimiter As Stri
 
         Temp = Join(SourceArray, Delimiter)
     Case 2
-        Dim RowIndex As Long
+        Dim rowIndex As Long
         Dim ColIndex As Long
-        For RowIndex = LBound(SourceArray, 1) To UBound(SourceArray, 1)
+        For rowIndex = LBound(SourceArray, 1) To UBound(SourceArray, 1)
             For ColIndex = LBound(SourceArray, 2) To UBound(SourceArray, 2)
-                Temp = Temp & SourceArray(RowIndex, ColIndex)
+                Temp = Temp & SourceArray(rowIndex, ColIndex)
                 If ColIndex <> UBound(SourceArray, 2) Then Temp = Temp & Delimiter
             Next ColIndex
-            If RowIndex <> UBound(SourceArray, 1) Then Temp = Temp & vbNewLine
-        Next RowIndex
+            If rowIndex <> UBound(SourceArray, 1) Then Temp = Temp & vbNewLine
+        Next rowIndex
     End Select
     ArrayToString = Temp
 End Function
@@ -805,7 +825,7 @@ Function InStrExact( _
                    Optional AllowAccentedCharacters As Boolean = False) As Long
 '@BlogPosted
 '@AssignedModule F_String
-    Dim X As Long, Str1 As String, str2 As String, pattern As String
+    Dim x As Long, Str1 As String, str2 As String, pattern As String
     Const UpperAccentsOnly As String = "ÇÉÑ"
     Const UpperAndLowerAccents As String = "ÇÉÑçéñ"
     If CaseSensitive Then
@@ -819,10 +839,10 @@ Function InStrExact( _
         pattern = "[!A-Z0-9]"
         If AllowAccentedCharacters Then pattern = Replace(pattern, "!", "!" & UpperAccentsOnly)
     End If
-    For X = Start To Len(Str1) - Len(str2) + 1
-        If Mid(" " & Str1 & " ", X, Len(str2) + 2) Like pattern & str2 & pattern _
-            And Not Mid(Str1, X) Like str2 & "'[" & Mid(pattern, 3) & "*" Then
-            InStrExact = X
+    For x = Start To Len(Str1) - Len(str2) + 1
+        If Mid(" " & Str1 & " ", x, Len(str2) + 2) Like pattern & str2 & pattern _
+            And Not Mid(Str1, x) Like str2 & "'[" & Mid(pattern, 3) & "*" Then
+            InStrExact = x
             Exit Function
         End If
     Next
@@ -1356,22 +1376,22 @@ Public Sub PrintLinesContaining(F)
     Const ModuleString = vbNewLine & "    M|"
     Const Procedurestring = "" & vbTab & "P" & "|" & "---" & "| "
     Const FoundString = "" & vbTab & "t" & "|" & vbTab & " |" & "---" & "| "
-    Dim X, Y, s, P As Variant
+    Dim x, y, s, P As Variant
     Dim Module As VBComponent
     On Error Resume Next
     Dim out As New Collection
-    For Each X In Array(Workbooks, AddIns)
-        For Each Y In X
-            If Not WorkbookProjectProtected(Workbooks(Y.Name)) Then
+    For Each x In Array(Workbooks, AddIns)
+        For Each y In x
+            If Not WorkbookProjectProtected(Workbooks(y.Name)) Then
                 If Err.Number = 0 Then
-                    If UBound(Filter(Split(aWorkbook.Init(Workbooks(Y.Name)).Code, vbNewLine), F, True, vbTextCompare)) > -1 Then
+                    If UBound(Filter(Split(aWorkbook.Init(Workbooks(y.Name)).Code, vbNewLine), F, True, vbTextCompare)) > -1 Then
 
                         out.Add ""
                         out.Add String(50, "-")
-                        out.Add "| " & Y.Name
+                        out.Add "| " & y.Name
                         out.Add String(50, "-")
 
-                        For Each Module In Workbooks(Y.Name).VBProject.VBComponents
+                        For Each Module In Workbooks(y.Name).VBProject.VBComponents
                             If UBound(Filter(Split(aModule.Init(Module).Code, vbNewLine), F, True, vbTextCompare)) > -1 Then
                                 out.Add ModuleString & Module.Name
                                 If Module.CodeModule.CountOfDeclarationLines > 0 Then
@@ -1379,9 +1399,9 @@ Public Sub PrintLinesContaining(F)
                                     out.Add FoundString & Trim(s(i))
                                 End If
                                 For Each P In ProceduresOfModule(Module)
-                                    If UBound(Filter(Split(ProcedureCode(Workbooks(Y.Name), Module, CStr(P)), vbNewLine), F, True, vbTextCompare)) > -1 Then
+                                    If UBound(Filter(Split(ProcedureCode(Workbooks(y.Name), Module, CStr(P)), vbNewLine), F, True, vbTextCompare)) > -1 Then
                                         out.Add Procedurestring & CStr(P)
-                                        s = Filter(Split(ProcedureCode(Workbooks(Y.Name), Module, CStr(P)), vbNewLine), F, True, vbTextCompare)
+                                        s = Filter(Split(ProcedureCode(Workbooks(y.Name), Module, CStr(P)), vbNewLine), F, True, vbTextCompare)
                                         For i = 0 To UBound(s)
                                             out.Add FoundString & Trim(s(i))
                                         Next i
@@ -1393,8 +1413,8 @@ Public Sub PrintLinesContaining(F)
                 End If
             End If
             Err.Clear
-        Next Y
-    Next X
+        Next y
+    Next x
     dp aCollection.Init(out).ToString(vbNewLine) 'collectionToString(out, vbNewLine)
 End Sub
 

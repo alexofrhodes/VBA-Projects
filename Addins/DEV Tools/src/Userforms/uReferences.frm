@@ -35,9 +35,9 @@ Private Sub cADD_Click()
         Exit Sub
     End If
     Dim TargetWorkbook As Workbook
-    Set TargetWorkbook = Workbooks(ListBox1.list(ListBox1.ListIndex))
+    Set TargetWorkbook = Workbooks(ListBox1.List(ListBox1.ListIndex))
     On Error Resume Next
-    TargetWorkbook.VBProject.REFERENCES.AddFromGuid LReferences.list(LReferences.ListIndex, 1), 0, 0
+    TargetWorkbook.VBProject.REFERENCES.AddFromGuid LReferences.List(LReferences.ListIndex, 1), 0, 0
 
     Call PopulateLRefActive
 
@@ -55,9 +55,9 @@ Private Sub cRemove_Click()
         Exit Sub
     End If
     Dim TargetWorkbook As Workbook
-    Set TargetWorkbook = Workbooks(ListBox1.list(ListBox1.ListIndex))
+    Set TargetWorkbook = Workbooks(ListBox1.List(ListBox1.ListIndex))
     On Error Resume Next
-    aWorkbook.Init(TargetWorkbook).RemoveReferenceByGUID LRefActive.list(LReferences.ListIndex, 2)
+    aWorkbook.Init(TargetWorkbook).RemoveReferenceByGUID LRefActive.List(LReferences.ListIndex, 2)
     PopulateLRefActive
 End Sub
 
@@ -89,7 +89,7 @@ Private Sub tFilterReferences_Change()
     For i = n - 1 To 0 Step -1
         'Equals is always case sensitive
         'Remove LCase if you want it to be case sensitive
-        sTemp = LCase(LReferences.list(i, 0))
+        sTemp = LCase(LReferences.List(i, 0))
 
         If InStr(sTemp, str) = 0 Then
             LReferences.RemoveItem (i)
@@ -105,13 +105,13 @@ End Sub
 Private Sub UserForm_Initialize()
     Call PopulateLReferences
 
-    Dim X, Y As Variant
+    Dim x, y As Variant
     On Error Resume Next
-    For Each X In Array(Workbooks, AddIns)
-        For Each Y In X
-            If Not WorkbookProjectProtected(Workbooks(Y.Name)) Then
+    For Each x In Array(Workbooks, AddIns)
+        For Each y In x
+            If Not WorkbookProjectProtected(Workbooks(y.Name)) Then
                 If Err.Number = 0 Then
-                    ListBox1.AddItem Y.Name
+                    ListBox1.AddItem y.Name
                 End If
             End If
             Err.Clear
@@ -124,16 +124,16 @@ Function PopulateLRefActive()
     '@INCLUDE SortListboxOnColumn
     '@INCLUDE DP
     Dim FromWorkbook As Workbook
-    Set FromWorkbook = Workbooks(ListBox1.list(ListBox1.ListIndex))
+    Set FromWorkbook = Workbooks(ListBox1.List(ListBox1.ListIndex))
     Dim i As Long
     i = 0
     LRefActive.Clear
     Dim myRef As Reference
     For Each myRef In FromWorkbook.VBProject.REFERENCES
         uReferences.LRefActive.AddItem
-        uReferences.LRefActive.list(i, 0) = myRef.IsBroken
-        uReferences.LRefActive.list(i, 1) = IIf(myRef.Description <> "", myRef.Description, myRef.Name)
-        uReferences.LRefActive.list(i, 2) = myRef.GUID
+        uReferences.LRefActive.List(i, 0) = myRef.IsBroken
+        uReferences.LRefActive.List(i, 1) = IIf(myRef.Description <> "", myRef.Description, myRef.Name)
+        uReferences.LRefActive.List(i, 2) = myRef.GUID
         dp myRef.Name
         i = i + 1
     Next myRef
@@ -149,10 +149,10 @@ Sub PopulateLReferences()
     Dim cell As Range
     For Each cell In rng.Columns(1).Cells
         uReferences.LReferences.AddItem
-        uReferences.LReferences.list(i, 0) = cell.TEXT
-        uReferences.LReferences.list(i, 1) = cell.OFFSET(0, 1).TEXT
-        uReferences.LReferences.list(i, 2) = cell.OFFSET(0, 2).TEXT
-        uReferences.LReferences.list(i, 3) = cell.OFFSET(0, 3).TEXT
+        uReferences.LReferences.List(i, 0) = cell.TEXT
+        uReferences.LReferences.List(i, 1) = cell.OFFSET(0, 1).TEXT
+        uReferences.LReferences.List(i, 2) = cell.OFFSET(0, 2).TEXT
+        uReferences.LReferences.List(i, 3) = cell.OFFSET(0, 3).TEXT
         i = i + 1
     Next cell
 

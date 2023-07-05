@@ -663,7 +663,7 @@ End Function
 
 Public Property Get Parent() As Workbook
     Dim s As String
-    s = oModule.Collection.Parent.Filename
+    s = oModule.Collection.Parent.FileName
     s = Right(s, Len(s) - InStrRev(s, "\"))
     Set Parent = Workbooks(s)
 End Property
@@ -797,9 +797,9 @@ Public Function Copy( _
 
     Dim fname As String
         fname = Environ("Temp") & "\" & Name & Extension
-    oModule.Export Filename:=fname
+    oModule.Export FileName:=fname
 
-    TargetWorkbook.VBProject.VBComponents.Import Filename:=fname
+    TargetWorkbook.VBProject.VBComponents.Import FileName:=fname
     Kill fname
     Copy = True
 End Function

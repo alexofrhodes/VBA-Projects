@@ -16,7 +16,7 @@ Private Type NOTIFYICONDATAW
         padding1 As Long
     #End If
 
-    hWnd As LongPtr
+    hwnd As LongPtr
     uID As Long
     uFlags As Long
     uCallbackMessage As Long

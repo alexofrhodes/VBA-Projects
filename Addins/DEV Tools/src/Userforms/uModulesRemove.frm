@@ -34,7 +34,7 @@ End Sub
 
 
 Private Sub listOpenBooks_Click()
-    addCompsList Workbooks(listOpenBooks.list(listOpenBooks.ListIndex))
+    addCompsList Workbooks(listOpenBooks.List(listOpenBooks.ListIndex))
 End Sub
 
 Private Sub Remover_Click()
@@ -43,7 +43,7 @@ Private Sub Remover_Click()
         Exit Sub
     End If
     Dim TargetWorkbook As Workbook
-    Set TargetWorkbook = Workbooks(listOpenBooks.list(listOpenBooks.ListIndex))
+    Set TargetWorkbook = Workbooks(listOpenBooks.List(listOpenBooks.ListIndex))
     RemoveModules TargetWorkbook
 End Sub
 
@@ -54,10 +54,10 @@ Private Sub RemoveModules(TargetWorkbook As Workbook)
     For i = 0 To LComponents.ListCount - 1
         If LComponents.Selected(i) Then
             If oCode.Value = True Then
-                Set Module = TargetWorkbook.VBProject.VBComponents(LComponents.list(i, 1))
+                Set Module = TargetWorkbook.VBProject.VBComponents(LComponents.List(i, 1))
                 aModule.Init(Module).CodeRemove
             ElseIf oComps.Value = True Then
-                Set Module = TargetWorkbook.VBProject.VBComponents(LComponents.list(i, 1))
+                Set Module = TargetWorkbook.VBProject.VBComponents(LComponents.List(i, 1))
                 aModule.Init(Module).Delete
             End If
         End If
@@ -76,15 +76,17 @@ Private Sub addCompsList(TargetWorkbook As Workbook)
     For Each vbcomp In TargetWorkbook.VBProject.VBComponents
         If vbcomp.Name <> "ThisWorkbook" Then
             LComponents.AddItem
-            LComponents.list(LComponents.ListCount - 1, 0) = aModule.Init(vbcomp).TypeToString
-            LComponents.list(LComponents.ListCount - 1, 1) = vbcomp.Name
+            LComponents.List(LComponents.ListCount - 1, 0) = aModule.Init(vbcomp).TypeToString
+            LComponents.List(LComponents.ListCount - 1, 1) = vbcomp.Name
             If vbcomp.Type = vbext_ct_Document Then
-                LComponents.list(LComponents.ListCount - 1, 2) = GetSheetByCodeName(TargetWorkbook, vbcomp.Name).Name
+                LComponents.List(LComponents.ListCount - 1, 2) = GetSheetByCodeName(TargetWorkbook, vbcomp.Name).Name
             End If
         End If
     Next
     aListBox.Init(LComponents).SortOnColumn 0
     Me.Caption = "Comps of " & TargetWorkbook.Name
+    '    aListBox.Init(LComponents).SortOnColumn 0
+
 End Sub
 
 Private Sub UserForm_Initialize()

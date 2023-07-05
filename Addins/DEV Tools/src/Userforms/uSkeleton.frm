@@ -130,8 +130,8 @@ Sub loadComponents()
     setUp
     For Each skellyModule In skellyBook.VBProject.VBComponents
         LComponents.AddItem
-        LComponents.list(LComponents.ListCount - 1, 0) = aModule.Init(skellyModule).TypeToString
-        LComponents.list(LComponents.ListCount - 1, 1) = skellyModule.Name
+        LComponents.List(LComponents.ListCount - 1, 0) = aModule.Init(skellyModule).TypeToString
+        LComponents.List(LComponents.ListCount - 1, 1) = skellyModule.Name
     Next
     ReleaseMe
     aListBox.Init(LComponents).SortOnColumn 0
@@ -186,7 +186,7 @@ End Sub
 
 Private Sub LCalls_Click()
     setUp
-    skellyProcName = LCalls.list(LCalls.ListIndex)
+    skellyProcName = LCalls.List(LCalls.ListIndex)
     Set skellyModule = ModuleOfProcedure(skellyBook, CStr(skellyProcName))
     TCalls.TEXT = ProcedureCode(skellyBook, skellyModule, CStr(skellyProcName))
     ReleaseMe
@@ -199,7 +199,7 @@ Private Sub LDeclarations_Click()
     Dim decCol As Collection:   Set decCol = coll.item(6)
     Dim i As Long
     For i = 1 To keyCol.count
-        If keyCol.item(i) = LDeclarations.list(LDeclarations.ListIndex) Then
+        If keyCol.item(i) = LDeclarations.List(LDeclarations.ListIndex) Then
             TDeclarations.TEXT = decCol.item(i)
         End If
     Next i
@@ -207,9 +207,9 @@ End Sub
 
 Sub setUp()
     On Error Resume Next
-    Set skellyBook = Workbooks(LProjects.list(LProjects.ListIndex))
-    Set skellyModule = skellyBook.VBProject.VBComponents(LComponents.list(LComponents.ListIndex, 1))
-    skellyProcName = LProcedures.list(LProcedures.ListIndex)
+    Set skellyBook = Workbooks(LProjects.List(LProjects.ListIndex))
+    Set skellyModule = skellyBook.VBProject.VBComponents(LComponents.List(LComponents.ListIndex, 1))
+    skellyProcName = LProcedures.List(LProcedures.ListIndex)
 End Sub
 
 Sub ReleaseMe()
@@ -303,8 +303,8 @@ Function ControlsResizeColumns(LBox As MSForms.control, Optional ResizeListbox A
     '---Listbox to range-----
     Dim rng As Range
     Set rng = ThisWorkbook.Sheets("ListboxColumnwidth").Range("A1")
-    Set rng = rng.Resize(UBound(LBox.list) + 1, LBox.ColumnCount)
-    rng = LBox.list
+    Set rng = rng.Resize(UBound(LBox.List) + 1, LBox.ColumnCount)
+    rng = LBox.List
     '---Get ColumnWidths------
     rng.Columns.AutoFit
     Dim sWidth As String
@@ -331,13 +331,13 @@ Function ControlsResizeColumns(LBox As MSForms.control, Optional ResizeListbox A
     Application.ScreenUpdating = True
     '----Resize Listbox--------
     If ResizeListbox = False Then Exit Function
-    Dim W As Long
+    Dim w As Long
     Dim i As Long
     For i = LBound(vR) To UBound(vR)
-        W = W + vR(i)
+        w = w + vR(i)
     Next
     DoEvents
-    LBox.Width = W + 10
+    LBox.Width = w + 10
 End Function
 
 Function sheetExists(sheetToFind As String, Optional InWorkbook As Workbook) As Boolean

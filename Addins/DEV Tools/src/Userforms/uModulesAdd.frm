@@ -50,6 +50,7 @@ Private Sub ModulesAdd(TargetWorkbook As Workbook)
     MsgBox typeCounter & " components added to " & TargetWorkbook.Name
 End Sub
 
+
 Private Sub GetInfo_Click()
     uAuthor.Show
 End Sub
@@ -60,13 +61,11 @@ Private Sub SelectFromList_Click()
         Exit Sub
     End If
     Dim TargetWorkbook As Workbook
-    Set TargetWorkbook = Workbooks(listOpenBooks.list(listOpenBooks.ListIndex))
+    Set TargetWorkbook = Workbooks(listOpenBooks.List(listOpenBooks.ListIndex))
     ModulesAdd TargetWorkbook
 End Sub
 
-Private Sub ActiveFile_Click()
-    ModulesAdd ActiveWorkbook
-End Sub
+
 
 Private Sub AddComponent(TargetWorkbook As Workbook, Module_Class_Form_Sheet As Long, componentArray As Variant)
     '@INCLUDE ModuleExists

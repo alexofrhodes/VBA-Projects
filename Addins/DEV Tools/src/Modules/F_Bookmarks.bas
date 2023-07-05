@@ -24,7 +24,7 @@ Public Sub bmload9(): LoadBookmark 9: End Sub
 Public Sub bmload10(): LoadBookmark 10: End Sub
 
 
-Sub SaveBookmark(Index As Long)
+Sub SaveBookmark(index As Long)
     Dim BookmarkFile As String: BookmarkFile = ThisWorkbook.Path & "\bookmarks.ini"
     Dim delim As String: delim = " | "
     Dim TargetWorkbook As Workbook: Set TargetWorkbook = ActiveCodepaneWorkbook
@@ -35,24 +35,24 @@ Sub SaveBookmark(Index As Long)
                    Module.Name & delim & _
                    Procedure & delim & _
                    Module.CodeModule.Lines(aCodeModule.Init(Module).RowFirst, 1)
-    IniWrite BookmarkFile, TargetWorkbook.Name, CStr(Index), BookmarkLine
+    IniWrite BookmarkFile, TargetWorkbook.Name, CStr(index), BookmarkLine
 End Sub
 
 Sub ListBookmarks()
     Dim BookmarkFile As String: BookmarkFile = ThisWorkbook.Path & "\bookmarks.ini"
     dp IniReadSection(BookmarkFile, ActiveCodepaneWorkbook.Name)
 End Sub
-Sub RemoveBookmark(Index As Long)
+Sub RemoveBookmark(index As Long)
     Dim BookmarkFile As String: BookmarkFile = ThisWorkbook.Path & "\bookmarks.ini"
-    WritePrivateProfileString ActiveCodepaneWorkbook.Name, CStr(Index), vbNullString, BookmarkFile
+    WritePrivateProfileString ActiveCodepaneWorkbook.Name, CStr(index), vbNullString, BookmarkFile
 End Sub
 Sub ResetBookmarks()
     Dim BookmarkFile As String: BookmarkFile = ThisWorkbook.Path & "\bookmarks.ini"
     WritePrivateProfileString ActiveCodepaneWorkbook.Name, vbNullString, vbNullString, BookmarkFile
 End Sub
-Sub LoadBookmark(Index As Long)
+Sub LoadBookmark(index As Long)
     Dim BookmarkFile As String: BookmarkFile = ThisWorkbook.Path & "\bookmarks.ini"
-    Dim BookmarkLine As String: BookmarkLine = IniReadKey(BookmarkFile, ActiveCodepaneWorkbook.Name, CStr(Index))
+    Dim BookmarkLine As String: BookmarkLine = IniReadKey(BookmarkFile, ActiveCodepaneWorkbook.Name, CStr(index))
     If BookmarkLine = vbNullString Then Exit Sub
 Retry:
     Dim delim As String:                delim = " | "
