@@ -1,0 +1,331 @@
+<!-- 
+     For more info read documentation at : 
+     https://learn.microsoft.com/en-us/openspecs/office_standards/ms-customui/edc80b05-9169-4ff7-95ee-03af067f35b1 
+-->
+
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui"
+          onLoad="myCustomRibbon_OnLoad">
+              
+     <ribbon>
+        <tabs>
+            <tab id="T1" 
+                 getLabel="myCustomRibbon_getLabel"
+                 getVisible="myCustomRibbon_getVisible"
+                 >                                        
+
+<!-- GROUP 1 --> 
+                                
+                <group id="T1_G1"    
+                        getLabel="myCustomRibbon_getLabel"
+                        getVisible="myCustomRibbon_getVisible"
+                        >
+                       
+                      <button id="T1_G1_B1"  
+                            onAction="myCustomRibbon_ButtonAction"
+                             getSize="myCustomRibbon_getSize"
+                             getLabel="myCustomRibbon_getLabel"
+                             getShowLabel="myCustomRibbon_getShowLabel" 
+                             getVisible="myCustomRibbon_getVisible"
+                             getDescription="myCustomRibbon_getDescription"
+                             getImage="myCustomRibbon_getImage"
+                             getShowImage="myCustomRibbon_getShowImage"
+                             getEnabled="myCustomRibbon_getEnabled"
+                             getScreentip="myCustomRibbon_getScreenTip"
+                             getSupertip="myCustomRibbon_getSupertip"                        
+                            />    
+                       <button id="T1_G1_B2"  
+                             onAction="myCustomRibbon_ButtonAction"
+                             getSize="myCustomRibbon_getSize"
+                             getLabel="myCustomRibbon_getLabel"
+                             getShowLabel="myCustomRibbon_getShowLabel" 
+                             getVisible="myCustomRibbon_getVisible"
+                             getDescription="myCustomRibbon_getDescription"
+                             getImage="myCustomRibbon_getImage"
+                             getShowImage="myCustomRibbon_getShowImage"
+                             getEnabled="myCustomRibbon_getEnabled"
+                             getScreentip="myCustomRibbon_getScreenTip"
+                             getSupertip="myCustomRibbon_getSupertip"                        
+                            /> 
+                      <button id="T1_G1_B3"  
+                             onAction="myCustomRibbon_ButtonAction"
+                             getSize="myCustomRibbon_getSize"
+                             getLabel="myCustomRibbon_getLabel"
+                             getShowLabel="myCustomRibbon_getShowLabel" 
+                             getVisible="myCustomRibbon_getVisible"
+                             getDescription="myCustomRibbon_getDescription"
+                             getImage="myCustomRibbon_getImage"
+                             getShowImage="myCustomRibbon_getShowImage"
+                             getEnabled="myCustomRibbon_getEnabled"
+                             getScreentip="myCustomRibbon_getScreenTip"
+                             getSupertip="myCustomRibbon_getSupertip"                        
+                            /> 
+                            
+                      <button id="T1_G1_B4"  
+                              onAction="myCustomRibbon_ButtonAction"
+                             getSize="myCustomRibbon_getSize"
+                             getLabel="myCustomRibbon_getLabel"
+                             getShowLabel="myCustomRibbon_getShowLabel" 
+                             getVisible="myCustomRibbon_getVisible"
+                             getDescription="myCustomRibbon_getDescription"
+                             getImage="myCustomRibbon_getImage"
+                             getShowImage="myCustomRibbon_getShowImage"
+                             getEnabled="myCustomRibbon_getEnabled"
+                             getScreentip="myCustomRibbon_getScreenTip"
+                             getSupertip="myCustomRibbon_getSupertip"                        
+                            /> 
+                                                                                                                                                        
+                    <splitButton id="T1_G1_S1"    
+                                 getSize="myCustomRibbon_getSize"  
+                                 >
+                                     
+                         <button id="T1_G1_S1_B"  
+                                onAction="myCustomRibbon_ButtonAction"
+                                 getLabel="myCustomRibbon_getLabel"
+                                 getShowLabel="myCustomRibbon_getShowLabel" 
+                                 getDescription="myCustomRibbon_getDescription"
+                                 getImage="myCustomRibbon_getImage"
+                                 getShowImage="myCustomRibbon_getShowImage"
+                                 getEnabled="myCustomRibbon_getEnabled"
+                                 getScreentip="myCustomRibbon_getScreenTip"
+                                 getSupertip="myCustomRibbon_getSupertip"                        
+                                />
+                         
+                         <menu id="T1_G1_S1_M"  >
+                             
+                            <button id="T1_G1_S1_M1" 
+                                    onAction="myCustomRibbon_ButtonAction"                            
+                                     getLabel="myCustomRibbon_getLabel"
+                                     getShowLabel="myCustomRibbon_getShowLabel" 
+                                     getVisible="myCustomRibbon_getVisible"
+                                     getDescription="myCustomRibbon_getDescription"
+                                     getImage="myCustomRibbon_getImage"
+                                     getShowImage="myCustomRibbon_getShowImage"
+                                     getEnabled="myCustomRibbon_getEnabled"
+                                     getScreentip="myCustomRibbon_getScreenTip"
+                                     getSupertip="myCustomRibbon_getSupertip"  
+                                     />
+                           <button id="T1_G1_S1_M2" 
+                                    onAction="myCustomRibbon_ButtonAction"                           
+                                     getLabel="myCustomRibbon_getLabel"
+                                     getShowLabel="myCustomRibbon_getShowLabel" 
+                                     getVisible="myCustomRibbon_getVisible"
+                                     getDescription="myCustomRibbon_getDescription"
+                                     getImage="myCustomRibbon_getImage"
+                                     getShowImage="myCustomRibbon_getShowImage"
+                                     getEnabled="myCustomRibbon_getEnabled"
+                                     getScreentip="myCustomRibbon_getScreenTip"
+                                     getSupertip="myCustomRibbon_getSupertip"  
+                                     />
+                           <button id="T1_G1_S1_M3" 
+                                    onAction="myCustomRibbon_ButtonAction"                           
+                                     getLabel="myCustomRibbon_getLabel"
+                                     getShowLabel="myCustomRibbon_getShowLabel" 
+                                     getVisible="myCustomRibbon_getVisible"
+                                     getDescription="myCustomRibbon_getDescription"
+                                     getImage="myCustomRibbon_getImage"
+                                     getShowImage="myCustomRibbon_getShowImage"
+                                     getEnabled="myCustomRibbon_getEnabled"
+                                     getScreentip="myCustomRibbon_getScreenTip"
+                                     getSupertip="myCustomRibbon_getSupertip"  
+                                     />
+                           <button id="T1_G1_S1_M4" 
+                                    onAction="myCustomRibbon_ButtonAction"                           
+                                     getLabel="myCustomRibbon_getLabel"
+                                     getShowLabel="myCustomRibbon_getShowLabel" 
+                                     getVisible="myCustomRibbon_getVisible"
+                                     getDescription="myCustomRibbon_getDescription"
+                                     getImage="myCustomRibbon_getImage"
+                                     getShowImage="myCustomRibbon_getShowImage"
+                                     getEnabled="myCustomRibbon_getEnabled"
+                                     getScreentip="myCustomRibbon_getScreenTip"
+                                     getSupertip="myCustomRibbon_getSupertip"  
+                                     />
+                           <button id="T1_G1_S1_M5" 
+                                    onAction="myCustomRibbon_ButtonAction"                           
+                                     getLabel="myCustomRibbon_getLabel"
+                                     getShowLabel="myCustomRibbon_getShowLabel" 
+                                     getVisible="myCustomRibbon_getVisible"
+                                     getDescription="myCustomRibbon_getDescription"
+                                     getImage="myCustomRibbon_getImage"
+                                     getShowImage="myCustomRibbon_getShowImage"
+                                     getEnabled="myCustomRibbon_getEnabled"
+                                     getScreentip="myCustomRibbon_getScreenTip"
+                                     getSupertip="myCustomRibbon_getSupertip"  
+                                     />
+                        </menu>     
+                    </splitButton>  
+                </group>  
+
+<!-- GROUP 2 -->
+    
+                <group id="T1_G2"    
+                        getLabel="myCustomRibbon_getLabel"
+                        getVisible="myCustomRibbon_getVisible"
+                        >
+                 
+                    <labelControl id="T1_G2_B3" 
+                                  getLabel="myCustomRibbon_getLabel"
+                                  />
+                                  
+                    <toggleButton id="T1_G2_B1" 
+                                onAction="myCustomRibbon_TogglebuttonAction"    
+                                getPressed="myCustomRibbon_getPressed"
+                                 getSize="myCustomRibbon_getSize"
+                                 getLabel="myCustomRibbon_getLabel"
+                                 getShowLabel="myCustomRibbon_getShowLabel" 
+                                 getVisible="myCustomRibbon_getVisible"
+                                 getDescription="myCustomRibbon_getDescription"
+                                 getImage="myCustomRibbon_getImage"
+                                 getShowImage="myCustomRibbon_getShowImage"
+                                 getEnabled="myCustomRibbon_getEnabled"
+                                 getScreentip="myCustomRibbon_getScreenTip"
+                                 getSupertip="myCustomRibbon_getSupertip"   
+                                 />
+                            
+                    <checkBox id="T1_G2_B5" 
+                                onAction="myCustomRibbon_CheckboxAction"    
+                                getPressed="myCustomRibbon_getPressed"
+                                 getLabel="myCustomRibbon_getLabel"
+                                 getVisible="myCustomRibbon_getVisible"
+                                 getDescription="myCustomRibbon_getDescription"
+                                 getEnabled="myCustomRibbon_getEnabled"
+                                 getScreentip="myCustomRibbon_getScreenTip"
+                                 getSupertip="myCustomRibbon_getSupertip" 
+                                 />
+                                             
+                    <comboBox id="T1_G2_B2" 
+                             maxLength="10"
+                             onChange="myCustomRibbon_ComboboxChanged"
+                             sizeString="WWWWWWWWWWWWW"
+                             getLabel="myCustomRibbon_getLabel"
+                             getShowLabel="myCustomRibbon_getShowLabel" 
+                             getVisible="myCustomRibbon_getVisible"
+                             getImage="myCustomRibbon_getImage"
+                             getShowImage="myCustomRibbon_getShowImage"
+                             getEnabled="myCustomRibbon_getEnabled"
+                             getScreentip="myCustomRibbon_getScreenTip"
+                             getSupertip="myCustomRibbon_getSupertip"
+                             showItemImage="true"
+                             >
+
+                             <item id="T1_G2_B2_I1" 
+                                   imageMso="WordPicture"
+                                   label="Could use getContent instead, but i haven't worked on that yet."
+                                   />
+                             <item id="T1_G2_B2_I2" 
+                                   imageMso="WordPicture"
+                                   label="Could use getContent instead, but i haven't worked on that yet."
+                                   />
+                    
+                    </comboBox>
+                         
+                
+                  <dropDown id="T1_G2_B7" 
+                            onAction="myCustomRibbon_DropdownAction"
+                             getLabel="myCustomRibbon_getLabel"
+                             getShowLabel="myCustomRibbon_getShowLabel" 
+                             getVisible="myCustomRibbon_getVisible"
+                             getImage="myCustomRibbon_getImage"
+                             getShowImage="myCustomRibbon_getShowImage"
+                             getEnabled="myCustomRibbon_getEnabled"
+                             getScreentip="myCustomRibbon_getScreenTip"
+                             getSupertip="myCustomRibbon_getSupertip"
+                             showItemImage="true"
+                            >
+
+                         <item id="T1_G2_B7_I1" 
+                               imageMso="WordPicture"
+                               label="Could use getContent instead, but i haven't worked on that yet."
+                               />
+                         <item id="T1_G2_B7_I2" 
+                               imageMso="WordPicture"
+                               label="Could use getContent instead, but i haven't worked on that yet."
+                               />                                   
+                         
+                         <button id="T1_G2_B7_B1"  
+                            onAction="myCustomRibbon_ButtonAction"
+                             getLabel="myCustomRibbon_getLabel"
+                             getShowLabel="myCustomRibbon_getShowLabel" 
+                             getVisible="myCustomRibbon_getVisible"
+                             getDescription="myCustomRibbon_getDescription"
+                             getImage="myCustomRibbon_getImage"
+                             getShowImage="myCustomRibbon_getShowImage"
+                             getEnabled="myCustomRibbon_getEnabled"
+                             getScreentip="myCustomRibbon_getScreenTip"
+                             getSupertip="myCustomRibbon_getSupertip"                        
+                            />         
+                               
+                     </dropDown>
+                                                             
+                    <editBox id="T1_G2_B4" 
+                             getLabel="myCustomRibbon_getLabel"
+                             getText="myCustomRibbon_getEditboxText"
+                             getImage="myCustomRibbon_getImage"
+                             maxLength="10"
+                             onChange="myCustomRibbon_EditboxChanged"
+                             getScreentip="myCustomRibbon_getScreenTip"
+                             getSupertip="myCustomRibbon_getSupertip"
+                             getShowLabel="myCustomRibbon_getShowLabel" 
+                             sizeString="WWWWWWWWWWWWW"
+                             />
+                      
+                              
+                    <gallery id="T1_G2_B6" 
+                            getLabel="myCustomRibbon_getLabel"
+                            getImage="myCustomRibbon_getImage"
+                            rows="3"
+                            columns="2"
+                            itemWidth="40" 
+                            itemHeight="30" 
+                            getSize="myCustomRibbon_getSize"
+                            getDescription="myCustomRibbon_getDescription"
+                             getScreentip="myCustomRibbon_getScreenTip"
+                             getSupertip="myCustomRibbon_getSupertip" 
+                            onAction="myCustomRibbon_GalleryAction"  
+                              getShowLabel="myCustomRibbon_getShowLabel" 
+                              getShowImage="myCustomRibbon_getShowImage"
+                            showItemImage="true"
+                            showItemLabel="true"
+                            sizeString="WWWWWWWWWWWWW"
+                            >
+
+                            <item id="T1_G2_B6_I1" 
+                                imageMso="WordPicture"
+                                label="Could use getItemID, getItemLabel etc instead, but i haven't worked on that yet."/>
+                             <item id="T1_G2_B6_I2" 
+                                   imageMso="WordPicture"
+                                   label="Could use getContent instead, but i haven't worked on that yet."
+                                   />  
+                                   
+                                   
+                           <button id="T1_G2_B6_B1" 
+                                    onAction="myCustomRibbon_ButtonAction"                           
+                                     getLabel="myCustomRibbon_getLabel"
+                                     getShowLabel="myCustomRibbon_getShowLabel" 
+                                     getVisible="myCustomRibbon_getVisible"
+                                     getDescription="myCustomRibbon_getDescription"
+                                     getImage="myCustomRibbon_getImage"
+                                     getShowImage="myCustomRibbon_getShowImage"
+                                     getEnabled="myCustomRibbon_getEnabled"
+                                     getScreentip="myCustomRibbon_getScreenTip"
+                                     getSupertip="myCustomRibbon_getSupertip"  
+                                     />                                                              
+                            <!-- Galery can have button at bottom -->
+                                
+                    </gallery>                       
+  
+                             
+                       <dialogBoxLauncher>
+                          <button id="T1_G2_D" screentip="Dialog Box Launcher" onAction= "myCustomRibbon_ButtonAction"/>
+                       </dialogBoxLauncher>
+                </group>
+                     
+            </tab>
+        </tabs>
+    </ribbon>
+ </customUI>
+     
+     
+     
+     
+         
