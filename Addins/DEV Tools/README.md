@@ -13,13 +13,17 @@ For workbook and vbe commandbars view repo VBA-Projects > Standalone > CommandBa
 For customizable Ribbon view repo VBA-Projects > Standalone > Dynamic Ribbon
 
 VIDEO:  
-[![Settings Editor](https://img.youtube.com/vi/CijT9hZ3Z_g/0.jpg)](https://www.youtube.com/watch?v=CijT9hZ3Z_g)
+[![Video](https://img.youtube.com/vi/CijT9hZ3Z_g/0.jpg)](https://www.youtube.com/watch?v=CijT9hZ3Z_g)
 
 Multipage:  
-[![Settings Editor](https://img.youtube.com/vi/KpFNGfNe_Ls/0.jpg)](https://www.youtube.com/watch?v=KpFNGfNe_Ls)  
+[![Video](https://img.youtube.com/vi/KpFNGfNe_Ls/0.jpg)](https://www.youtube.com/watch?v=KpFNGfNe_Ls)  
 
 Update:  
-[![Settings Editor](https://img.youtube.com/vi/O8ZDGW06z_I/0.jpg)](https://www.youtube.com/watch?v=O8ZDGW06z_I)
+[![Video](https://img.youtube.com/vi/O8ZDGW06z_I/0.jpg)](https://www.youtube.com/watch?v=O8ZDGW06z_I)
 
 Color Schemes:  
-[![Settings Editor](https://img.youtube.com/vi/BfmRm5kRqMA/0.jpg)](https://www.youtube.com/watch?v=BfmRm5kRqMA)
+[![Video](https://img.youtube.com/vi/BfmRm5kRqMA/0.jpg)](https://www.youtube.com/watch?v=BfmRm5kRqMA)
+
+Table Editor:  
+[![Video](https://img.youtube.com/vi/mP3mE7J7dKw/0.jpg)](https://www.youtube.com/watch?v=mP3mE7J7dKw)  
+
