@@ -24,6 +24,4 @@ Update:
 Color Schemes:  
 [![Video](https://img.youtube.com/vi/BfmRm5kRqMA/0.jpg)](https://www.youtube.com/watch?v=BfmRm5kRqMA)
 
-Table Editor:  
-[![Video](https://img.youtube.com/vi/mP3mE7J7dKw/0.jpg)](https://www.youtube.com/watch?v=mP3mE7J7dKw)  
 
