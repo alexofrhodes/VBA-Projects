@@ -5,7 +5,7 @@ The functionality is not limited to the 1 liner examples. Explore.
 Read and test the code, some programmatic operations may be irreversible. No liability.
 
 vbaGUI is maintained in repo Autohotkey
-
+ 
 The vbe relevant classes are maintained in repo VBA-Library > CLASSES
 
 For workbook and vbe commandbars view repo VBA-Projects > Standalone > CommandBar Builder
@@ -23,5 +23,8 @@ Update:
 
 Color Schemes:  
 [![Video](https://img.youtube.com/vi/BfmRm5kRqMA/0.jpg)](https://www.youtube.com/watch?v=BfmRm5kRqMA)
+
+aListbox update:  
+[![Video](https://img.youtube.com/vi/_wD3sycF0Qo/0.jpg)](https://www.youtube.com/watch?v=_wD3sycF0Qo)
 
 
