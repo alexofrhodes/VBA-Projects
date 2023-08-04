@@ -20,7 +20,7 @@ Public Const LOGPIXELSY = 90
     Public Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
     Public Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hDC As Long, ByVal nIndex As Long) As Long
     Public Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hwnd As Long, ByVal hDC As Long) As Long
-    Public Declare PtrSafe Function SetCursorPos Lib "user32" (ByVal X As Long, ByVal Y As Long) As Long
+    Public Declare PtrSafe Function SetCursorPos Lib "user32" (ByVal x As Long, ByVal y As Long) As Long
 #Else
     Public Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
     public Declare Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwFlags As Long, ByVal dwReserved As Long) As Long
@@ -36,15 +36,53 @@ Public Const LOGPIXELSY = 90
 #End If
 
 Enum MyColors
-    FormBackgroundDarkGray = 4208182        ' BACKGROUND DARK GRAY
-    FormSidebarMediumGray = 5457992        ' TILE COLORS LIGHTER GRAY
-    FormSidebarMouseOverLightGray = &H808080        ' lighter light gray
-    FormSelectedGreen = 8435998        ' green tile
+    FormBackgroundDarkGray = 4208182            ' BACKGROUND DARK GRAY
+    FormSidebarMediumGray = 5457992             ' TILE COLORS LIGHTER GRAY
+    FormSidebarMouseOverLightGray = &H808080    ' lighter light gray
+    FormSelectedGreen = 8435998                 ' green tile
 End Enum
 
 Sub TableManagerButtonClicked(control As IRibbonControl)
     uTableManager.Show
 End Sub
+
+
+
+Public Function IsValueFormattedCorrectly(ByVal inputRange As Range, ByVal inputValue As Variant) As Boolean
+    If IsEmpty(inputValue) Then
+        IsValueFormattedCorrectly = True ' Empty values are always valid
+        Exit Function
+    End If
+
+    On Error Resume Next
+    Dim cellFormat As String
+    cellFormat = inputRange.NumberFormat
+    On Error GoTo 0
+
+    If cellFormat = "General" Then
+        IsValueFormattedCorrectly = True ' General format allows any value
+        Exit Function
+    End If
+
+    On Error Resume Next
+    Dim formattedValue As Variant
+    formattedValue = Format(inputValue, cellFormat)
+    On Error GoTo 0
+
+    If Not IsError(formattedValue) Then
+        ' The value can be formatted correctly, now compare the formatted value with the original input value
+        IsValueFormattedCorrectly = (formattedValue = inputValue)
+    Else
+        ' The value cannot be formatted correctly
+        IsValueFormattedCorrectly = False
+    End If
+End Function
+
+
+
+
+
+
 
 Public Function aSwitch(CheckThis, ParamArray OptionPairs() As Variant)
 '@LastModified 2307171814
@@ -87,29 +125,29 @@ Function AvailableFormOrFrameColumn(FormOrFrame As Object, Optional AfterWidth A
 End Function
 
 Function Transpose2DArray(inputArray As Variant) As Variant
-    Dim X As Long, yUbound As Long
-    Dim Y As Long, xUbound As Long
+    Dim x As Long, yUbound As Long
+    Dim y As Long, xUbound As Long
     Dim tempArray As Variant
     xUbound = UBound(inputArray, 2)
     yUbound = UBound(inputArray, 1)
     ReDim tempArray(1 To xUbound, 1 To yUbound)
-    For X = 1 To xUbound
-        For Y = 1 To yUbound
-            tempArray(X, Y) = inputArray(Y, X)
-        Next Y
-    Next X
+    For x = 1 To xUbound
+        For y = 1 To yUbound
+            tempArray(x, y) = inputArray(y, x)
+        Next y
+    Next x
     Transpose2DArray = tempArray
 End Function
 
 
 Function IsFileFolderURL(Path) As String
-    Dim RetVal As String
-    RetVal = "I"
-    If (RetVal = "I") And FileExists(Path) Then RetVal = "F"
-    If (RetVal = "I") And FolderExists(Path) Then RetVal = "D"
-    If (RetVal = "I") And URLExists(Path) Then RetVal = "U"
+    Dim retVal As String
+    retVal = "I"
+    If (retVal = "I") And FileExists(Path) Then retVal = "F"
+    If (retVal = "I") And FolderExists(Path) Then retVal = "D"
+    If (retVal = "I") And URLExists(Path) Then retVal = "U"
     ' I => Invalid | F => File | D => Directory | U => Valid Url
-    IsFileFolderURL = RetVal
+    IsFileFolderURL = retVal
 End Function
 
 Function URLExists(url) As Boolean
@@ -178,8 +216,8 @@ Function GetInputRange(ByRef rInput As Excel.Range, _
                     sTitle As String, _
                     Optional ByVal sDefault As String, _
                     Optional ByVal bActivate As Boolean, _
-                    Optional X, _
-                    Optional Y) As Boolean
+                    Optional x, _
+                    Optional y) As Boolean
 
 'assigns range to variable passed
 'GetInputRange(rng, "Range picker", "Select range to output listbox' list") = False Then Exit Sub
@@ -204,7 +242,7 @@ Function GetInputRange(ByRef rInput As Excel.Range, _
     Set rInput = Nothing
     For nAttempt = 1 To 3
         vReturn = False
-        vReturn = Application.InputBox(sPrompt, sTitle, sDefault, X, Y, Type:=0)
+        vReturn = Application.InputBox(sPrompt, sTitle, sDefault, x, y, Type:=0)
         If False = vReturn Or Len(vReturn) = 0 Then
             Exit For
         Else

@@ -81,9 +81,9 @@ End Function
 Public Function IniReadSection(FileName As String, Section As String) As Variant
 '@INCLUDE DECLARATION GetPrivateProfileSection
 '@INCLUDE PROCEDURE ArrayRemoveEmptyElements
-    Dim RetVal As String * 255
-    Dim v As Long:      v = GetPrivateProfileSection(Section, RetVal, 255, FileName)
-    Dim s As String:    s = Left(RetVal, v + 0)
+    Dim retVal As String * 255
+    Dim v As Long:      v = GetPrivateProfileSection(Section, retVal, 255, FileName)
+    Dim s As String:    s = Left(retVal, v + 0)
     Dim VL As Variant:  VL = Split(s, Chr$(0))
     VL = ArrayRemoveEmptyElements(VL)
     IniReadSection = VL

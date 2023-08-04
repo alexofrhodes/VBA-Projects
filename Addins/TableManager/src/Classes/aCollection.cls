@@ -333,24 +333,24 @@ Public Function Right(ByVal Length As Long) As aCollection
 End Function
 
 Function Filter( _
-            Match As String, _
+            match As String, _
             IgnoreCase As Boolean, _
             Include As Boolean) As aCollection
     Dim result As New Collection
-    If IgnoreCase Then Match = UCase(Match)
+    If IgnoreCase Then match = UCase(match)
     Dim element
     For Each element In myCollection
         If IgnoreCase Then
             If Include Then
-                If UCase(element) Like Match Then result.Add element
+                If UCase(element) Like match Then result.Add element
             Else
-                If Not UCase(element) Like Match Then result.Add element
+                If Not UCase(element) Like match Then result.Add element
             End If
         Else
             If Include Then
-                If UCase(element) Like Match Then result.Add element
+                If UCase(element) Like match Then result.Add element
             Else
-                If UCase(element) Like Match Then result.Add element
+                If UCase(element) Like match Then result.Add element
             End If
         End If
     Next

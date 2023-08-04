@@ -120,13 +120,13 @@ Private Sub LBuyMeACoffee_Click()
 End Sub
 
 Private Function CLIP(Optional StoreText As String) As String
-    Dim X As Variant
-    X = StoreText
+    Dim x As Variant
+    x = StoreText
     With CreateObject("htmlfile")
         With .parentWindow.clipboardData
             Select Case True
             Case Len(StoreText)
-                .SetData "text", X
+                .SetData "text", x
             Case Else
                 CLIP = .GetData("text")
             End Select

@@ -42,13 +42,13 @@ Private oForm As Object
 #End If
 
 Private Type POINTAPI
-    X               As Long
-    Y               As Long
+    x               As Long
+    y               As Long
 End Type
 
 #If VBA7 Then
     
-    Private Type Msg
+    Private Type msg
         hwnd            As LongPtr
         message         As Long
         wParam          As LongPtr
@@ -63,9 +63,9 @@ End Type
     Private Declare PtrSafe Function WindowFromPoint Lib "user32" (ByVal xPoint As Long, ByVal yPoint As Long) As LongPtr
     #End If
     
-    Private Declare PtrSafe Function GetMessage Lib "user32" Alias "GetMessageA" (lpMsg As Msg, ByVal hwnd As LongPtr, ByVal wMsgFilterMin As Long, ByVal wMsgFilterMax As Long) As Long
-    Private Declare PtrSafe Function DispatchMessage Lib "user32" Alias "DispatchMessageA" (lpMsg As Msg) As LongPtr
-    Private Declare PtrSafe Function TranslateMessage Lib "user32" (lpMsg As Msg) As Long
+    Private Declare PtrSafe Function GetMessage Lib "user32" Alias "GetMessageA" (lpMsg As msg, ByVal hwnd As LongPtr, ByVal wMsgFilterMin As Long, ByVal wMsgFilterMax As Long) As Long
+    Private Declare PtrSafe Function DispatchMessage Lib "user32" Alias "DispatchMessageA" (lpMsg As msg) As LongPtr
+    Private Declare PtrSafe Function TranslateMessage Lib "user32" (lpMsg As msg) As Long
     Private Declare PtrSafe Function WindowFromAccessibleObject Lib "oleacc" (ByVal pacc As IAccessible, phwnd As LongPtr) As Long
     Private Declare PtrSafe Function IsWindow Lib "user32" (ByVal hwnd As LongPtr) As Long
     Private Declare PtrSafe Sub DragAcceptFiles Lib "shell32.dll" (ByVal hwnd As LongPtr, ByVal fAccept As Long)
@@ -75,7 +75,7 @@ End Type
 
 #Else
     
-    Private Type Msg
+    Private Type msg
         hwnd            As Long
         message         As Long
         wParam          As Long
@@ -112,12 +112,12 @@ Public Sub EnableEvents1()
         Set ListboxEvents = oListBox
 End Sub
 
-Public Sub listboxevents_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Public Sub listboxevents_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     MsgBox SelectedRowsText
 End Sub
 
 
-Public Function targetColumn(X, Y)
+Public Function targetColumn(x, y)
         ' Calculate the column index based on the X-coordinate
         Dim ColumnIndex As Long
         Dim columnWidth As Long
@@ -134,7 +134,7 @@ Public Function targetColumn(X, Y)
         
         ' Calculate the approximate column index based on the X-coordinate
         Dim clickedX As Long
-        clickedX = X
+        clickedX = x
         
         If clickedX > 0 Then
             Dim cumulativeWidth As Long
@@ -228,10 +228,10 @@ Function LoadCSV(TargetFile As String, Clear As Boolean)
     iRows = UBound(arr) + 1
     iCols = UBound(Split(arr(0), ",")) + 1
     ReDim ArrayOfElements(1 To iRows, 1 To iCols)
-    Dim X, Y
-    For X = 1 To iRows
-        For Y = 1 To iCols
-            ArrayOfElements(X, Y) = Split(arr(X - 1), ",")(Y - 1)
+    Dim x, y
+    For x = 1 To iRows
+        For y = 1 To iCols
+            ArrayOfElements(x, y) = Split(arr(x - 1), ",")(y - 1)
         Next
     Next
     oListBox.columnCount = iCols
@@ -266,7 +266,7 @@ Public Sub AcceptFiles(Optional sExpansion As String = "*.xlsm;*.xlsb;*.xlsx", O
 #End If
 
     Const WM_DROPFILES = &H233
-    Dim tMsg As Msg, sFileName As String * 1000
+    Dim tMsg As msg, sFileName As String * 1000
     Dim lFilesCount As Long, i As Long
     hwnd = aUserform.Init(oForm).hwnd
     Call DragAcceptFiles(lGethWnd, True)
@@ -615,16 +615,16 @@ End Function
 
 
 Public Function SelectedRowsText() As String
-    Dim X As Long, Y As Long
+    Dim x As Long, y As Long
     Dim ListItem As Long
     Dim out As String
     Dim indexColl As New Collection
     Set indexColl = selectedIndexes
-    For X = 1 To indexColl.Count
-        For Y = 0 To oListBox.columnCount - 1
-            out = out & IIf(Y > 0, "|", "") & oListBox.List(indexColl(X), Y)
+    For x = 1 To indexColl.Count
+        For y = 0 To oListBox.columnCount - 1
+            out = out & IIf(y > 0, "|", "") & oListBox.List(indexColl(x), y)
         Next
-        If X < indexColl.Count Then out = out & vbNewLine
+        If x < indexColl.Count Then out = out & vbNewLine
     Next
     SelectedRowsText = out
 End Function

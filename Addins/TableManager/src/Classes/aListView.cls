@@ -80,8 +80,8 @@ Public LstItmObj As ListItem
 Public swapNeeded As Boolean 'swap mode
 
 Private Type POINTAPI
-    X As Long
-    Y As Long
+    x As Long
+    y As Long
 End Type
 Private Type LVHITTESTINFO
     pt As POINTAPI
@@ -100,18 +100,18 @@ Public Function Value()
     
     Dim arr()
     ReDim arr(1 To rowCount, 1 To headCount)
-    Dim X As Long
-    Dim Y As Long
-    For Y = 1 To oListView.ColumnHeaders.Count
-        arr(1, Y) = oListView.ColumnHeaders(Y)
+    Dim x As Long
+    Dim y As Long
+    For y = 1 To oListView.ColumnHeaders.Count
+        arr(1, y) = oListView.ColumnHeaders(y)
     Next
     If oListView.ListItems.Count > 0 Then
-        For X = 1 To oListView.ListItems.Count
-            For Y = 1 To headCount
-                If Y = 1 Then
-                    arr(X, Y) = oListView.ListItems(X)
+        For x = 1 To oListView.ListItems.Count
+            For y = 1 To headCount
+                If y = 1 Then
+                    arr(x, y) = oListView.ListItems(x)
                 Else
-                    arr(X, Y) = oListView.ListItems(X).ListSubItems(Y - 1)
+                    arr(x, y) = oListView.ListItems(x).ListSubItems(y - 1)
                 End If
             Next
         Next
@@ -166,13 +166,13 @@ Public Function SelectionArray()
     SelectionArray = arr
 End Function
 
-Public Function ClickedColumn(X, Y)
+Public Function ClickedColumn(x, y)
     'call from userform ListView1_MouseDown event and such
     ClickedColumn = -1
     
     Dim hitTestInfo As LVHITTESTINFO
-    hitTestInfo.pt.X = X
-    hitTestInfo.pt.Y = Y
+    hitTestInfo.pt.x = x
+    hitTestInfo.pt.y = y
     SendMessage oListView.hwnd, LVM_SUBITEMHITTEST, 0, hitTestInfo
     
     If hitTestInfo.Flags = 4 Then
@@ -214,14 +214,14 @@ Private Sub EventDragSort_OLEStartDrag(Data As MSComctlLib.DataObject, AllowedEf
 End Sub
 
 'when drop occurs we make mouseclick to select next item and then set swap mode on
-Private Sub EventDragSort_OLEDragDrop(Data As MSComctlLib.DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub EventDragSort_OLEDragDrop(Data As MSComctlLib.DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single)
     'that click will occur only after end of this Sub, that's why we can't make rows swaping here
     Call SingleClick
     swapNeeded = True
 End Sub
 
 'this Sub starts after OLEDragDrop ends so new row is already selected and old row is already saved to LstItmObj so here we just need to swap those two rows
-Private Sub eventdragsort_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As stdole.OLE_XPOS_PIXELS, ByVal Y As stdole.OLE_YPOS_PIXELS)
+Private Sub eventdragsort_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As stdole.OLE_XPOS_PIXELS, ByVal y As stdole.OLE_YPOS_PIXELS)
     If LstItmObj Is Nothing Then Exit Sub
     If (swapNeeded) Then
         Sleep 30
@@ -256,7 +256,7 @@ Public Sub EnableDropFilesFolders(LogFiles As Boolean, LogFolders As Boolean, In
     Set EventDropFiles = oListView
 End Sub
 
-Private Sub EventDropFiles_OLEDragDrop(Data As MSComctlLib.DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub EventDropFiles_OLEDragDrop(Data As MSComctlLib.DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single)
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     'The Format numbers used in the OLE DragDrop data structure, are:
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -354,9 +354,7 @@ Public Function Init(LV As ListView) As aListView
     Set Init = Me
 
 End Function
-'Public Function Parent()
-'
-'End Function
+
 Public Sub Clear()
     oListView.ListItems.Clear
     oListView.ColumnHeaders.Clear
@@ -404,7 +402,7 @@ End Sub
 'End Sub
 
 Private Sub aListViewEvent_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, _
-                                    ByVal X As stdole.OLE_XPOS_PIXELS, ByVal Y As stdole.OLE_YPOS_PIXELS)
+                                    ByVal x As stdole.OLE_XPOS_PIXELS, ByVal y As stdole.OLE_YPOS_PIXELS)
 
    'https://markdagosta.wordpress.com/2010/08/08/listview-hittest-right-click/
    Dim item As MSComctlLib.ListItem
@@ -418,24 +416,24 @@ Private Sub aListViewEvent_MouseDown(ByVal Button As Integer, ByVal Shift As Int
    lngYPixelsPerInch = GetDeviceCaps(lngDeviceHandle, LOGPIXELSY)
    ReleaseDC 0, lngDeviceHandle
   'Convert the event's x and y arguments from Pixels to Twips
-  Set item = oListView.hitTest(X * 1440 / lngXPixelsPerInch, Y * 1440 / lngYPixelsPerInch)
+  Set item = oListView.hitTest(x * 1440 / lngXPixelsPerInch, y * 1440 / lngYPixelsPerInch)
    MsgBox "List ID #" & item.index & ": " & item.Text & " has been right-clicked!"
 
    
 End Sub
 
 Public Sub RowsFormatOddEven()
-    Dim i As Long, Y As Long
+    Dim i As Long, y As Long
     For i = 1 To oListView.ListItems.Count
         If i Mod 2 Then
             oListView.ListItems(i).ForeColor = vbBlue
-            For Y = 1 To oListView.ColumnHeaders.Count - 1
-                oListView.ListItems(i).ListSubItems(Y).ForeColor = vbBlue
+            For y = 1 To oListView.ColumnHeaders.Count - 1
+                oListView.ListItems(i).ListSubItems(y).ForeColor = vbBlue
             Next
         Else
             oListView.ListItems(i).ForeColor = vbRed
-            For Y = 1 To oListView.ColumnHeaders.Count - 1
-                oListView.ListItems(i).ListSubItems(Y).ForeColor = vbRed
+            For y = 1 To oListView.ColumnHeaders.Count - 1
+                oListView.ListItems(i).ListSubItems(y).ForeColor = vbRed
             Next
         End If
     Next

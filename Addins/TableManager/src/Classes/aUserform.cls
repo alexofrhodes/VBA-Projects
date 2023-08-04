@@ -129,7 +129,7 @@ Private Const HWND_TOPMOST = -1
 Private Const HWND_NOTOPMOST = -2
 
 #If VBA7 Then
-    Private Declare PtrSafe Function SetWindowPos Lib "user32" (ByVal hwnd As LongPtr, ByVal hWndInsertAfter As LongPtr, ByVal X As LongPtr, ByVal Y As LongPtr, ByVal cx As LongPtr, ByVal cy As LongPtr, ByVal uFlags As LongPtr) As Long
+    Private Declare PtrSafe Function SetWindowPos Lib "user32" (ByVal hwnd As LongPtr, ByVal hWndInsertAfter As LongPtr, ByVal x As LongPtr, ByVal y As LongPtr, ByVal cx As LongPtr, ByVal cy As LongPtr, ByVal uFlags As LongPtr) As Long
 #Else
     Private Declare Function SetWindowPos Lib "user32" (ByVal hWnd As LongPtr, ByVal hWndInsertAfter As LongPtr, ByVal X As LongPtr, ByVal Y As LongPtr, ByVal cx As LongPtr, ByVal cy As LongPtr, ByVal uFlags As LongPtr) As Long
 #End If
@@ -148,7 +148,7 @@ Rem ---
 Rem Closeby
 Private Enum CloseBy
     User = 0
-    Code = 1
+    code = 1
     WindowsOS = 2
     TaskManager = 3
 End Enum
@@ -345,7 +345,7 @@ End Function
 
 Public Sub Resizable()
     Dim hWndForm As Long, iStyle As Long
-    If val(Application.version) < 9 Then
+    If val(Application.Version) < 9 Then
         hWndForm = FindWindow("ThunderXFrame", oForm.Caption)
     Else
         hWndForm = FindWindow("ThunderDFrame", oForm.Caption)
