@@ -1,0 +1,662 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "aTreeView"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+'* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+'* Class      : aTreeView
+'* Author     : Anastasiou Alex
+'* Contacts   : AnastasiouAlex@gmail.com
+'*
+'* BLOG       : https://alexofrhodes.github.io/
+'* GITHUB     : https://github.com/alexofrhodes/
+'* YOUTUBE    : https://www.youtube.com/channel/UC5QH3fn1zjx0aUjRER_rOjg
+'* VK         : https://vk.com/video/playlist/735281600_1
+'*
+'* Modified   : Date and Time       Author              Description
+'* Created    : 04-05-2023 12:19    Alex
+'* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Option Explicit
+
+Private TV As TreeView
+
+Private Enum tvImages
+    tvProject = 1
+    tvSheet = 2
+    tvForm = 3
+    tvModule = 4
+    tvClass = 5
+    tvMacro = 6
+    tvText = 7
+End Enum
+
+Public Function Init(TargetTreeview) As aTreeView
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    Set TV = TargetTreeview
+    Set Init = Me
+End Function
+
+'Sub TVTestVarious()
+'    zTest.Show
+'    Dim nod As Node
+'    Dim tv As TreeView
+'    Set tv = zTest.TreeView1
+'    TreeviewPopulateFromRange tv, ActiveSheet.Range("A1"), True, False
+'    For Each nod In tv.Nodes
+'        dp nod.TEXT & vbTab & TreeviewGetLevel(nod)
+'    Next
+'    dp TreeviewArray(tv)
+'    Stop
+'    dp TreeviewArrayPaths(tv)
+'    Stop
+'    TreeviewFilter tv, "*\*\*\*", True
+'    dp TreeviewArrayPaths(tv)
+'    TreeviewFoldingExpandAll tv
+'End Sub
+
+Public Sub RemoveEmpty(ColumnLevel As Long)
+'@AssignedModule aTreeView
+'@INCLUDE PROCEDURE dp
+'@INCLUDE CLASS aTreeView
+    Dim i As Long
+    Dim nod As Node
+    For i = TV.Nodes.count To 1 Step -1
+        Set nod = TV.Nodes(i)
+        If GetLevel(nod) = ColumnLevel Then
+            If nod.Children = 0 Then
+                TV.Nodes.Remove nod.index
+            End If
+        End If
+    Next
+End Sub
+
+'* Modified   : Date and Time       Author              Description
+'* Updated    : 20-12-2022 07:43    Alex                (TreeviewFilter)
+
+Public Sub FilterTV(txtLike As String, MatchCase As Boolean)
+'example
+'TreeviewFilter tv, "*\*\*\*", True
+'each \ indicates a sublevel
+'@AssignedModule aTreeView
+'@INCLUDE PROCEDURE ArrayFilterLike
+'@INCLUDE CLASS aTreeView
+
+    Dim var
+    var = ArrayFilterLike(TreeviewArrayPaths(TV), txtLike, MatchCase)
+    Clear
+    Dim element
+    Dim nod As Node
+    On Error Resume Next
+    Dim i As Long
+    For Each element In var
+        For i = 0 To UBound(Split(element, "\"))
+            If i = 0 Then
+                Set nod = TV.Nodes.Add(, , , Split(element, "\")(i))
+            Else
+                Set nod = TV.Nodes.Add(nod, tvwChild, , Split(element, "\")(i))
+            End If
+        Next
+    Next
+    On Error GoTo 0
+End Sub
+
+'* Modified   : Date and Time       Author              Description
+'* Updated    : 19-12-2022 15:09    Alex                (TVColumnsCount)
+
+Public Function columnCount()
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    Dim output As Long
+    Dim counter As Long
+    Dim nod As Node
+    For Each nod In TV.Nodes
+        counter = GetLevel(nod)
+        If counter > output Then output = output + 1
+    Next
+    columnCount = output
+End Function
+
+Public Function rowCount()
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    rowCount = TV.Nodes.count
+End Function
+
+'* Modified   : Date and Time       Author              Description
+'* Updated    : 19-12-2022 16:33    Alex
+'* Updated    : 19-07-2023 10:23    Alex                added base 1 : ReDim output(1 To rowCount, 1 To ColumnCount)
+
+Function ToArray() As Variant
+'@LastModified 2307191023
+'Modified from https://www.excelforum.com/excel-programming-vba-macros/1102518-transfer-all-nodes-from-a-userform-treeview-into-a-treeview-on-a-worksheet-with-vba.html
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+   Dim nROOT            As Node
+   Dim nX               As Node
+   Dim iRow             As Integer
+
+   On Error GoTo Catch
+
+   If TV.Nodes.count = 0 Then
+      MsgBox "No nodes to export...", vbExclamation, "Nothing to do"
+      Stop
+   End If
+
+   ' Start at first node
+   Set nX = TV.Nodes(1)
+   ' Get the first root node
+   Set nROOT = nX.Root.FirstSibling
+   'Create array placeholder
+   Dim output()
+   ReDim output(1 To rowCount, 1 To columnCount)
+   'Drill down and export
+   Do
+      TreeviewArrayAppend 0, iRow, nROOT, output, True
+      Set nROOT = nROOT.Next
+   Loop While Not (nROOT Is Nothing)
+
+    ToArray = output
+Finally:
+   'Cleanup
+
+   'Exit
+   On Error GoTo 0
+   Exit Function
+Catch:
+   MsgBox "ERROR: " & Err.Description, vbExclamation, "Error"
+   Resume Finally
+End Function
+
+Private Sub TreeviewArrayAppend(ByVal lngLevel As Integer, _
+                                ByRef lngRow As Integer, _
+                                ByRef N As Node, _
+                                ByRef TargetArray As Variant, _
+                                ByVal includeChildren As Boolean)
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+
+      TargetArray(lngRow + 1, lngLevel + 1) = N.text
+      lngRow = lngRow + 1
+      ' If there are child nodes then call recusively
+      lngLevel = lngLevel + 1
+      If includeChildren Then
+        If N.Children > 0 Then
+           Dim nC As Node
+           Set nC = N.child
+           Do
+              TreeviewArrayAppend lngLevel, lngRow, nC, TargetArray, True
+              Set nC = nC.Next
+           Loop While Not (nC Is Nothing)
+        End If
+    End If
+End Sub
+'--------------------------------------------
+
+Public Function TreeviewArrayPaths() As Variant  '1d
+'Modified from https://www.excelforum.com/excel-programming-vba-macros/1102518-transfer-all-nodes-from-a-userform-treeview-into-a-treeview-on-a-worksheet-with-vba.html
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+   Dim nROOT            As Node
+   Dim nX               As Node
+   Dim iRow             As Integer
+
+   On Error GoTo Catch
+
+   If TV.Nodes.count = 0 Then
+      MsgBox "No nodes to export...", vbExclamation, "Nothing to do"
+      Stop
+   End If
+
+   ' Start at first node
+   Set nX = TV.Nodes(1)
+   ' Get the first root node
+   Set nROOT = nX.Root.FirstSibling
+   'Create array placeholder
+   Dim output()
+   ReDim output(rowCount)
+   'Drill down and export
+   Do
+      TreeviewArrayAppendPaths 0, iRow, nROOT, output
+      Set nROOT = nROOT.Next
+   Loop While Not (nROOT Is Nothing)
+
+    TreeviewArrayPaths = output
+Finally:
+   'Cleanup
+
+   'Exit
+   On Error GoTo 0
+   Exit Function
+Catch:
+   MsgBox "ERROR: " & Err.Description, vbExclamation, "Error"
+   Resume Finally
+End Function
+
+Public Sub TreeviewArrayAppendPaths(ByVal lngLevel As Integer, _
+                     ByRef lngRow As Integer, _
+                     ByRef N As Node, _
+                     ByRef TargetArray As Variant)
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+
+    TargetArray(lngRow) = N.fullPath
+    lngRow = lngRow + 1
+    ' If there are child nodes then call recusively
+    lngLevel = lngLevel + 1
+    If N.Children > 0 Then
+       Dim nC As Node
+       Set nC = N.child
+       Do
+          TreeviewArrayAppendPaths lngLevel, lngRow, nC, TargetArray
+          Set nC = nC.Next
+       Loop While Not (nC Is Nothing)
+    End If
+End Sub
+
+Public Sub SelectNextNode()
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    If Not TV.selectedItem.child Is Nothing Then
+        TV.selectedItem.child.Selected = True
+    ElseIf Not TV.selectedItem.Next Is Nothing Then
+        TV.selectedItem.Next.Selected = True
+    Else
+        If Not TV.selectedItem.Parent.Next Is Nothing Then
+            TV.selectedItem.Parent.Next.Selected = True
+        Else
+            TV.selectedItem.Parent.Parent.Next.Selected = True
+        End If
+    End If
+End Sub
+
+Public Sub SelectPreviousNode()
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    If Not TV.selectedItem.Previous Is Nothing Then
+        If Not TV.selectedItem.Previous.child Is Nothing Then
+            TV.selectedItem.Previous.child.LastSibling.Selected = True
+            Do While Not TV.selectedItem.child Is Nothing
+                TV.selectedItem.child.LastSibling.Selected = True
+            Loop
+        Else
+            TV.selectedItem.Previous.Selected = True
+        End If
+    ElseIf Not TV.selectedItem.Parent Is Nothing Then
+        TV.selectedItem.Parent.Selected = True
+    End If
+End Sub
+
+Public Sub SelectNodes(SingleSelect As Boolean, lvl1crit As String, Optional CriteriaByLevel As Variant)
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    Dim nd As Node
+    For Each nd In TV.Nodes
+        If nd.text = lvl1crit Then
+            nd.Selected = True
+            nd.Expanded = True
+            If SingleSelect = True Then Exit For
+        End If
+    Next
+    Dim x As Long
+    x = nd.index + 1
+    Dim crit
+    Dim i As Long
+    For Each crit In CriteriaByLevel
+        For i = x To TV.Nodes.count
+            If TV.Nodes.item(i).text = crit Then
+                TV.Nodes.item(i).Selected = True
+                TV.Nodes.item(i).Expanded = True
+                If SingleSelect = True Then Exit For
+            End If
+        Next
+        x = i + 1
+    Next
+End Sub
+
+Public Sub ApplyStandardStyle()
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    With TV
+        .Sorted = False
+        .Appearance = ccFlat
+        .LineStyle = tvwRootLines
+        .Style = tvwTreelinesPlusMinusPictureText
+        .Font.Size = 10
+        .indentation = 2
+    End With
+End Sub
+
+Sub ExpandAll()
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    Dim i As Long
+    For i = 1 To TV.Nodes.count
+        TV.Nodes(i).Expanded = True
+    Next
+End Sub
+
+Sub CollapseAll()
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+
+    Dim i As Long
+    For i = 1 To TV.Nodes.count
+        TV.Nodes(i).Expanded = False
+    Next
+End Sub
+
+Sub Clear()
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    Dim i As Long
+    For i = TV.Nodes.count To 1 Step -1
+        TV.Nodes.Remove i
+    Next
+End Sub
+Public Sub ChildrenCheck(Parent As MSComctlLib.Node, check As Boolean)
+    ' In userform:
+    ' Sub treeview1_NodeCheck(ByVal node As MSComctlLib.Node)
+    '     TreeviewNodeCheck node, node.Checked
+    ' End Sub
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    
+    Dim child As MSComctlLib.Node
+    Parent.Checked = check
+    
+    ' Recursively check child nodes
+    Set child = Parent.child
+    While Not child Is Nothing
+        ChildrenCheck child, check
+        Set child = child.Next
+    Wend
+End Sub
+
+Public Function GetLevel(ByVal theNode As Node) As Integer
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    GetLevel = 1
+    Do Until theNode.Root = theNode.FirstSibling
+        GetLevel = GetLevel + 1
+        Set theNode = theNode.Parent
+    Loop
+End Function
+
+Sub LoadRange( _
+                FirstCell As Range, _
+                ClearPreviousNodes As Boolean, _
+                Expanded As Boolean)
+    Rem example use
+    Rem    LoadRange me.Treeview1,thisworkbook.sheets("TreeviewHierarchy").range("A1"),true,false
+    Rem example of sheet structure
+    Rem  |1|2|3
+    Rem 1|A| |
+    Rem 2| |1|
+    Rem 3| | |1.1
+    Rem 4| | |1.2
+    Rem 5|B| |
+    Rem 6| |2|
+    Rem 7| | |2.1
+    Rem 8| | |2.2
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    Dim nP As Node
+    Dim c As Excel.Range
+    On Error Resume Next
+    Dim childRange As Range
+    Set childRange = FirstCell.CurrentRegion.offset(0, 1)
+    Set childRange = childRange.Resize(, childRange.Columns.count - 1)
+    Set childRange = childRange.SpecialCells(xlCellTypeConstants)
+    With TV
+        If ClearPreviousNodes = True Then .Nodes.Clear
+        For Each c In FirstCell.Parent.Columns(FirstCell.Column).SpecialCells(xlCellTypeConstants)
+            Set nP = .Nodes.Add(, , c.Address, c.Value)
+        Next
+        For Each c In childRange
+            If c.offset(, -1) = "" Then  'c.Value <> vbNullString And c.Address <> FirstCell.Address And
+                Set nP = .Nodes(c.offset(, -1).End(xlUp).Address)
+                If nP Is Nothing Then
+                    MsgBox "ERROR: Parent node " & c.offset(, -1).End(xlUp).Value & " not found...", vbExclamation, "Error"
+                    Exit Sub
+                End If
+                .Nodes.Add nP, tvwChild, c.Address, c.Value
+                If Err.Number <> 0 Then
+                    MsgBox "ERROR: The node " & c.Value & " is a duplicate. All node descrptions must be unique", vbExclamation, "Error"
+                    Exit Sub
+                End If
+                nP.Expanded = Expanded
+            End If
+        Next
+        With .Nodes(FirstCell.Address)
+            .Selected = True
+            .EnsureVisible
+        End With
+    End With
+End Sub
+
+Public Sub LoadTreeArray( _
+                    arr, _
+                    ClearPreviousNodes As Boolean, _
+                    Expanded As Boolean)
+'@AssignedModule aTreeView
+'@INCLUDE PROCEDURE ArrayToRange2D
+'@INCLUDE PROCEDURE CreateOrSetSheet
+'@INCLUDE CLASS aTreeView
+                   
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    Dim tmpSheet As Worksheet
+    Set tmpSheet = CreateOrSetSheet("TempOps", ThisWorkbook)
+    tmpSheet.Cells.Clear
+    ArrayToRange2D arr, tmpSheet.Cells(1, 1)
+    LoadRange tmpSheet.Cells(1, 1), ClearPreviousNodes, Expanded
+    tmpSheet.Delete
+    
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+End Sub
+
+Sub LoadVBProjects()
+'@AssignedModule aTreeView
+'@INCLUDE PROCEDURE ProceduresOfModule
+'@INCLUDE PROCEDURE WorkbookProjectProtected
+'@INCLUDE CLASS aModule
+'@INCLUDE CLASS aTreeView
+    Me.Clear
+    Dim nP As Node
+    Dim nM As Node
+    Dim nS As Node
+    Dim x, y, s, p As Variant
+    Dim module As VBComponent
+    On Error Resume Next
+    Dim element
+    For Each x In Array(Workbooks, AddIns)
+        For Each y In x
+            If Not WorkbookProjectProtected(Workbooks(y.Name)) Then
+                If Err.Number = 0 Then
+                    Set nP = TV.Nodes.Add(, , , y.Name)
+                    For Each element In Array(vbext_ct_Document, vbext_ct_MSForm, vbext_ct_StdModule, vbext_ct_ClassModule)
+                        For Each module In Workbooks(y.Name).VBProject.VBComponents
+                            If module.Type = element Then
+                                Set nM = TV.Nodes.Add(nP, tvwChild, , aModule.Init(module).Name)
+                                For Each p In ProceduresOfModule(module)
+                                    Set nS = TV.Nodes.Add(nM, tvwChild, , CStr(p))
+                                Next p
+                            End If
+                        Next module
+                    Next
+                End If
+            End If
+            Err.Clear
+        Next y
+    Next x
+End Sub
+
+Sub ActivateProjectElement()
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aModule
+'@INCLUDE CLASS aTreeView
+    Dim module As VBComponent
+    Dim i As Long
+    Select Case GetLevel(TV.selectedItem)
+    Case Is = 1
+    Case Is = 2
+        With TV.selectedItem
+            On Error Resume Next
+            Set module = Workbooks(.Parent.text).VBProject.VBComponents(.text)
+            On Error GoTo 0
+            If module Is Nothing Then Set module = Workbooks(.Parent.text).VBProject.VBComponents(Workbooks(.Parent.text).Sheets(.text).codeName)
+            aModule.Init(module).Activate
+        End With
+    Case Is = 3
+        With TV.selectedItem
+        On Error Resume Next
+        Set module = Workbooks(.Parent.Parent.text).VBProject.VBComponents(.Parent.text)
+        On Error GoTo 0
+        If module Is Nothing Then Set module = _
+            Workbooks(.Parent.Parent.text).VBProject.VBComponents(Workbooks(.Parent.Parent.text).Sheets(.Parent.text).codeName)
+            aModule.Init(module).Activate
+            For i = 1 To module.CodeModule.CountOfLines
+                If InStr(1, module.CodeModule.Lines(i, 1), "Sub " & .text) > 0 Or _
+                    InStr(1, module.CodeModule.Lines(i, 1), "Function " & .text) > 0 Then
+                    module.CodeModule.CodePane.SetSelection i, 1, i, 1
+                    Exit Sub
+                End If
+            Next
+        End With
+    Case Is = 4
+        With TV.selectedItem
+            Set module = Workbooks(.Parent.Parent.Parent.text).VBProject.VBComponents(.Parent.Parent.text)
+            aModule.Init(module).Activate
+            DoEvents
+            For i = 1 To module.CodeModule.CountOfLines
+                If Trim(module.CodeModule.Lines(i, 1)) = .text Then
+                    module.CodeModule.CodePane.SetSelection i, 1, i, 1
+                    Exit Sub
+                End If
+            Next
+        End With
+    End Select
+End Sub
+
+Public Sub FindCodeEverywhere(F As String)
+'@AssignedModule aTreeView
+'@INCLUDE PROCEDURE WorkbookProjectProtected
+'@INCLUDE CLASS aProcedure
+'@INCLUDE CLASS aWorkbook
+'@INCLUDE CLASS aModule
+'@INCLUDE CLASS aModules
+'@INCLUDE CLASS aTreeView
+    Dim nP As Node
+    Dim nM As Node
+    Dim nS As Node
+    Dim nF As Node
+    Dim x, y, s, p As Variant
+    Dim module As VBComponent
+    Dim am As aModule
+    Dim AP As aProcedure
+    Dim aw As aWorkbook
+    Dim i As Long
+    On Error Resume Next
+    For Each x In Array(Workbooks, AddIns)
+        For Each y In x
+            If Not WorkbookProjectProtected(Workbooks(y.Name)) Then
+                If Err.Number = 0 Then
+                    Set aw = aWorkbook.Init(Workbooks(y.Name))
+                    If UBound(Filter(Split(aw.Code, vbNewLine), F, True, vbTextCompare)) > -1 Then
+                        Set nP = TV.Nodes.Add(, , , y.Name)
+                        For Each am In aModules.Init(aw.item).Items
+                            If am.Contains(F, False, False, True) Then
+                                Set nM = TV.Nodes.Add(nP, tvwChild, , am.Name)
+                                For Each AP In am.Procedures
+                                    If UBound(Filter(Split(AP.Code_All, vbNewLine), F, True, vbTextCompare)) > -1 Then
+                                        Set nS = TV.Nodes.Add(nM, tvwChild, , CStr(AP.Name))
+                                        s = Filter(Split(AP.Code_All, vbNewLine), F, True, vbTextCompare)
+                                        For i = 0 To UBound(s)
+                                            Set nF = TV.Nodes.Add(nS, tvwChild, , Trim(s(i)))
+                                        Next i
+                                    End If
+                                Next AP
+                            End If
+                        Next am
+                    End If
+                End If
+            End If
+            Err.Clear
+        Next y
+    Next x
+End Sub
+
+Sub ImageListLoadProjectIcons(imgList As ImageList)
+'@AssignedModule aTreeView
+'@INCLUDE CLASS aTreeView
+    Dim strPath As String
+    strPath = "C:\Users\acer\Dropbox\SOFTWARE\EXCEL\0 Alex\treeviewicons\"
+    With imgList.ListImages
+        .Add , "Project", LoadPicture(strPath & "Project.jpg")
+        .Add , "Sheet", LoadPicture(strPath & "Sheet.jpg")
+        .Add , "Form", LoadPicture(strPath & "Form.jpg")
+        .Add , "Module", LoadPicture(strPath & "Module.jpg")
+        .Add , "Class", LoadPicture(strPath & "Class.jpg")
+        .Add , "Macro", LoadPicture(strPath & "Macro.jpg")
+        .Add , "Text", LoadPicture(strPath & "Text.jpg")
+    End With
+    TV.ImageList = imgList
+End Sub
+
+Sub TreeviewAssignProjectImages()
+    '@INCLUDE ModuleTypeToString
+    '@INCLUDE ModuleOfWorksheet
+    '@INCLUDE TreeviewGetLevel
+'@AssignedModule aTreeView
+'@INCLUDE PROCEDURE ModuleTypeToString
+'@INCLUDE PROCEDURE ModuleOfWorksheet
+'@INCLUDE CLASS aModule
+'@INCLUDE CLASS aTreeView
+    Dim sModuleName As String
+    Dim i As Long
+    Dim module As VBComponent
+    Dim TargetWorkbook As Workbook
+    For i = 1 To TV.Nodes.count
+        Select Case GetLevel(TV.Nodes.item(i))
+        Case 1
+            If InStr(1, TV.Nodes.item(i).text, ".") = 0 Then GoTo SKIP
+            TV.Nodes.item(i).Image = tvImages.tvProject
+        Case 2
+            Set TargetWorkbook = Workbooks(TV.Nodes.item(i).Parent.text)
+            If InStr(1, TargetWorkbook.Name, ".") = 0 Then GoTo SKIP
+            sModuleName = TV.Nodes.item(i).text
+            Set module = Nothing
+            On Error Resume Next
+            Set module = TargetWorkbook.VBProject.VBComponents(sModuleName)
+            On Error GoTo 0
+            If module Is Nothing Then
+                Set module = ModuleOfWorksheet(TargetWorkbook.Worksheets(TV.Nodes.item(i).text))
+            End If
+            Select Case aModule.Init(module).TypeToString
+            Case "Document"
+                TV.Nodes.item(i).Image = tvImages.tvSheet
+            Case "UserForm"
+                TV.Nodes.item(i).Image = tvImages.tvForm
+            Case "Module"
+                TV.Nodes.item(i).Image = tvImages.tvModule
+            Case "Class"
+                TV.Nodes.item(i).Image = tvImages.tvClass
+            End Select
+        Case 3
+            TV.Nodes.item(i).Image = tvImages.tvMacro
+        Case 4
+            TV.Nodes.item(i).Image = tvImages.tvText
+        End Select
+SKIP:
+    Next i
+End Sub
+
+
