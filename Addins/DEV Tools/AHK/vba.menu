@@ -2,6 +2,7 @@
 .Keep Backups. No liability
 
 CODE MODULE
+	cm_ActivateProcedure
 	cm_AlignAs
 	cm_AlignColumn
 	cm_AlignComments
@@ -109,27 +110,35 @@ DESIGNER
 	ad_SwitchPositions
 USERFORMS
 	uShow_ProjectManager
-	uShow_ComponentsRemove
-	uShow_ComponentsAdd
-	uShow_ComponentsRename
 	uShow_References
-	uShow_FormBuilder
 	uShow_ProjectExplorer
 	uShow_Skeleton
 	uShow_CodeOnTheFly
 	uShow_SnippetsVBE
 	uShow_SnippetsWorkbook
+SHAPES
+	GotoSelectedShapeOnAction
 BOOKMARKS
-	BmSave1
-	BmSave2
-	BmSave3
-	BmSave4
-	BmSave5
-	BmSave6
-	BmSave7
-	BmSave8
-	BmSave9
-	BmSave10
+	BmLoad1
+	BmLoad2
+	BmLoad3
+	BmLoad4
+	BmLoad5
+	BmLoad6
+	BmLoad7
+	BmLoad8
+	BmLoad9
+	BmLoad10
+	BmLoad11
+	BmLoad12
+	BmLoad13
+	BmLoad14
+	BmLoad15
+	BmLoad16
+	BmLoad17
+	BmLoad18
+	BmLoad19
+	BmLoad20
 
 	BmLoad1
 	BmLoad2
@@ -141,3 +150,13 @@ BOOKMARKS
 	BmLoad8
 	BmLoad9
 	BmLoad10
+	BmLoad11
+	BmLoad12
+	BmLoad13
+	BmLoad14
+	BmLoad15
+	BmLoad16
+	BmLoad17
+	BmLoad18
+	BmLoad19
+	BmLoad20
