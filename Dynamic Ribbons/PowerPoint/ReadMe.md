@@ -1,4 +1,7 @@
 
+This project can be used as standalone but can also function as an addin.
+
+
 To Show Addin Projects in the VBE Window you have to Modify Your Registry
 
 * Close down PowerPoint
@@ -18,7 +21,7 @@ To Show Addin Projects in the VBE Window you have to Modify Your Registry
 
 If you modify the addin project's vbproject (modules / procedures) the changes will NOT be saved.  
 You have to keep the original .PPTM, modify that after disabling the addin, overwrite the addin and reenable.  
-This Tool offers a userform facilitate the addin editing (@TODO add xml to created .PPTM) 
+This Tool offers a userform facilitate the addin editing (@TODO add xml to newly created .PPTM) 
 or simply export the components.
   
 This project features a dynamic ribbon, just modify the ini file and refresh the ribbon!
