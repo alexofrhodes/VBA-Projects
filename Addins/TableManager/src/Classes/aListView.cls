@@ -418,8 +418,6 @@ Private Sub aListViewEvent_MouseDown(ByVal Button As Integer, ByVal Shift As Int
   'Convert the event's x and y arguments from Pixels to Twips
   Set item = oListView.hitTest(x * 1440 / lngXPixelsPerInch, y * 1440 / lngYPixelsPerInch)
    MsgBox "List ID #" & item.index & ": " & item.Text & " has been right-clicked!"
-
-   
 End Sub
 
 Public Sub RowsFormatOddEven()

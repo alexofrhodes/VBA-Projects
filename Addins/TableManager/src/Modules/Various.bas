@@ -43,12 +43,72 @@ Enum MyColors
 End Enum
 
 Sub TableManagerButtonClicked(control As IRibbonControl)
+'@AssignedModule Various
+'@INCLUDE USERFORM uTableManager
     uTableManager.Show
 End Sub
 
+Function IsTime(ByVal inputValue As Variant) As Boolean
+'@AssignedModule Various
+    If IsNumeric(inputValue) Or IsDate(inputValue) Then
+        ' Check if the numeric value is within the valid time range (0 to 1)
+        If inputValue >= 0 And inputValue <= 1 Then
+            ' Convert to total seconds in a day
+            Dim totalSeconds As Double
+            totalSeconds = inputValue * 24 * 60 * 60
+            ' Validate the individual components of the time
+            Dim hours As Long, minutes As Long, seconds As Long
+            hours = Int(totalSeconds / 3600)
+            totalSeconds = totalSeconds Mod 3600
+            minutes = Int(totalSeconds / 60)
+            seconds = totalSeconds Mod 60
+            If hours >= 0 And hours < 24 And minutes >= 0 And minutes < 60 And seconds >= 0 And seconds < 60 Then
+                IsTime = True
+                Exit Function
+            End If
+        End If
+    End If
+    IsTime = False
+End Function
 
+Sub applyFormat(ByRef inputValue As Variant, ByVal inputRange As Range)
+'@AssignedModule Various
+    If IsEmpty(inputValue) Then Exit Sub
+    On Error Resume Next
+    Dim cellFormat As String
+    cellFormat = inputRange.NumberFormat
+    On Error GoTo 0
+    If cellFormat = "General" Then Exit Sub
+    On Error Resume Next
+    Dim formattedValue As Variant
+    formattedValue = Format(inputValue, cellFormat)
+    On Error GoTo 0
+    If Not IsError(formattedValue) Then inputValue = formattedValue
+End Sub
+
+Function ArrayFilterLike(inputArray As Variant, MatchThis As String, MatchCase As Boolean)
+'@AssignedModule Various
+    Dim OutputArray As Variant
+    ReDim OutputArray(1 To 1)
+    Dim counter As Long
+    counter = 0
+    Dim element
+    Dim doesMatch As Boolean
+    For Each element In inputArray
+        doesMatch = IIf(MatchCase, _
+                    element Like MatchThis, _
+                    UCase(element) Like UCase(MatchThis))
+        If doesMatch Then
+            counter = counter + 1
+            ReDim Preserve OutputArray(1 To counter)
+            OutputArray(UBound(OutputArray)) = element
+        End If
+    Next
+    ArrayFilterLike = OutputArray
+End Function
 
 Public Function IsValueFormattedCorrectly(ByVal inputRange As Range, ByVal inputValue As Variant) As Boolean
+'@AssignedModule Various
     If IsEmpty(inputValue) Then
         IsValueFormattedCorrectly = True ' Empty values are always valid
         Exit Function
@@ -78,14 +138,8 @@ Public Function IsValueFormattedCorrectly(ByVal inputRange As Range, ByVal input
     End If
 End Function
 
-
-
-
-
-
-
 Public Function aSwitch(CheckThis, ParamArray OptionPairs() As Variant)
-'@LastModified 2307171814
+'@AssignedModule Various
     Dim i As Long
     For i = LBound(OptionPairs) To UBound(OptionPairs) Step 2
         If UCase(CheckThis) = UCase(OptionPairs(i)) Then
@@ -96,9 +150,11 @@ Public Function aSwitch(CheckThis, ParamArray OptionPairs() As Variant)
 End Function
 
 Function CountOfCharacters(SearchHere As String, FindThis As String)
+'@AssignedModule Various
     CountOfCharacters = (Len(SearchHere) - Len(Replace(SearchHere, FindThis, ""))) / Len(FindThis)
 End Function
 Function AvailableFormOrFrameRow(FormOrFrame As Object, Optional AfterWidth As Long = 0, Optional AfterHeight As Long = 0, Optional AddMargin As Long = 0) As Long
+'@AssignedModule Various
     Dim ctr As MSForms.control
     Dim myHeight
     For Each ctr In FormOrFrame.Controls
@@ -112,6 +168,8 @@ Function AvailableFormOrFrameRow(FormOrFrame As Object, Optional AfterWidth As L
 End Function
 
 Function AvailableFormOrFrameColumn(FormOrFrame As Object, Optional AfterWidth As Long = 0, Optional AfterHeight As Long = 0, Optional AddMargin As Long = 0) As Long
+'@AssignedModule Various
+
     Dim ctr As MSForms.control
     Dim myWidth
     For Each ctr In FormOrFrame.Controls
@@ -125,6 +183,8 @@ Function AvailableFormOrFrameColumn(FormOrFrame As Object, Optional AfterWidth A
 End Function
 
 Function Transpose2DArray(inputArray As Variant) As Variant
+'@AssignedModule Various
+
     Dim x As Long, yUbound As Long
     Dim y As Long, xUbound As Long
     Dim tempArray As Variant
@@ -141,6 +201,10 @@ End Function
 
 
 Function IsFileFolderURL(Path) As String
+'@AssignedModule Various
+'@INCLUDE PROCEDURE URLExists
+'@INCLUDE PROCEDURE FolderExists
+'@INCLUDE PROCEDURE FileExists
     Dim retVal As String
     retVal = "I"
     If (retVal = "I") And FileExists(Path) Then retVal = "F"
@@ -151,6 +215,7 @@ Function IsFileFolderURL(Path) As String
 End Function
 
 Function URLExists(url) As Boolean
+'@AssignedModule Various
     Dim Request As Object
     Dim FF As Integer
     Dim rc As Variant
@@ -170,13 +235,16 @@ Function URLExists(url) As Boolean
 EndNow:
 End Function
 
-
 Function FolderExists(ByVal strPath As String) As Boolean
+'@AssignedModule Various
+
     On Error Resume Next
     FolderExists = ((GetAttr(strPath) And vbDirectory) = vbDirectory)
 End Function
 
 Public Function FileExists(ByVal FileName As String) As Boolean
+'@AssignedModule Various
+
     If InStr(1, FileName, "\") = 0 Then Exit Function
     If Right(FileName, 1) = "\" Then FileName = Left(FileName, Len(FileName) - 1)
     On Error Resume Next
@@ -185,13 +253,13 @@ End Function
 
 
 Function WorkbookProjectProtected(ByVal TargetWorkbook As Workbook) As Boolean
+'@AssignedModule Various
+'@INCLUDE DECLARATION TargetWorkbook
         WorkbookProjectProtected = (TargetWorkbook.VBProject.Protection = 1)
 End Function
 
-
-
 Function TxtRead(sPath As Variant) As String
-
+'@AssignedModule Various
     Dim sTXT As String
     If Dir(sPath) = "" Then
         Debug.Print "File was not found."
@@ -218,6 +286,7 @@ Function GetInputRange(ByRef rInput As Excel.Range, _
                     Optional ByVal bActivate As Boolean, _
                     Optional x, _
                     Optional y) As Boolean
+'@AssignedModule Various
 
 'assigns range to variable passed
 'GetInputRange(rng, "Range picker", "Select range to output listbox' list") = False Then Exit Sub
@@ -293,8 +362,9 @@ ErrH:
     Resume cleanup
 End Function
 
-
 Sub TxtOverwrite(sFile As String, sText As String)
+'@AssignedModule Various
+
     On Error GoTo ERR_HANDLER
     Dim FileNumber As Integer
     FileNumber = FreeFile
@@ -310,6 +380,7 @@ ERR_HANDLER:
     "Error Description: " & Err.Description, vbCritical, "An Error has Occurred!"
     GoTo Exit_Err_Handler
 End Sub
+
 Public Function ArrayContains( _
     ByVal value1 As Variant, _
     ByVal array1 As Variant, _
@@ -324,6 +395,8 @@ Public Function ArrayContains( _
     '@Returns: Returns boolean True if the value is in the array, and false otherwise
     '@Example: =IsInArray("hello", {"one", 2, "hello"}) -> True
     '@Example: =IsInArray("hello", {1, "two", "three"}) -> False
+'@AssignedModule Various
+
     Dim individualElement As Variant
     If CaseSensitive = True Then value1 = UCase(value1)
     For Each individualElement In array1
@@ -337,12 +410,15 @@ Public Function ArrayContains( _
 End Function
 
 Public Function ArrayAllocated(ByVal arr As Variant) As Boolean
+'@AssignedModule Various
+
     On Error Resume Next
     ArrayAllocated = IsArray(arr) And (Not IsError(LBound(arr, 1))) And LBound(arr, 1) <= UBound(arr, 1)
 End Function
 
-
 Sub FoldersCreate(FolderPath As String)
+'@AssignedModule Various
+'@INCLUDE PROCEDURE FolderExists
     On Error Resume Next
     Dim individualFolders() As String
     Dim tempFolderPath As String
@@ -357,7 +433,7 @@ Sub FoldersCreate(FolderPath As String)
 End Sub
 
 Sub FollowLink(FolderPath As String)
-
+'@AssignedModule Various
     If Right(FolderPath, 1) = "\" Then FolderPath = Left(FolderPath, Len(FolderPath) - 1)
     On Error Resume Next
     Dim oShell As Object
@@ -371,9 +447,8 @@ Sub FollowLink(FolderPath As String)
     Application.ThisWorkbook.FollowHyperlink Address:=FolderPath, NewWindow:=True
 End Sub
 
-
-
 Function ArrayTrim(ByVal arr As Variant)
+'@AssignedModule Various
         Dim i As Long
         For i = LBound(arr) To UBound(arr)
             arr(i) = Trim(arr(i))

@@ -170,7 +170,7 @@ Sub MailDev()
     Set OutMail = OutApp.CreateItem(0)
     On Error Resume Next
     With OutMail
-        .To = AUTHOR_EMAIL
+        .to = AUTHOR_EMAIL
         .cc = vbNullString
         .BCC = vbNullString
         .Subject = "Feedback or request - " & ThisWorkbook.Name

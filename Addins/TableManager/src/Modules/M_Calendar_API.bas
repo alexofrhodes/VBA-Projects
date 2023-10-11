@@ -70,7 +70,7 @@ Public PassiveMonth, PassiveDay, PassiveYear, PassiveDayTag, SelectedDay, Select
 
 Public Function getMonth(iMonth As Integer, Optional language As String)
 '    Select Case languege
-        
+'@AssignedModule M_Calendar_API
         Select Case iMonth Mod 12
            Case Is = 1, "-11"
                 getMonth = "JANUARY"
@@ -102,8 +102,15 @@ Public Function getMonth(iMonth As Integer, Optional language As String)
 End Function
 
 Function HideTitleBarAndBorder(frm As Object)
-
-
+'@AssignedModule M_Calendar_API
+'@INCLUDE DECLARATION GWL_EXSTYLE
+'@INCLUDE DECLARATION GWL_STYLE
+'@INCLUDE DECLARATION WS_CAPTION
+'@INCLUDE DECLARATION WS_EX_DLGMODALFRAME
+'@INCLUDE DECLARATION DrawMenuBar
+'@INCLUDE DECLARATION FindWindow
+'@INCLUDE DECLARATION GetWindowLong
+'@INCLUDE DECLARATION SetWindowLong
     Dim lngWindow As Long
     Dim lFrmHdl As Long
     lFrmHdl = FindWindow(vbNullString, frm.Caption)
@@ -118,6 +125,14 @@ Function HideTitleBarAndBorder(frm As Object)
 End Function
 
 Function MakeUserformTransparent(frm As Object, colorKey As Variant, Optional color As Variant)
+'@AssignedModule M_Calendar_API
+'@INCLUDE DECLARATION GWL_EXSTYLE
+'@INCLUDE DECLARATION LWA_COLORKEY
+'@INCLUDE DECLARATION WS_EX_LAYERED
+'@INCLUDE DECLARATION FindWindow
+'@INCLUDE DECLARATION GetWindowLong
+'@INCLUDE DECLARATION SetLayeredWindowAttributes
+'@INCLUDE DECLARATION SetWindowLong
 LWA_COLORKEY = colorKey
 
 Dim formhandle As Long
@@ -135,16 +150,28 @@ SetLayeredWindowAttributes formhandle, color, bytOpacity, LWA_COLORKEY
 End Function
 
 Public Function MouseCursor(CursorType As Long)
+'@AssignedModule M_Calendar_API
+'@INCLUDE DECLARATION LoadCursorBynum
+'@INCLUDE DECLARATION SetCursor
   Dim lngRet As Long
   lngRet = LoadCursorBynum(0&, CursorType)
   lngRet = SetCursor(lngRet)
 End Function
 
 Public Function MouseMoveIcon()
+'@AssignedModule M_Calendar_API
+'@INCLUDE PROCEDURE MouseCursor
+'@INCLUDE DECLARATION IDC_HAND
     Call MouseCursor(IDC_HAND)
 End Function
 
 Public Sub moverForm(Form As Object, obj As Object, Button As Integer)
+'@AssignedModule M_Calendar_API
+'@INCLUDE DECLARATION HTCAPTION
+'@INCLUDE DECLARATION WM_NCLBUTTONDOWN
+'@INCLUDE DECLARATION FindWindowA
+'@INCLUDE DECLARATION SendMessage
+'@INCLUDE DECLARATION ReleaseCapture
     Dim lngMyHandle As Long, lngCurrentStyle As Long, lngNewStyle As Long
     If val(Application.Version) < 9 Then
         lngMyHandle = FindWindowA("ThunderXFrame", Form.Caption)
@@ -160,6 +187,13 @@ Public Sub moverForm(Form As Object, obj As Object, Button As Integer)
     End If
 End Sub
 Public Sub removeTudo(ObjForm As Object)
+'@AssignedModule M_Calendar_API
+'@INCLUDE DECLARATION ESTILO_ATUAL
+'@INCLUDE DECLARATION WS_CAPTION
+'@INCLUDE DECLARATION FindWindowA
+'@INCLUDE DECLARATION MoveJanela
+'@INCLUDE DECLARATION ESTILO
+'@INCLUDE DECLARATION MeuForm
     MeuForm = FindWindowA(vbNullString, ObjForm.Caption)
     ESTILO = ESTILO Or WS_CAPTION
     MoveJanela MeuForm, ESTILO_ATUAL, (ESTILO)

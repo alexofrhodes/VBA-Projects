@@ -29,9 +29,15 @@ Attribute VB_Name = "F_Settings_INI"
     public declare Function GetPrivateProfileSection Lib "kernel32" Alias "GetPrivateProfileSectionA" (ByVal lpAppName As String, ByVal lpReturnedString As String, ByVal nSize As Long, ByVal lpFileName As String) As Long
 #End If
 
-
 Sub TestINI()
-
+'@AssignedModule F_Settings_INI
+'@INCLUDE PROCEDURE FollowLink
+'@INCLUDE PROCEDURE IniSections
+'@INCLUDE PROCEDURE IniReadSection
+'@INCLUDE PROCEDURE IniSectionKeys
+'@INCLUDE PROCEDURE IniReadKey
+'@INCLUDE PROCEDURE IniWrite
+'@INCLUDE PROCEDURE dp
     Dim filepath As String: filepath = ThisWorkbook.Path & "\test.INI"
     FollowLink ThisWorkbook.Path
     
@@ -63,8 +69,6 @@ Sub TestINI()
 End Sub
 
 Public Function IniSections(iniFile As String) As Variant
-'@INCLUDE PROCEDURE TxtRead
-
 '---sample file content---
 '[settings1]
 '    string1 = aaa
@@ -73,14 +77,17 @@ Public Function IniSections(iniFile As String) As Variant
 '    string1 = ccc
 '    string2 = ddd
 '-------------------------
+'@AssignedModule F_Settings_INI
+'@INCLUDE PROCEDURE TxtRead
     IniSections = Split(Replace(Replace(Join(Filter(Split(Replace(TxtRead(iniFile), vbLf, vbNewLine), vbNewLine), "[", True), vbNewLine), "[", ""), "]", ""), vbNewLine)
 '------Result------------------
 'Array("settings1","settings2")
 End Function
 
 Public Function IniReadSection(FileName As String, Section As String) As Variant
-'@INCLUDE DECLARATION GetPrivateProfileSection
+'@AssignedModule F_Settings_INI
 '@INCLUDE PROCEDURE ArrayRemoveEmptyElements
+'@INCLUDE DECLARATION GetPrivateProfileSection
     Dim retVal As String * 255
     Dim v As Long:      v = GetPrivateProfileSection(Section, retVal, 255, FileName)
     Dim s As String:    s = Left(retVal, v + 0)
@@ -92,9 +99,7 @@ Public Function IniReadSection(FileName As String, Section As String) As Variant
 End Function
 
 Public Function ArrayRemoveEmptyElements(varArray As Variant) As Variant
-'@LastModified 2305220838
-'@BlogPosted
-'@AssignedModule F_Array
+'@AssignedModule F_Settings_INI
     Dim tempArray() As Variant
     Dim OldIndex As Integer
     Dim NewIndex As Integer
@@ -111,6 +116,9 @@ Public Function ArrayRemoveEmptyElements(varArray As Variant) As Variant
 End Function
 
 Public Function IniSectionKeys(FileName As String, Section As String) As Variant
+'@AssignedModule F_Settings_INI
+'@INCLUDE PROCEDURE IniReadSection
+'@INCLUDE PROCEDURE IniSectionExists
     Dim arr() As Variant
     If Not IniSectionExists(FileName, Section) Then
         IniSectionKeys = arr
@@ -130,6 +138,7 @@ Public Function IniSectionKeys(FileName As String, Section As String) As Variant
 End Function
 
 Public Function IniReadKey(IniFileName As String, ByVal Sect As String, ByVal Keyname As String) As String
+'@AssignedModule F_Settings_INI
 '@INCLUDE DECLARATION GetPrivateProfileString
     Dim Worked As Long
     Dim RetStr As String * 128
@@ -154,9 +163,9 @@ Public Function IniReadKey(IniFileName As String, ByVal Sect As String, ByVal Ke
 End Function
 
 Public Sub IniWrite(IniFileName As String, ByVal Sect As String, ByVal Keyname As String, ByVal Wstr As String)
-'@INCLUDE DECLARATION WritePrivateProfileString
-
 'This macro also creates the file & section & key if they doesn't exist
+'@AssignedModule F_Settings_INI
+'@INCLUDE DECLARATION WritePrivateProfileString
 
     Dim Worked As Long
     Dim iNoOfCharInIni As Long
@@ -191,11 +200,6 @@ Public Sub IniWrite(IniFileName As String, ByVal Sect As String, ByVal Keyname A
 '    string2 = ddd
 End Sub
 
-
-
-
-
-
 '___NO API METHOD______
 '
 Public Sub TestReadKey()
@@ -206,19 +210,26 @@ Public Sub TestReadKey()
            "Key Exist: " & IniKeyExists(ThisWorkbook.Path & "\MyIniFile.ini", "SETTINGS", "License") & vbCrLf & _
            "Key Value: " & Ini_ReadKeyVal(ThisWorkbook.Path & "\MyIniFile.ini", "SETTINGS", "License")
     'You can validate the value by checking the bSectionExists and bKeyExists variable to ensure they were actually found in the ini file
+'@AssignedModule F_Settings_INI
+'@INCLUDE PROCEDURE IniSectionExists
+'@INCLUDE PROCEDURE IniKeyExists
 End Sub
 
 Public Function IniSectionExists(iniFile As String, Section As String) As Boolean
     'Alex
+'@AssignedModule F_Settings_INI
+'@INCLUDE PROCEDURE TxtRead
     IniSectionExists = InStr(1, TxtRead(iniFile), "[" & Section & "]") > 0
 End Function
 
 Public Function IniKeyExists(iniFile As String, Section As String, key As String) As Boolean
     'Alex
+'@AssignedModule F_Settings_INI
     IniKeyExists = (Ini_ReadKeyVal(iniFile, Section, key) <> "")
 End Function
 
 Public Sub TestWriteKey()
+'@AssignedModule F_Settings_INI
     If Ini_WriteKeyVal(ThisWorkbook.Path & "\MyIniFile.ini", "SETTINGS", "License", "JBXR-HHTY-LKIP-HJNB-GGGT") = True Then
         MsgBox "The key was written"
     Else
@@ -256,6 +267,10 @@ End Sub
 Public Function Ini_ReadKeyVal(ByVal sIniFile As String, _
                         ByVal sSection As String, _
                         ByVal sKey As String) As String
+'@AssignedModule F_Settings_INI
+'@INCLUDE PROCEDURE FileExists
+'@INCLUDE PROCEDURE TxtRead
+'@INCLUDE PROCEDURE ArrayTrim
     On Error GoTo Error_Handler
     Dim bSectionExists         As Boolean
     Dim bKeyExists             As Boolean
@@ -347,6 +362,10 @@ Public Function Ini_WriteKeyVal(ByVal sIniFile As String, _
                          ByVal sSection As String, _
                          ByVal sKey As String, _
                          ByVal sValue As String) As Boolean
+'@AssignedModule F_Settings_INI
+'@INCLUDE PROCEDURE FileExists
+'@INCLUDE PROCEDURE TxtRead
+'@INCLUDE PROCEDURE TxtOverwrite
     On Error GoTo Error_Handler
     Dim bSectionExists         As Boolean
     Dim bKeyExists             As Boolean

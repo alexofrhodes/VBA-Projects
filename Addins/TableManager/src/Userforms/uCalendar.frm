@@ -76,6 +76,22 @@ Private Sub frameDate_Click()
     frameYear.Visible = False
 End Sub
 
+'added by alex for TableManager.xlam needs
+
+'* Modified   : Date and Time       Author              Description
+'* Updated    : 10-10-2023 21:07    Alex                (uCalendar.frm > frameDate_KeyUp)
+
+Private Sub frameDate_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+'@LastModified 2310102107
+    Select Case KeyCode
+        Case Is = 27
+            uTableManager.canceledDatePicker = True
+            Unload Me
+        Case Is = vbKeyReturn
+            Unload Me
+    End Select
+End Sub
+
 Private Sub lblChoose_Click()
     Unload Me
 End Sub
@@ -89,7 +105,6 @@ End Sub
 Private Sub lblClose_Click()
     txtSelectedDate = ""
     Unload Me
-
 End Sub
 
 Private Sub lblMonthName_Click()
@@ -128,10 +143,6 @@ Private Sub lblPreviewMonth_Click()
     End With
 End Sub
 
-Private Sub lblRightBar_Click()
-
-End Sub
-
 Private Sub lblRightBar_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     moverForm Me, Me, Button
 End Sub
@@ -148,10 +159,6 @@ End Sub
 Private Sub txtMonthNumber_Change()
     lblMonthName = getMonth(txtMonthNumber)
     gDate.createDates txtYearName, txtMonthNumber
-End Sub
-
-Private Sub txtSelectedYear_Change()
-
 End Sub
 
 Private Sub txtYearName_Change()
@@ -208,6 +215,6 @@ Private Sub IconDesign(Ctrl As control, IconCode As String)
 End Sub
 
 Private Sub UserForm_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    '    moverForm Me, Me, Button
+        moverForm Me, Me, Button
 End Sub
 

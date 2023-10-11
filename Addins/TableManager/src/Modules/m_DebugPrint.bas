@@ -2,6 +2,11 @@ Attribute VB_Name = "m_DebugPrint"
 Option Explicit
 
 Public Sub dp(var As Variant)
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE PrintXML
+'@INCLUDE PROCEDURE printArray
+'@INCLUDE PROCEDURE printCollection
+'@INCLUDE PROCEDURE printDictionary
     Dim element     As Variant
     Dim i As Long
 '    Debug.Print TypeName(var)
@@ -23,6 +28,7 @@ Public Sub dp(var As Variant)
 End Sub
 
 Sub PrintXML(var)
+'@AssignedModule m_DebugPrint
     Debug.Print var.XML
 End Sub
 
@@ -47,6 +53,11 @@ End Sub
 'End Sub
 
 Private Sub printArray(var As Variant)
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE dp
+'@INCLUDE PROCEDURE PrintXML
+'@INCLUDE PROCEDURE DPH
+'@INCLUDE PROCEDURE ArrayDimensions
     Dim element
     If ArrayDimensions(var) = 1 Then
 '        Debug.Print Join(var, vbNewLine)
@@ -59,6 +70,8 @@ Private Sub printArray(var As Variant)
 End Sub
 
 Private Sub printCollection(var As Variant)
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE dp
     Dim elem        As Variant
     For Each elem In var
         dp elem
@@ -67,7 +80,8 @@ End Sub
 
 Private Sub printDictionary(var As Variant)
 '@TODO detect error cause I met when printing a dic from JSON related modules
-
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE dp
     Dim i As Long: Dim iCount As Long
     Dim arrKeys
     Dim sKey        As String
@@ -101,10 +115,13 @@ End Sub
 
 Private Sub DPH(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional HairetuName$)
 'https://gist.github.com/YujiFukami/15c922d41ff06c9b12ad450a14131080#file-
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE DebugPrintHairetu
     Call DebugPrintHairetu(Hairetu, HyoujiMaxNagasa, HairetuName)
 End Sub
 
 Public Function ArrayDimensions(ByVal vArray As Variant) As Long
+'@AssignedModule m_DebugPrint
     Dim dimnum      As Long
     Dim ErrorCheck As Long
     On Error GoTo FinalDimension
@@ -117,7 +134,11 @@ End Function
 
 Private Sub DebugPrintHairetu(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional HairetuName$)
 'https://gist.github.com/YujiFukami/15c922d41ff06c9b12ad450a14131080#file-
-
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE Transpose2DArray
+'@INCLUDE PROCEDURE ReptText
+'@INCLUDE PROCEDURE MaxValue
+'@INCLUDE PROCEDURE ShortenToByteCharacters
     Dim i&, j&, k&, M&, N&
     Dim TateMin&, TateMax&, YokoMin&, YokoMax&
     Dim WithTableHairetu
@@ -185,6 +206,7 @@ Private Sub DebugPrintHairetu(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional
 End Sub
 
 Function ReptText(ByVal Text As String, ByVal Count As Integer) As String
+'@AssignedModule m_DebugPrint
     Dim result As String
     result = ""
     
@@ -199,6 +221,8 @@ Function ReptText(ByVal Text As String, ByVal Count As Integer) As String
 End Function
 
 Function MaxValue(ParamArray values() As Variant) As Variant
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE GetErrorValue
     If Not IsArray(values) Then
         MaxValue = GetErrorValue
         Exit Function
@@ -222,11 +246,15 @@ Function MaxValue(ParamArray values() As Variant) As Variant
 End Function
 
 Function GetErrorValue() As Variant
+'@AssignedModule m_DebugPrint
     GetErrorValue = CVErr(2042) ' 2042 represents the xlErrValue error number in Excel
 End Function
 
 Public Function ShortenToByteCharacters(Mojiretu$, ByteNum%)
 'https://gist.github.com/YujiFukami/15c922d41ff06c9b12ad450a14131080#file-
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE CalculateByteCharacters
+'@INCLUDE PROCEDURE TextDecomposition
     Dim OriginByte%
     Dim Output
     OriginByte = LenB(StrConv(Mojiretu, vbFromUnicode))
@@ -261,6 +289,7 @@ End Function
 
 Private Function CalculateByteCharacters(Mojiretu$)
 'https://gist.github.com/YujiFukami/15c922d41ff06c9b12ad450a14131080#file-
+'@AssignedModule m_DebugPrint
     Dim MojiKosu%
     MojiKosu = Len(Mojiretu)
     Dim Output
@@ -280,6 +309,7 @@ End Function
 
 Private Function TextDecomposition(Mojiretu$)
 'https://gist.github.com/YujiFukami/15c922d41ff06c9b12ad450a14131080#file-
+'@AssignedModule m_DebugPrint
     Dim i&, N&
     Dim Output
     N = Len(Mojiretu)
@@ -296,6 +326,8 @@ Function DpHeader( _
                  Optional Character As String = "'", _
                  Optional Top As Boolean, _
                  Optional Bottom As Boolean) As String
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE LargestLength
     If lvl < 1 Then lvl = 1
     If Character = "" Then Character = "'"
     Dim indentation As Integer
@@ -316,6 +348,8 @@ Function DpHeader( _
 End Function
 
 Function LargestLength(MyObj) As Long
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE dp
     LargestLength = 0
     Dim element As Variant
     Select Case TypeName(MyObj)

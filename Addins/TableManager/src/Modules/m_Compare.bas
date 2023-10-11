@@ -16,6 +16,8 @@ Public Enum operator
 End Enum
 
 Function CompareValues(ByVal value1 As Variant, ByVal value2 As Variant, ByVal operator As operator) As Boolean
+'@AssignedModule m_Compare
+'@INCLUDE DECLARATION operator
     Select Case operator
         Case IS_LIKE
             CompareValues = (UCase(CStr(value1)) Like "*" & UCase(CStr(value2)) & "*")
@@ -45,7 +47,10 @@ End Function
 
 Function FilterArray2d(inputArray As Variant, HasHeader As Boolean, MatchString As String, _
         ComparisonOperator As operator, Optional ColumnIndex As Long = -1) As Variant
-    
+'@AssignedModule m_Compare
+'@INCLUDE PROCEDURE CompareValues
+'@INCLUDE PROCEDURE ArrayCombine
+'@INCLUDE DECLARATION operator
     Dim numRows As Long
     Dim numCols As Long
     Dim resultArray() As Variant
@@ -124,6 +129,7 @@ Private Function ArrayCombine(a As Variant, b As Variant, Optional stacked As Bo
     'LBound can be anything but is assumed to be
     'the same for A and B (in both dimensions)
     'False is returned if a clash
+'@AssignedModule m_Compare
 
     Dim LB As Long, m_A As Long, n_A As Long
     Dim m_B As Long, n_B As Long
@@ -176,8 +182,8 @@ Private Function ArrayCombine(a As Variant, b As Variant, Optional stacked As Bo
     ArrayCombine = c
 End Function
 
-
 Public Function NumberOfArrayDimensions(arr As Variant) As Byte
+'@AssignedModule m_Compare
     Dim Ndx As Byte
     Dim Res As Long
     On Error Resume Next
@@ -189,6 +195,7 @@ Public Function NumberOfArrayDimensions(arr As Variant) As Byte
 End Function
 
 Function isUserform(thing) As Boolean
+'@AssignedModule m_Compare
     On Error Resume Next
     Dim Module As VBComponent
     Set Module = ThisWorkbook.VBProject.VBComponents(thing.Name)

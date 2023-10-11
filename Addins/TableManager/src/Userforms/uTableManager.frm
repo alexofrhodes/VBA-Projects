@@ -23,24 +23,13 @@ Attribute VB_Exposed = False
 '* YOUTUBE    : https://www.youtube.com/channel/UC5QH3fn1zjx0aUjRER_rOjg
 '* VK         : https://vk.com/video/playlist/735281600_1
 '*
-'* DONATE     : http://paypal.me/alexofrhodes
+'* Support    : http://paypal.me/alexofrhodes
 '*
 '* Project    : Table Manager
 '* Purpose    : View and Edit Tables
-'* Version    : 1.3.0
-'* Date       : 2023-08-04
-'*
-'* Modifications:
-'*
-'*  + Added optional date picker for date fields
-'*  + Cell validation applies to Editor Controls
-'*  + Added Comments
-'*  ~ Refactored code
-'*  ~ Renamed Controls
-'* Fixed too long scrollbar on Editor Frame
 '* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-
+Public canceledDatePicker As Boolean
 
 Private WithEvents Emitter As EventListenerEmitter
 Attribute Emitter.VB_VarHelpID = -1
@@ -62,12 +51,14 @@ Private targetBanner        As Object
 '/////////////////////////////////////////////
 
 Private Sub UserForm_Initialize()
+
     aUserform.Init(Me).MinimizeButton
     Set aLV = aListView.Init(ListViewTable)
     LoadWorkbooks
     LoadOptions
     setControlStyle
     SelectActivePath
+
 End Sub
 
 Sub LoadWorkbooks()
@@ -257,12 +248,7 @@ End Sub
 Sub RemoveEditorControls()
     Set Emitter = Nothing
     Set Emitter = New EventListenerEmitter
-    Dim Ctrl As MSForms.control
-    If FrameTableEditor.Controls.Count > 0 Then
-        For Each Ctrl In FrameTableEditor.Controls
-            FrameTableEditor.Controls.Remove Ctrl.Name
-        Next
-    End If
+    FrameTableEditor.Clear
 End Sub
 
 Private Sub ListboxTable_change()
@@ -280,56 +266,25 @@ Private Sub SetListviewNumberFormat()
     'otherwise the value will be loaded as a weird number
     'this may be slow on large tables, @TODO confirm and modify aListView.InitializeFromArray if needed
     Dim x As ListItem, y As ListSubItem, val
+    Dim cell As Range
     For Each x In ListViewTable.ListItems
-        val = x.Text
+        Set cell = TargetTable.DataBodyRange(x.index, 1)
+        val = cell.Value
         If IsDate(val) Or IsTime(val) Then
-            applyFormat val, TargetTable.DataBodyRange(x.index, 1)
+            applyFormat val, cell
             x.Text = val
         End If
         For Each y In x.ListSubItems
-            val = y.Text
-            If IsDate(val) Or IsTime(val) Then
-                applyFormat val, TargetTable.DataBodyRange(x.index, y.index + 1)
-                y.Text = val
+            Set cell = cell.Offset(0, 1)
+            val = cell.Value
+            If Not IsEmpty(cell) Then
+                If IsDate(val) Or IsTime(val) Then
+                    applyFormat val, TargetTable.DataBodyRange(x.index, y.index + 1)
+                    y.Text = val
+                End If
             End If
         Next
     Next
-End Sub
-
-Function IsTime(ByVal inputValue As Variant) As Boolean
-    If IsNumeric(inputValue) Or IsDate(inputValue) Then
-        ' Check if the numeric value is within the valid time range (0 to 1)
-        If inputValue >= 0 And inputValue <= 1 Then
-            ' Convert to total seconds in a day
-            Dim totalSeconds As Double
-            totalSeconds = inputValue * 24 * 60 * 60
-            ' Validate the individual components of the time
-            Dim hours As Long, minutes As Long, seconds As Long
-            hours = Int(totalSeconds / 3600)
-            totalSeconds = totalSeconds Mod 3600
-            minutes = Int(totalSeconds / 60)
-            seconds = totalSeconds Mod 60
-            If hours >= 0 And hours < 24 And minutes >= 0 And minutes < 60 And seconds >= 0 And seconds < 60 Then
-                IsTime = True
-                Exit Function
-            End If
-        End If
-    End If
-    IsTime = False
-End Function
-
-Sub applyFormat(ByRef inputValue As Variant, ByVal inputRange As Range)
-    If IsEmpty(inputValue) Then Exit Sub
-    On Error Resume Next
-    Dim cellFormat As String
-    cellFormat = inputRange.NumberFormat
-    On Error GoTo 0
-    If cellFormat = "General" Then Exit Sub
-    On Error Resume Next
-    Dim formattedValue As Variant
-    formattedValue = Format(inputValue, cellFormat)
-    On Error GoTo 0
-    If Not IsError(formattedValue) Then inputValue = formattedValue
 End Sub
 
 Sub ResetFilters()
@@ -343,11 +298,19 @@ Sub ResetFilters()
     If ComboBoxFilterOperator.ListCount > 0 Then ComboBoxFilterOperator.ListIndex = 0
 End Sub
 
+'* Modified   : Date and Time       Author              Description
+'* Updated    : 10-10-2023 21:07    Alex                (uTableManager.frm > CreateEditorControls) disabled editors if cell value calculated by formula
+
 Private Sub CreateEditorControls()
+'@LastModified 2310102107
     RemoveEditorControls
     Dim i As Long, lbl As MSForms.Label, txt As MSForms.Textbox, cbx As MSForms.ComboBox
     Dim cell As Range
     Dim validationArray
+    
+    '@bug fixed
+    Dim controlWidth As Long
+    controlWidth = WorksheetFunction.Max(354, FrameTableEditor.Width) - 32
     For i = 1 To ListViewTable.ColumnHeaders.Count
         On Error Resume Next
         If isAddingNewRow Then
@@ -358,7 +321,7 @@ Private Sub CreateEditorControls()
         On Error GoTo 0
         If cell Is Nothing Then Exit Sub
         Set lbl = FrameTableEditor.Controls.Add("Forms.Label.1")
-        lbl.Width = FrameTableEditor.Width - 32
+        lbl.Width = controlWidth
         lbl.Height = 10
         lbl.Left = 6
         lbl.Top = AvailableFormOrFrameRow(FrameTableEditor, , , 3)
@@ -371,9 +334,9 @@ Private Sub CreateEditorControls()
         dvType = cell.Validation.Type
         On Error GoTo 0
         'create a combobox if it has datavalidation list, for example = Cat, Dog, Horse
-        '@TODO check if list is from range
         If isValidationList(cell) Then
             Set cbx = FrameTableEditor.Controls.Add("Forms.ComboBox.1")
+            cbx.columnCount = 1
             If InStr(1, cell.Validation.Formula1, "=") > 0 Then
                 Dim rng As Range
                 Set rng = Nothing
@@ -386,24 +349,21 @@ Private Sub CreateEditorControls()
             Else
                 validationArray = Split(cell.Validation.Formula1, ",")
             End If
-            
-            Dim item
-            For Each item In validationArray
-                cbx.AddItem item
-            Next
+            cbx.List = validationArray
             cbx.Top = lbl.Top + lbl.Height
             cbx.Left = lbl.Left
-            cbx.Width = FrameTableEditor.Width - 32
+            cbx.Width = controlWidth
             cbx.Height = 16
             cbx.Name = "Editor-" & i
             cbx.Font.Name = "Segoe UI"
             cbx.BorderStyle = fmBorderStyleSingle
 '            cbx.Style=fmStyleDropDownList
+            ShowDatavalidationBanner cbx, lbl
         Else 'create a textbox
             Set txt = FrameTableEditor.Controls.Add("Forms.Textbox.1")
             txt.Top = lbl.Top + lbl.Height
             txt.Left = lbl.Left
-            txt.Width = FrameTableEditor.Width - 32
+            txt.Width = controlWidth
             txt.Height = 16
             txt.Name = "Editor-" & i
             txt.Font.Name = "Segoe UI"
@@ -412,7 +372,14 @@ Private Sub CreateEditorControls()
             txt.WordWrap = False
             txt.BorderStyle = fmBorderStyleSingle
         End If
+        
+        '@MODIFIED
+        If cell.HasFormula Then
+            Me.Controls("Editor-" & i).Enabled = False
+            lbl.Caption = lbl.Caption & " => " & cell.Formula
+        End If
     Next
+    
     If isAddingNewRow Then
         'if adding new row then editors would be empty, do nothing
     Else 'load the values properly formated
@@ -420,7 +387,11 @@ Private Sub CreateEditorControls()
         For i = 1 To ListViewTable.ColumnHeaders.Count
             Set cell = TargetTable.DataBodyRange(ListViewTable.selectedItem.index, i)
             val = cell.Value
-            applyFormat val, cell
+            If Not IsEmpty(cell) Then
+                If IsDate(val) Or IsTime(val) Then
+                    applyFormat val, cell
+                End If
+            End If
             Me.Controls("Editor-" & i).Value = val
         Next
     End If
@@ -564,7 +535,12 @@ End Sub
 '///            EDITORS EVENTS             ///
 '/////////////////////////////////////////////
 
+'* Modified   : Date and Time       Author              Description
+'* Updated    : 10-10-2023 21:08    Alex                (uTableManager.frm > Emitter_Focus) when focused on combobox open listcombo userform
+
 Private Sub Emitter_Focus(control As Object)
+'@LastModified 2310102108
+    If Not control.Enabled Then Exit Sub
     If Not control.Name Like "Editor-*" Then Exit Sub
     editorIndex = Split(control.Name, "-")(1)
     'format editor's label to indicate focus
@@ -575,11 +551,22 @@ Private Sub Emitter_Focus(control As Object)
     ResizeIfNeeded control
     'if we focused by tabbing, remove the tab (we're using _KeyDown event, read that)
     If TypeName(control) = "TextBox" Then control.Value = Replace(control.Value, vbTab, "")
-    If TypeName(control) = "ComboBox" Then control.Text = Replace(control.Text, vbTab, "")
+    
+    '@MODIFIED
+    If TypeName(control) = "ComboBox" Then
+        control.Text = Replace(control.Text, vbTab, "")
+        Load UserForm1
+        UserForm1.LoadedList = control.List
+        UserForm1.ListBox1.List = UserForm1.LoadedList
+        Set UserForm1.TargetControl = control
+        UserForm1.Show False
+    End If
+    
     'if it is a date field then optionally show date picker
     If CheckBoxDatePicker.Value = True And UCase(Label.Caption) Like "*DATE*" Then
+        canceledDatePicker = False
         Dim retVal As String: retVal = uCalendar.Datepicker
-        If retVal <> "" Then control.Value = Format(Replace(retVal, ".", "/"), TableCell(control).NumberFormat)
+        If retVal <> "" And canceledDatePicker = False Then control.Value = Format(Replace(retVal, ".", "/"), TableCell(control).NumberFormat)
     End If
     'display datavalidation information for respective cell
     ShowDatavalidationBanner control, Label
@@ -587,6 +574,7 @@ End Sub
 
 Sub ResizeIfNeeded(control As Object)
     If Not TypeName(control) = "TextBox" Then Exit Sub
+    If Not control.Enabled Then Exit Sub
     control.ZOrder (fmTop)
     Dim dif As Long
     dif = CountOfCharacters(control.Text, vbNewLine) + 1
@@ -606,7 +594,9 @@ End Function
 
 Sub ShowDatavalidationBanner(control As Object, Banner As Object)
     On Error Resume Next
-    Dim dataValidation As Validation:   Set dataValidation = TableCell(control).Validation
+    Dim cell As Range
+    Set cell = TableCell(control)
+    Dim dataValidation As Validation:   Set dataValidation = cell.Validation
     Dim ValidationType As XlDVType:     ValidationType = dataValidation.Type
     On Error GoTo 0
     If ValidationType = 0 Then Exit Sub
@@ -615,7 +605,15 @@ Sub ShowDatavalidationBanner(control As Object, Banner As Object)
     Dim operator            As XlFormatConditionOperator:   operator = dataValidation.operator
     Dim msg As String
     If DatavalidationTypeToString(ValidationType) = "List" Then
-        msg = validationFormula1
+        If InStr(1, validationFormula1, "$") > 0 Then
+            Dim rng As Range
+            Set rng = cell.Parent.Range(Mid(validationFormula1, 2))
+            For Each cell In rng
+                msg = msg & IIf(msg <> "", ", ", "") & cell.Value
+            Next
+        Else
+            msg = validationFormula1
+        End If
     Else
         Select Case dataValidation.operator
             Case xlBetween
@@ -628,9 +626,10 @@ Sub ShowDatavalidationBanner(control As Object, Banner As Object)
      End If
      msg = "(" & msg & ")"
      Set targetBanner = Banner
-     Banner.Tag = Banner.Caption
+     If InStr(1, Banner.Caption, "[List]") > 0 Then Exit Sub
      Banner.Caption = Banner.Caption & Space(4) & "-" & Space(4) & _
                       "[" & DatavalidationTypeToString(ValidationType) & "]" & Space(4) & "-" & Space(4) & msg
+     Banner.Tag = Banner.Caption
 End Sub
 
 Public Function OperatorToString(operator As XlFormatConditionOperator) As String
@@ -660,18 +659,25 @@ End Function
 
 Private Sub Emitter_Blur(control As Object)
     If Not control.Name Like "Editor-*" Then Exit Sub
+    If Not control.Enabled Then Exit Sub
+    
     'restore original view for the Editor and its Label
     Me.Controls("lbl-" & Split(control.Name, "-")(1)).BackColor = Me.BackColor
     If Not TypeName(control) = "TextBox" Then Exit Sub
 '    If InStr(1, control.Text, vbNewLine) > 0 Then
+    If control.Enabled Then
         control.Height = 16
         control.ScrollBars = fmScrollBarsNone
         control.BackColor = vbWhite
-'    End If
+    End If
     If Not targetBanner Is Nothing Then targetBanner.Caption = targetBanner.Tag
 End Sub
 
+'* Modified   : Date and Time       Author              Description
+'* Updated    : 10-10-2023 21:09    Alex                (uTableManager.frm > Emitter_Keydown) skip editor if disabled
+
 Private Sub Emitter_Keydown(control As Object, KeyCode As MSForms.ReturnInteger, Shift As Integer)
+'@LastModified 2310102109
     If Not control.Name Like "Editor-*" Then Exit Sub
     ' we're using _KeyDown event to
     ' 1. capture the use tab or shift + tab and allow cycling from last to first or first to last ...
@@ -697,13 +703,16 @@ Private Sub Emitter_Keydown(control As Object, KeyCode As MSForms.ReturnInteger,
     Or (previousEditorIndex = 1 And editorIndex = FrameTableEditor.Controls.Count / 2) Then
         FrameTableEditor.ScrollTop = IIf(editorIndex = 1, 0, Controls("lbl-" & editorIndex).Top)
     End If
-    Editor.SetFocus
+    
+    '@MODIFIED
+    If Editor.Visible And Editor.Enabled Then Editor.SetFocus
     previousEditorIndex = editorIndex
 End Sub
 
 Private Sub Emitter_Change(control As Object)
     ' format for data validation pass/fail
     If InStr(1, control.Value, vbTab) > 0 Then Exit Sub
+    If Not control.Enabled Then Exit Sub
     ResizeIfNeeded control
     Dim cell As Range: Set cell = TableCell(control)
     If IsValueValidForCell(cell, control.Value) Then
@@ -792,9 +801,20 @@ Public Function IsValueValidForCell(ByVal inputRange As Range, ByVal inputValue 
                         End If
                     End If
                 Case xlValidateList
-                    Dim listValues As Variant
-                    listValues = Split(Replace(validationFormula1, "=", ""), ",")
                     Dim i As Long
+                    Dim listValues As Variant
+                    If InStr(1, validationFormula1, "$") > 0 Then
+                        Dim rng As Range
+                        Set rng = inputRange.Parent.Range(Mid(validationFormula1, 2))
+                        Dim cell As Range
+                        ReDim listValues(1 To rng.Cells.Count)
+                        For i = 1 To rng.Cells.Count
+                            listValues(i) = rng.Cells(i)
+                        Next
+                    Else
+                        listValues = Split(Replace(validationFormula1, "=", ""), ",")
+                    End If
+                    
                     For i = LBound(listValues) To UBound(listValues)
                         listValues(i) = Trim(listValues(i))
                     Next i
@@ -854,6 +874,67 @@ Private Sub LabelSave_Click()
     End If
 End Sub
 
+'* Modified   : Date and Time       Author              Description
+'* Updated    : 10-10-2023 21:12    Alex                (uTableManager.frm > SaveChanges) skip disabled editor, load value from cell calculated by formula
+
+Private Sub SaveChanges()
+'@LastModified 2310102112
+    Application.ScreenUpdating = False
+    Dim targetRow As Long: targetRow = ListViewTable.selectedItem.index
+    Dim i As Long
+    For i = 1 To TargetTable.ListColumns.Count
+        If FrameTableEditor.Controls("Editor-" & i).Enabled Then
+            TargetTable.DataBodyRange(ListViewTable.selectedItem.index, i).Value = FrameTableEditor.Controls("Editor-" & i).Value
+        End If
+    Next
+    Dim EditorCount As Long: EditorCount = FrameTableEditor.Controls.Count / 2
+    Dim out
+    ReDim out(1 To EditorCount)
+    Dim val
+    For i = 1 To EditorCount
+        val = TargetTable.DataBodyRange(targetRow, i).Value
+        FrameTableEditor.Controls("Editor-" & i).Value = val
+        out(i) = val
+    Next
+    UpdateListviewRow targetRow, out
+    Application.ScreenUpdating = True
+End Sub
+
+'* Modified   : Date and Time       Author              Description
+'* Updated    : 10-10-2023 21:13    Alex                (uTableManager.frm > SaveNewRow) skip disabled editor, load value from cell calculated by formula
+
+Private Sub SaveNewRow()
+'@LastModified 2310102113
+    Application.ScreenUpdating = False
+    TargetTable.ListRows.Add
+    Dim EditorCount As Long: EditorCount = FrameTableEditor.Controls.Count / 2
+    Dim targetRow As Long: targetRow = ListViewTable.selectedItem.index
+    Dim out()
+    ReDim out(1 To 1, 1 To EditorCount)
+    Dim i As Long
+    For i = 1 To EditorCount
+        If FrameTableEditor.Controls("Editor-" & i).Enabled Then
+            TargetTable.DataBodyRange(targetRow, i).Value = FrameTableEditor.Controls("Editor-" & i).Value
+        End If
+    Next
+    For i = 1 To EditorCount
+        out(1, i) = TargetTable.DataBodyRange(targetRow, i).Value
+    Next
+    aLV.AppendArray out
+    Application.ScreenUpdating = True
+End Sub
+
+Sub UpdateListviewRow(index As Long, newValues)
+    Dim i As Long
+    For i = 1 To ListViewTable.ColumnHeaders.Count
+        If i = 1 Then
+            ListViewTable.ListItems(index).Text = newValues(i)
+        Else
+            ListViewTable.ListItems(index).ListSubItems(i - 1).Text = newValues(i)
+        End If
+    Next
+End Sub
+
 Function PassValidation() As Boolean
     PassValidation = True
     Dim val
@@ -868,48 +949,6 @@ Function PassValidation() As Boolean
         End If
     Next
 End Function
-
-Private Sub SaveChanges()
-    TargetTable.ListRows(ListViewTable.selectedItem.index).Range.Value = EditorsValueArray
-    UpdateListviewRow ListViewTable.selectedItem.index, EditorsValueArray
-End Sub
-
-Function EditorsValueArray()
-    Dim out()
-    ReDim out(1 To FrameTableEditor.Controls.Count / 2)
-    Dim val
-    Dim i As Long
-    For i = 1 To FrameTableEditor.Controls.Count / 2
-        val = FrameTableEditor.Controls("Editor-" & i).Value
-        out(i) = val
-    Next
-    EditorsValueArray = out
-End Function
-
-Sub UpdateListviewRow(index As Long, newValues)
-    Dim i As Long
-    For i = 1 To ListViewTable.ColumnHeaders.Count
-        If i = 1 Then
-            ListViewTable.ListItems(index).Text = newValues(i)
-        Else
-            ListViewTable.ListItems(index).ListSubItems(i - 1).Text = newValues(i)
-        End If
-    Next
-End Sub
-
-Private Sub SaveNewRow()
-    Dim val
-    val = EditorsValueArray
-    TargetTable.ListRows.Add
-    TargetTable.ListRows(TargetTable.ListRows.Count).Range.Value = val
-    Dim out()
-    ReDim out(1 To 1, 1 To UBound(val))
-    Dim i As Long
-    For i = LBound(val) To UBound(val)
-        out(1, i) = val(i)
-    Next
-    aLV.AppendArray out
-End Sub
 
 Private Sub LabelNew_Click()
     isAddingNewRow = True
@@ -1008,30 +1047,8 @@ Private Sub GetInfo_Click()
 End Sub
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+    On Error Resume Next
+    Unload UserForm1
+    On Error GoTo 0
+End Sub
