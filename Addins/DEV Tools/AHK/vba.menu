@@ -39,7 +39,6 @@ CODE MODULE
 	cm_Uncomment
 	cm_InjectArgumentStyle
 PROCEDURE
-	ap_AddToLinkedTable
 	ap_BringLinkedProceduresHere
 	ap_CommentsRemove
 	ap_CommentsToOwnLine
@@ -55,6 +54,8 @@ PROCEDURE
 	ap_InjectLinkedLists
 	ap_InjectModification
 	ap_InjectObjectsRelease
+	ap_InjectTemplate
+	ap_InjectTemplateObject
 	ap_InjectTimer
 	ap_MoveDown
 	ap_MoveToAssignedModule
@@ -66,9 +67,6 @@ PROCEDURE
 	ap_PrintDims
 	ap_RemoveEmptyLines
 	ap_RemoveIncludeLines
-	ap_ScopePrivate
-	ap_ScopePublic
-	ap_ScopeSuggested
 	ap_TestCreate
 	ap_Update
 MODULE
@@ -97,23 +95,31 @@ MODULE
 	am_CodeRemove
 	am_RemoveEmptyLinesButLeaveOne
 	am_CommentsRemove
+	am_PredeclaredIdEnable
+WORKBOOK
+	aw_AddLinkedLists
+	aw_VersionInitial
+	aw_VersionMajor
+	aw_VersionMinor
+	aw_VersionPatch
 DESIGNER
+	ad_CenterLabelCaption
 	ad_CopyControlProperties
-	ad_CreateFrameMenu
 	ad_PasteControlProperties
 	ad_RemoveCaption
 	ad_RenameControlAndCode
 	ad_SetHandCursor
 	ad_SortControlsHorizontally
-	ad_SortControlsVertivally
+	ad_SortControlsVertically
 	ad_SwitchNames
 	ad_SwitchPositions
 USERFORMS
-	uShow_ProjectManager
-	uShow_References
-	uShow_ProjectExplorer
-	uShow_Skeleton
+	uShow_Changelog
 	uShow_CodeOnTheFly
+	uShow_ProjectManager
+	uShow_ProjectExplorer
+	uShow_References
+	uShow_Skeleton
 	uShow_SnippetsVBE
 	uShow_SnippetsWorkbook
 SHAPES

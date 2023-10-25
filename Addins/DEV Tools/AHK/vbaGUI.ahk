@@ -7,33 +7,6 @@ AUTHOR:
 		https://www.youtube.com/channel/UC5QH3fn1zjx0aUjRER_rOjg
 		
 PURPOSE: GUI to run excel macros
-
-VERSION:	1.1
-				+ added button to reload
-				+ added button to open menu file for editing
-				+ added button to edit options
-					+ moved options to ini file (hotkey, workbookname, menufile, itemspercolumn)
-						@TODO add dropdown to switch menu files, or autoswitch based on active window title
-					+ ini-editor.ahk
-				+ added text control to display current myHotkey
-				+ own icon in tray
-
-NOTE:
-		@TODO find correct way to parse the menu
-		vbaPOPUP.ahk (using EZmenu) supports multiple submenus
-		This vbaGUI.ahk can use the same menu file as vba, 
-		but supports only lvl1 = Category , lvl2 = Macro Name
-
-Example menu:
-
-Header1
-	ProcedureName
-	ProcedureName
----
-Header2
-	ProcedureName
-	ProcedureName
-
 */
 
 
@@ -42,9 +15,8 @@ Header2
 
 
 #SingleInstance, force
-SetWorkingDir, %A_ScriptDir%
+SetWorkingDir %A_ScriptDir%
 #include ini-editor.ahk
-
 
 #Include Class_ImageButton.ahk
 EStyle := [[0, 0x80F0F0F0, , , 8, 0xFFF0F0F0, 0x8046B8DA, 2] ; normal
@@ -76,7 +48,12 @@ LoadOptions:
 	IniRead, MenuFile, config.ini, Settings, MenuFile
 	IniRead, ItemsPerColumn, config.ini, Settings, ItemsPerColumn
 	Hotkey, %myHotkey%,Start
-
+	IniRead, fontSize, config.ini, Settings, fontSize
+	Gui,Font, s%fontSize%, Arial
+	
+	IniRead, xPos, config.ini, Settings, xPos, 100
+	IniRead, yPos, config.ini, Settings, yPos, 100
+	
 return ;if you comment this out then the gui will show at startup (hotkey still works)
 
 Start:
@@ -119,7 +96,8 @@ ChooseGui:
 	if (ChooseGui="") 
 		ChooseGui:=0
 
-	
+	gosub SavePos
+
 	Gui, Submit
 	Gui, Destroy
 
@@ -129,11 +107,12 @@ ChooseGui:
 		AltSubmit passes the element's index instead of text to the variable fo the control
 	*/
 
-	; Gui,Font, s10, Arial
+	Gui,Font, s%fontSize%, Arial
 
 	Gui, Add, DropDownList, section choose%ChooseGui% AltSubmit gChooseGui vChooseGui, %Guis%
-	gui, add, Button,ys gEditFile, Edit Menu
-	gui, add, button, ys gMenuSettings,  Options
+	gui, add, button, xs section gMenuSettings,  Options
+	gui, add, Button, ys gEditFile, Menu
+	gui, add, button, ys gReloadMe,Reload
 
 	Gui, Add, Text, x5 h0 w250 0x10
 
@@ -177,6 +156,7 @@ LoadMenu:
 				{
 					Gui, Add, Text,ys
 					counter:=0
+					continue
 				;or if controls placed in active column reached set limit, start new column
 				}else if (counter=ItemsPerColumn)
 				{
@@ -204,16 +184,14 @@ FinalizeGUI:
 	Gui, Add, Text, x5 h0 w250 0x10
 
 	;Hotkey Info
-	Gui,Font, s10, Arial
+	; Gui,Font, s10, Arial
 	gui, Add, Text, xs cRed,  Current Hotkey = %myHotkey%
-	Gui,Font, s8, Arial
+	; Gui,Font, s8, Arial
 
 	;AUTHOR links
 	Gui, Add, Link,xs section, 	<a href="https://github.com/alexofrhodes/">							GitHub		</a> 
 	Gui, Add, Link,ys, 			<a href="https://alexofrhodes.github.io/">							Blog		</a> 
 	Gui, Add, Link,ys, 			<a href="https://www.youtube.com/channel/UC5QH3fn1zjx0aUjRER_rOjg">	YouTube		</a> 
-
-	gui, add, button, ys x+90  gReloadMe,Reload
 
 	;Gui options
 	Gui, +AlwaysOnTop ;-Border +resize 
@@ -221,12 +199,15 @@ FinalizeGUI:
 	Gui, +hwnd_hwnd
 	; Gui, Color, 0x000000
 	
-	Gui, Show	;, x%xpos% y%ypos%, Main
+	
+	gosub LoadOptions
+	Gui, Show, x%xpos% y%ypos%
 	
 	; WinSet, Transparent, 225, % "ahk_id " _hwnd
 
 	return 
 }
+
 
 
 /*	NOTES
@@ -309,8 +290,8 @@ Excel_Get(WinTitle:="ahk_class XLMAIN", Excel7#:=1)
 }
 
 
-
 ReloadMe:
+	gosub SavePos
 	Reload
 	Sleep 1000 ; If successful, the reload will close this instance during the Sleep, so the line below will never be reached.
 	MsgBox, 4,, The script could not be reloaded. Would you like to open it for editing?
@@ -327,5 +308,20 @@ return
 
 ;Close GUI when exit button pressed or ESC pressed. This doesn't stop the script's execution.
 GuiEscape:
+	gosub SavePos
 	Gui, Destroy
 return
+
+GuiClose:
+	gosub SavePos
+	Gui, Destroy
+return
+
+SavePos:
+    Gui +lastfound
+    WinGetPos, xPos, yPos
+	if (xPos <= 0) 
+		return
+    IniWrite, %xPos%, config.ini, Settings, xPos
+    IniWrite, %yPos%, config.ini, Settings, yPos
+Return
