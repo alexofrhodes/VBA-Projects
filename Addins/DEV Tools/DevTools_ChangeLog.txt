@@ -1,0 +1,16 @@
+.-------------------------------------------------------------------------------------------------------------------------------.
+| Date     | Version | Changes                                                                                                  |
+.-------------------------------------------------------------------------------------------------------------------------------.
+| 23-10-30 | 1.0.1   | important uChangelog code fix and improvements                                                           |
+|          |         | 30-10-2023 09:43 aModules.cls > ExportProcedures : + argument to create subfolders by module name        |
+|          |         | 30-10-2023 10:58 uChangeLog.frm > ListModifications : + changelog.txt | + additional export options      |
+|          |         | 30-10-2023 12:23 Dependencies.bas > AddLinkedListsToAllProcedures :                                      |
+|          |         | 30-10-2023 17:55 aDesigner.cls > IconDesign : init                                                       |
+|          |         | 30-10-2023 17:55 aUserform.cls > IconDesign : init                                                       |
+|          |         | 30-10-2023 17:56 aUserform.cls > Resizable2 : new method                                                 |
+|          |         | 30-10-2023 17:56 aUserform.cls > lblResize_MouseDown : new method                                        |
+|          |         | 30-10-2023 17:56 aUserform.cls > lblResize_MouseMove : new method                                        |
+|          |         | 30-10-2023 17:56 aUserform.cls > lblResize_MouseUp : new method                                          |
+|          |         | 30-10-2023 22:18 uChangeLog.frm > ListModifications : in Normal_Exit added important TargetWorkbook.Save |
+| 23-10-29 | 1.0.0   | Initial Release                                                                                          |
+.-------------------------------------------------------------------------------------------------------------------------------.

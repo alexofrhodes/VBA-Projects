@@ -1,0 +1,1888 @@
+'ThisWorkbook	Document
+
+
+
+'Sheet1	Document
+
+
+
+'mFindRange	Module
+
+Option Compare Text
+
+Public Enum OPERATOR
+    IS_LIKE
+    IS_EQUAL
+    NOT_EQUAL
+    IS_CONTAINS
+    NOT_CONTAINS
+    STARTS_WITH
+    ENDS_WITH
+    GREATER_THAN
+    GREATER_OR_EQUAL
+    LESS_THAN
+    LESS_OR_EQUAL
+    IS_BETWEEN
+    NOT_BETWEEN
+End Enum
+
+Function FindDateRange(rng As Range) As Range
+    Dim CopyRange As Range
+    Dim cell As Range
+    For Each cell In rng
+        If IsDate(cell) Then
+            If CopyRange Is Nothing Then
+                Set CopyRange = cell
+            Else
+                Set CopyRange = Union(CopyRange, cell)
+            End If
+        End If
+    Next cell
+    Set FindDateRange = CopyRange
+End Function
+
+Function FindNumericRange(rng As Range) As Range
+Dim startTime
+startTime = Now
+    Dim CopyRange As Range
+    Dim cell As Range
+    For Each cell In rng
+        If IsNumeric(cell) And Not IsDate(cell) Then
+            If CopyRange Is Nothing Then
+                Set CopyRange = cell
+            Else
+                Set CopyRange = Union(CopyRange, cell)
+            End If
+        End If
+'        If Now() - startTime > TimeSerial(0, 0, 10) Then Stop
+    Next cell
+    Set FindNumericRange = CopyRange
+End Function
+
+Function FindStringRange(rng As Range) As Range
+    Dim CopyRange As Range
+    Dim cell As Range
+    For Each cell In rng
+        If IsDate(cell) Then
+            If CopyRange Is Nothing Then
+                Set CopyRange = cell
+            Else
+                Set CopyRange = Union(CopyRange, cell)
+            End If
+        End If
+    Next cell
+    Set FindStringRange = CopyRange
+End Function
+
+Function whichOption(Frame As Variant, controlType As String) As Variant
+    Dim out As New Collection
+    For Each Control In Frame.Controls
+        If UCase(TypeName(Control)) = UCase(controlType) Then
+            If Control.Value = True Then
+                out.Add Control
+            End If
+        End If
+    Next
+    If out.Count = 1 Then
+        Set whichOption = out(1)
+    ElseIf out.Count > 1 Then
+        Set whichOption = out
+    End If
+End Function
+
+Function CellRow(cell As Range) As Range
+    Dim ws As Worksheet
+    Set ws = cell.Parent
+    Dim R: R = cell.Row
+    Dim c As Long: c = cell.CurrentRegion.Column
+    If uFinder.oCurrentRegion.Value = True Then Set CellRow = ws.Range(ws.Cells(R, c), ws.Cells(R, c + cell.CurrentRegion.Columns.Count - 1))
+    If uFinder.oUsedRange.Value = True Then Set CellRow = ws.Range(ws.UsedRange(R, 1), ws.UsedRange(R, ws.UsedRange.Column + ws.UsedRange.Columns.Count - 1))
+End Function
+
+Function WorksheetExists(shtName As String, Optional wb As Workbook) As Boolean
+    Dim sht As Worksheet
+    If wb Is Nothing Then
+        Set wb = ThisWorkbook
+    End If
+    On Error Resume Next
+    Set sht = wb.Sheets(shtName)
+    On Error GoTo 0
+    WorksheetExists = Not sht Is Nothing
+End Function
+
+Function Listbox_Selected(LBox As MSForms.ListBox, Count_Indexes_Values As Integer)
+    Dim SelectedIndexes As String
+    Dim SelectedValues As String
+    Dim SelectedCount As Integer
+    Dim i As Long
+    With LBox
+        For i = 0 To .ListCount - 1
+            If .Selected(i) Then
+                SelectedCount = SelectedCount + 1
+                SelectedIndexes = SelectedIndexes & i & ","
+                SelectedValues = SelectedValues & .list(i) & ","
+            End If
+        Next i
+    End With
+    If SelectedCount = 0 Then
+        Listbox_Selected = 0
+        Exit Function
+    End If
+    SelectedIndexes = Left(SelectedIndexes, Len(SelectedIndexes) - 1)
+    SelectedValues = Left(SelectedValues, Len(SelectedValues) - 1)
+    Select Case Count_Indexes_Values
+        Case Is = 1
+            Listbox_Selected = SelectedCount
+        Case Is = 2
+            Listbox_Selected = SelectedIndexes
+        Case Is = 3
+            Listbox_Selected = SelectedValues
+    End Select
+End Function
+
+Function SheetAdd(SheetName As String, TargetWorkbook As Workbook) As Worksheet
+    Dim NewSheet As Worksheet
+    If WorksheetExists(SheetName, TargetWorkbook) = True Then
+        Set SheetAdd = TargetWorkbook.Sheets(SheetName)
+    Else
+        Set SheetAdd = TargetWorkbook.Sheets.Add
+        SheetAdd.Name = SheetName
+    End If
+End Function
+Sub ListboxToRange(LBox As MSForms.ListBox, rng As Range)
+rng.Resize(LBox.ListCount, LBox.ColumnCount) = LBox.list
+End Sub
+Function ArrayColumn(arr As Variant, col As Long) As Variant
+    ArrayColumn = WorksheetFunction.index(arr, 0, col)
+End Function
+Sub ResizeControlColumns(ctr As MSForms.Control, Optional ResizeListbox As Boolean)
+    If ctr.ListCount = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Sheet1") 'SheetAdd("ListboxColumnwidth", ThisWorkbook)
+    ws.Cells.clear
+    
+    On Error Resume Next
+    Dim v As Variant: v = ctr.list
+    Dim i As Long, Y As Long
+    For i = LBound(v) To UBound(v)
+        For Y = 0 To ctr.ColumnCount - 1
+            If Left(v(i, Y), 1) = "=" Then v(i, Y) = "'" & v(i, Y)
+        Next
+    Next
+    
+    '---Listbox to range-----
+    Dim rng As Range
+    Set rng = ws.Range("A1")
+'    ListboxToRange ctr, rng
+    Set rng = rng.Resize(UBound(ctr.list) + 1, ctr.ColumnCount)
+    rng = v 'ctr.List
+    rng.Font.Size = ctr.Font.Size + 2
+    
+    '---Get ColumnWidths------
+    rng.Columns.AutoFit
+    Dim sWidth As String
+    Dim vR() As Variant
+    Dim n As Integer
+    Dim cell As Range
+    For Each cell In rng.Resize(1)
+        n = n + 1
+        ReDim Preserve vR(1 To n)
+        vR(n) = cell.EntireColumn.Width
+    Next cell
+    sWidth = Join(vR, ";")
+    'Debug.Print sWidth
+
+    '---assign ColumnWidths----
+    With ctr
+        .ColumnWidths = sWidth
+        '.RowSource = "A1:A3"
+        .BorderStyle = fmBorderStyleSingle
+    End With
+        
+    'remove worksheet
+'    Application.DisplayAlerts = False
+    'ws.Delete
+'    Application.DisplayAlerts = True
+    
+    Application.ScreenUpdating = True
+    
+    '----Resize Listbox--------
+    If ResizeListbox = False Then Exit Sub
+    Dim w As Long
+    For i = LBound(vR) To UBound(vR)
+        w = w + vR(i)
+    Next
+    DoEvents
+    ctr.Width = w + 10
+End Sub
+Private Function SortCompare(one As Variant, two As Variant) As Boolean
+    Select Case True
+        Case Len(one) < Len(two)
+            SortCompare = True
+        Case Len(one) > Len(two)
+            SortCompare = False
+        Case Len(one) = Len(two)
+            SortCompare = LCase$(one) < LCase$(two)
+    End Select
+End Function
+
+Public Sub CustomQuickSort(list As Variant, first As Long, last As Long)
+    Dim pivot As String
+    Dim low As Long
+    Dim high As Long
+
+    low = first
+    high = last
+    pivot = list((first + last) \ 2)
+
+    Do While low <= high
+        Do While low < last And SortCompare(list(low), pivot)
+            low = low + 1
+        Loop
+        Do While high > first And SortCompare(pivot, list(high))
+            high = high - 1
+        Loop
+        If low <= high Then
+            Dim swap As String
+            swap = list(low)
+            list(low) = list(high)
+            list(high) = swap
+            low = low + 1
+            high = high - 1
+        End If
+    Loop
+
+    If (first < high) Then CustomQuickSort list, first, high
+    If (low < last) Then CustomQuickSort list, low, last
+End Sub
+
+Function Transpose2DArray(inputArray As Variant) As Variant
+
+    Dim X As Long, yUbound As Long
+    Dim Y As Long, xUbound As Long
+    Dim tempArray As Variant
+
+    xUbound = UBound(inputArray, 2)
+    yUbound = UBound(inputArray, 1)
+    
+    ReDim tempArray(1 To xUbound, 1 To yUbound)
+    
+    For X = 1 To xUbound
+        For Y = 1 To yUbound
+            tempArray(X, Y) = inputArray(Y, X)
+        Next Y
+    Next X
+    
+    Transpose2DArray = tempArray
+    
+End Function
+
+Function RangeToString(ByVal myRange As Range, Optional delim As String = ",") As String
+    RangeToString = ""
+    If Not myRange Is Nothing Then
+        Dim myCell As Range
+        For Each myCell In myRange
+            RangeToString = RangeToString & delim & myCell.Value
+        Next myCell
+        'Remove extra comma
+        RangeToString = Right(RangeToString, Len(RangeToString) - Len(delim))
+    End If
+End Function
+
+Function FindIfGetRow(FirstValue, operation As OPERATOR, SecondValue, offsetRow As Integer, offsetColumn As Integer, _
+                      Optional wb As Workbook, Optional ws As Worksheet, Optional delim As String = ",") As Collection
+    If wb Is Nothing Then Set wb = ActiveWorkbook
+    Dim output As New Collection
+    Dim arr, element
+    Dim str As String
+    Dim c As Range
+    Dim firstAddress As String
+  
+    If TypeName(ws) = "Nothing" Then
+        For Each ws In wb.Worksheets
+            With ws.Cells
+                Set c = .Find(FirstValue, LookIn:=xlValues)
+                If Not c Is Nothing Then
+                    firstAddress = c.Address
+                    Do
+                        If compare(c.Offset(offsetRow, offsetColumn).Value, operation, SecondValue) = True Then
+                            arr = ws.Range(ws.Cells(c.Row, c.CurrentRegion.Column), ws.Cells(c.Row, c.CurrentRegion.Column + c.CurrentRegion.Columns.Count - 1)).Value
+                            str = ArrayToString(arr, delim)
+                            output.Add str
+                            Debug.Print str
+                        End If
+                        Set c = .FindNext(c)
+                    Loop While Not c Is Nothing And c.Address <> firstAddress
+                End If
+            End With
+        Next
+    Else
+        With ws.Cells
+            Set c = .Find(FirstValue, LookIn:=xlValues)
+            If Not c Is Nothing Then
+                firstAddress = c.Address
+                Do
+                    If compare(c.Offset(offsetRow, offsetColumn).Value, operation, SecondValue) = True Then
+                        arr = ws.Range(ws.Cells(c.Row, c.CurrentRegion.Column), ws.Cells(c.Row, c.CurrentRegion.Column + c.CurrentRegion.Columns.Count - 1)).Value
+                        str = ArrayToString(arr, delim)
+                        output.Add str
+                        Debug.Print str
+                    End If
+                    Set c = .FindNext(c)
+                Loop While Not c Is Nothing And c.Address <> firstAddress
+            End If
+        End With
+    End If
+
+    Set FindIfGetRow = output
+End Function
+
+'RETURNS A STRING FROM A 2 DIM ARRAY, SPERATED BY OPTIONAL DELIMITER AND VBNEWLINE FOR EACH ROW
+'
+'@AUTHOR ROBERT TODAR
+Public Function ArrayToString(SourceArray As Variant, Optional Delimiter As String = ",") As String
+    
+    Dim Temp As String
+    
+    Select Case ArrayDimensionLength(SourceArray)
+        'SINGLE DIMENTIONAL ARRAY
+    Case 1
+        Temp = Join(SourceArray, Delimiter)
+        
+        '2 DIMENSIONAL ARRAY
+    Case 2
+        Dim RowIndex As Long
+        Dim ColIndex As Long
+            
+        'LOOP EACH ROW IN MULTI ARRAY
+        For RowIndex = LBound(SourceArray, 1) To UBound(SourceArray, 1)
+                
+            'LOOP EACH COLUMN ADDING VALUE TO STRING
+            For ColIndex = LBound(SourceArray, 2) To UBound(SourceArray, 2)
+                Temp = Temp & SourceArray(RowIndex, ColIndex)
+                If ColIndex <> UBound(SourceArray, 2) Then Temp = Temp & Delimiter
+            Next ColIndex
+                
+            'ADD NEWLINE FOR THE NEXT ROW (MINUS LAST ROW)
+            If RowIndex <> UBound(SourceArray, 1) Then Temp = Temp & vbNewLine
+        
+        Next RowIndex
+    End Select
+    
+    ArrayToString = Temp
+    
+End Function
+
+'RETURNS THE LENGHT OF THE DIMENSION OF AN ARRAY
+Public Function ArrayDimensionLength(SourceArray As Variant) As Integer
+    
+    Dim arrayDimention As Integer
+    Dim Test As Long
+
+    On Error GoTo catch
+    Do
+        arrayDimention = arrayDimention + 1
+        Test = UBound(SourceArray, arrayDimention)
+    Loop
+    
+catch:
+    ArrayDimensionLength = arrayDimention - 1
+
+End Function
+
+Function FindAllGetRow(FirstValue, Optional wb As Workbook, Optional ws As Worksheet) As Collection
+    If wb Is Nothing Then Set wb = ActiveWorkbook
+    Dim output As New Collection
+    Dim arr, element
+    Dim str As String
+    Dim c As Range
+    Dim firstAddress As String
+  
+    If TypeName(ws) = "Nothing" Then
+        For Each ws In wb.Worksheets
+            With ws.Cells
+                Set c = .Find(FirstValue, LookIn:=xlValues)
+                If Not c Is Nothing Then
+                    firstAddress = c.Address
+                    Rem dp vbNewLine & ws.Name
+                    Do
+                        Rem dp c.Address
+                        arr = ws.Range(ws.Cells(c.Row, c.CurrentRegion.Column), ws.Cells(c.Row, c.CurrentRegion.Column + c.CurrentRegion.Columns.Count - 1)).Value
+                        str = ArrayToString(arr)
+                        Do While InStr(1, str, ",,") > 0
+                            str = Replace(str, ",,", ",")
+                        Loop
+                        str = str
+                        output.Add str
+                        Debug.Print str
+                        Set c = .FindNext(c)
+                    Loop While Not c Is Nothing And c.Address <> firstAddress
+                End If
+            End With
+        Next
+    Else
+        With ws.Cells
+            Set c = .Find(FirstValue, LookIn:=xlValues)
+            If Not c Is Nothing Then
+                firstAddress = c.Address
+                Do
+                    arr = ws.Range(ws.Cells(c.Row, c.CurrentRegion.Column), ws.Cells(c.Row, c.CurrentRegion.Column + c.CurrentRegion.Columns.Count - 1)).Value
+                    str = ArrayToString(arr)
+                    output.Add str
+                    Debug.Print str
+                    Set c = .FindNext(c)
+                Loop While Not c Is Nothing And c.Address <> firstAddress
+            End If
+        End With
+    End If
+
+    Set FindAllGetRow = output
+End Function
+
+Function InStrExact(Start As Long, SourceText As String, WordToFind As String, _
+                    Optional CaseSensitive As Boolean = False, _
+                    Optional AllowAccentedCharacters As Boolean = False) As Long
+    Dim X As Long, Str1 As String, Str2 As String, Pattern As String
+    Const UpperAccentsOnly As String = "ÇÉÑ"
+    Const UpperAndLowerAccents As String = "ÇÉÑçéñ"
+    If CaseSensitive Then
+        Str1 = SourceText
+        Str2 = WordToFind
+        Pattern = "[!A-Za-z0-9]"
+        If AllowAccentedCharacters Then Pattern = Replace(Pattern, "!", "!" & UpperAndLowerAccents)
+    Else
+        Str1 = UCase(SourceText)
+        Str2 = UCase(WordToFind)
+        Pattern = "[!A-Z0-9]"
+        If AllowAccentedCharacters Then Pattern = Replace(Pattern, "!", "!" & UpperAccentsOnly)
+    End If
+    For X = Start To Len(Str1) - Len(Str2) + 1
+        If Mid(" " & Str1 & " ", X, Len(Str2) + 2) Like Pattern & Str2 & Pattern _
+                                                   And Not Mid(Str1, X) Like Str2 & "'[" & Mid(Pattern, 3) & "*" Then
+            InStrExact = X
+            Exit Function
+        End If
+    Next
+End Function
+
+Function compare(inputValue, operation As OPERATOR, FirstComparison, Optional SecondComparison, Optional CaseSensitive As Boolean) As Boolean
+
+    If TypeName(inputValue) = "Range" Then inputValue = inputValue.Value
+    
+    Select Case TypeName(inputValue)
+        Case "String()", "Variant", "Variant()", "Collection"
+            MsgBox "Not able to proccess this case at the moment"
+            Stop
+    End Select
+    
+    If TypeName(inputValue) = "String" Then
+        If CaseSensitive = True Then
+            inputValue = UCase(inputValue)
+            FirstComparison = UCase(FirstComparison)
+            If Not IsMissing(SecondComparison) Then SecondComparison = UCase(SecondComparison)
+        End If
+    ElseIf IsDate(inputValue) Then
+        inputValue = CDate(inputValue)
+    ElseIf IsNumeric(inputValue) Then
+        inputValue = CDbl(inputValue)
+    End If
+        
+    If IsDate(FirstComparison) Then
+        FirstComparison = CDate(FirstComparison)
+        If Not IsMissing(SecondComparison) Then
+            If IsDate(SecondComparison) Then SecondComparison = CDate(SecondComparison)
+        End If
+    ElseIf IsNumeric(FirstComparison) Then
+        FirstComparison = CDbl(FirstComparison)
+        If Not IsMissing(SecondComparison) Then
+            If IsNumeric(SecondComparison) Then SecondComparison = CDbl(SecondComparison)
+        End If
+    End If
+    
+    If operation = OPERATOR.IS_LIKE Then
+        'If TypeName(inputValue) = TypeName(FirstComparison) Then
+        If inputValue Like FirstComparison Then
+            compare = True
+        End If
+        'End If
+    ElseIf operation = OPERATOR.IS_CONTAINS Then
+        If InStrExact(1, CStr(inputValue), CStr(FirstComparison)) > 0 Then compare = True
+    ElseIf operation = OPERATOR.NOT_CONTAINS Then
+        If InStrExact(1, CStr(inputValue), CStr(FirstComparison)) = 0 Then compare = True
+    ElseIf operation = OPERATOR.NOT_EQUAL Then
+        If inputValue <> FirstComparison Then compare = True
+    ElseIf operation = OPERATOR.STARTS_WITH Then
+        If inputValue Like FirstComparison & "*" Then compare = True
+    ElseIf operation = OPERATOR.ENDS_WITH Then
+        If inputValue Like "*" & FirstComparison Then compare = True
+    ElseIf operation = OPERATOR.IS_EQUAL Then
+        If inputValue = FirstComparison Then compare = True
+    ElseIf operation = OPERATOR.GREATER_THAN Then
+        If inputValue > FirstComparison Then compare = True
+    ElseIf operation = OPERATOR.GREATER_OR_EQUAL Then
+        If inputValue >= FirstComparison Then compare = True
+    ElseIf operation = OPERATOR.IS_BETWEEN Then
+        If FirstComparison < inputValue And inputValue < SecondComparison Then compare = True
+    ElseIf operation = OPERATOR.NOT_BETWEEN Then
+        If Not (FirstComparison < inputValue And inputValue < SecondComparison) Then compare = True
+    ElseIf operation = OPERATOR.LESS_THAN Then
+        If inputValue < FirstComparison Then compare = True
+    ElseIf operation = OPERATOR.LESS_OR_EQUAL Then
+        If inputValue <= FirstComparison Then compare = True
+    End If
+End Function
+
+'Returns a range containing only cells that match the given value
+Public Function RangeFindAll(ByRef SearchRange As Range, ByVal Value As Variant, Optional ByVal LookIn As XlFindLookIn = xlValues, Optional LookAt As XlLookAt = xlPart) As Range
+    Dim FoundValues As Range, Found As Range, Prev As Range, Looper As Boolean: Looper = True
+    Do While Looper
+        'If we've found something before, then search from after that point
+        If Not Prev Is Nothing Then Set Found = SearchRange.Find(Value, Prev, LookIn, LookAt)
+        'If we haven't searched for anything before, then do an initial search
+        If Found Is Nothing Then Set Found = SearchRange.Find(Value, LookIn:=LookIn, LookAt:=LookAt)
+        If Not Found Is Nothing Then
+            'If our search found something
+            If FoundValues Is Nothing Then
+                'If our found value repository is empty, then set it to what we just found
+                Set FoundValues = Found
+            Else
+                If Not Intersect(Found, FoundValues) Is Nothing Then Looper = False
+                'If the found value intersects with what we've already found, then we've looped through the SearchRange
+                'Note: This check is performed BEFORE we insert the newly found data into our repository
+                Set FoundValues = Union(FoundValues, Found)
+                'If our found value repository contains data, then add what we just found to it
+            End If
+            Set Prev = Found
+        End If
+        If Found Is Nothing And Prev Is Nothing Then Exit Function
+    Loop
+    Set RangeFindAll = FoundValues
+    Set FoundValues = Nothing
+    Set Found = Nothing
+    Set Prev = Nothing
+End Function
+
+
+
+'uFinder	UserForm
+
+
+
+
+Dim moResizer As New CFormResizer
+
+Private Sub clear_Click()
+    IS_LIKE.Value = True
+    FirstComp.Text = "*"
+    SecondComp.Text = ""
+    FindThis.Text = ""
+    offR.Text = 0
+    offC.Text = 0
+    ListBox1.clear
+    TextBox3.Text = ""
+    FindThis.SetFocus
+End Sub
+
+Private Sub cLookAtRow_Click()
+    TrySearch
+End Sub
+
+Private Sub GetInfo_Click()
+uAuthor.Show
+End Sub
+
+Private Sub HideEmptyColumns_Click()
+    TrySearch
+End Sub
+
+
+
+
+Private Sub ListBox1_Change()
+
+DoEvents
+If FindThis = "" Then Exit Sub
+    Dim s As String
+    s = ListBox1.list(Listbox_Selected(ListBox1, 2), 3)
+    TextBox3.Value = s
+    
+'
+'    Dim sStart As Long
+'    sStart = InStr(1, UCase(s), UCase(Replace(FindThis.Value, "ò", "Ó"))) - 1
+'    Dim sLen As Long
+'    sLen = Len(FindThis.Value)
+'    On Error GoTo EH
+'    If TextBox3 <> "" Then
+'        With TextBox3
+'            .SelStart = sStart
+'            .SelLength = sLen
+'            .SetFocus
+'        End With
+'    End If
+'EH:
+End Sub
+
+
+Private Sub FirstComp_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = 13 Then
+        CommandButton1_Click
+        DoEvents
+        ListBox1.ListIndex = 0
+    End If
+End Sub
+
+Private Sub oCurrentRegion_Click()
+    TrySearch
+End Sub
+
+Private Sub oUsedRange_Click()
+    TrySearch
+End Sub
+
+Private Sub oVBLF_Click()
+    TrySearch
+End Sub
+
+Private Sub SecondComp_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = 13 Then
+        CommandButton1_Click
+        DoEvents
+        ListBox1.ListIndex = 0
+    End If
+End Sub
+
+Private Sub SpinButton1_Change()
+    offC.Value = SpinButton1.Value
+End Sub
+
+Private Sub SpinButton2_Change()
+    offR.Value = SpinButton2.Value
+End Sub
+
+Private Sub UserForm_Activate()
+    Set moResizer.FORM = Me
+    CreateListboxHeader ListBox1, ListBox2, Array("BOOK", "SHEEET", "RANGE", "ROW", "FORMULA")
+    FindThis.SetFocus
+'    on eror resume next
+    FindThis.SelStart = 0
+    FindThis.SelLength = Len(FindThis.Text)
+End Sub
+
+Private Sub UserForm_Initialize()
+    LoadUserformOptions Me, Array("listbox1", "listbox2", "textbox3")
+    AddMinimizeButtonToUserform Me
+End Sub
+
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+    SaveUserformOptions Me
+End Sub
+
+Private Sub UserForm_Resize()
+    On Error Resume Next
+    moResizer.FormResize
+End Sub
+Sub CreateListboxHeader(body As MSForms.ListBox, header As MSForms.ListBox, arrHeaders)
+
+    header.Width = body.Width
+    Dim i As Long
+    'must have a listbox to use as headers
+    header.ColumnCount = body.ColumnCount
+    header.ColumnWidths = body.ColumnWidths
+    'add headerelements
+    header.clear
+    header.AddItem
+    
+    If ArrayDimensions(arrHeaders) = 1 Then
+        For i = 0 To UBound(arrHeaders)
+            'make it prety
+            header.list(0, i) = arrHeaders(i)
+        Next i
+    Else
+        For i = 1 To UBound(arrHeaders, 2)
+            header.list(0, i - 1) = arrHeaders(1, i)
+        Next i
+    End If
+    body.ZOrder (1)
+    header.ZOrder (0)
+    header.SpecialEffect = fmSpecialEffectFlat
+    header.BackColor = &H403636   'RGB(200, 200, 200)
+    'align header to body
+    header.Height = 15
+    header.Width = body.Width
+    header.Left = body.Left
+    header.Top = body.Top - header.Height - 1
+    header.Font.Bold = True
+    header.Font.Name = "Comic Sans MS"
+    header.Font.Size = 9
+    header.ForeColor = vbWhite
+'    header.BackColor =
+End Sub
+Private Sub FindThis_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = 13 Then
+        CommandButton1_Click
+        DoEvents
+        ListBox1.ListIndex = 0
+    End If
+End Sub
+
+Function ContainsFilter(ws As Worksheet) As Boolean
+    Filtered.Caption = ""
+    If ws.FilterMode = True Then Filtered.Caption = "Some data is filtered"
+End Function
+
+Private Sub CommandButton1_Click()
+    TrySearch
+End Sub
+
+Function GetSearchRange(ByRef RangeOrSheet) As Range
+    Dim rng As Range
+    If TypeName(RangeOrSheet) = "Range" Then
+        If IsDate(FirstComp.Value) Then
+            Set rng = FindDateRange(RangeOrSheet.Parent.Range(RangeOrSheet.Address))
+        ElseIf IsNumeric(FirstComp.Value) Then
+            Set rng = FindNumericRange(RangeOrSheet.Parent.Range(RangeOrSheet.Address))
+        Else
+            Set rng = RangeFindAll(RangeOrSheet.Parent.Range(RangeOrSheet.Address), FindThis)
+        End If
+    Else
+        If IsDate(FirstComp.Value) Then
+'            Set rng = FindDateRange(RangeOrSheet.UsedRange)
+            Set rng = FindDateRange(Union(RangeOrSheet.Columns(FindThis), RangeOrSheet.UsedRange))
+        ElseIf IsNumeric(FirstComp.Value) Then
+'            Set rng = FindNumericRange(RangeOrSheet.UsedRange)
+            Set rng = FindDateRange(Union(RangeOrSheet.Columns(FindThis), RangeOrSheet.UsedRange))
+        Else
+            Set rng = RangeFindAll(RangeOrSheet.UsedRange, FindThis)
+        End If
+    End If
+    Set GetSearchRange = rng
+End Function
+Sub TrySearch()
+    If IsNumeric(FindThis.Value) Then
+'        Select Case FirstComp.Text
+'        Case "", "*"
+'            FirstComp.Text = FindThis.Text
+'        End Select
+    ElseIf FirstComp.Text = "" Then
+        FirstComp.Text = "*"
+    End If
+    
+    Dim op As OPERATOR
+    op = WhichOperator(Frame2)
+
+    Dim TargetWorkbook As Workbook
+    Dim TargetWorkSheet As Worksheet
+    Dim element As Variant
+    Dim str As String
+    Dim rng As Range
+    Dim cell As Range
+    Dim i As Long
+    Dim varCompare
+    Dim varRange()
+    ReDim Preserve varRange(1 To ListBox1.ColumnCount, 1 To 1)
+    
+    Dim FirstCell As Range
+    
+    Select Case whichOption(Frame1, "OptionButton").Caption
+    
+        Case Is = "Selection"
+            ContainsFilter Selection.Parent
+            If TypeName(Selection) <> "Range" Then
+                MsgBox "Under current options, please select a Range."
+                Exit Sub
+            End If
+
+            Set rng = GetSearchRange(Selection)
+            
+            Dim s As String
+            If Not rng Is Nothing Then
+                
+                For Each cell In rng
+                    testMatch cell, i, varRange, op
+                Next
+            End If
+    
+        Case Is = "Active Sheet"
+            ContainsFilter ActiveSheet
+            Set TargetWorkSheet = ActiveSheet
+            
+            Set rng = GetSearchRange(TargetWorkSheet)
+            
+            If Not rng Is Nothing Then
+                For Each cell In rng
+                    If IsEmpty(varRange(1, UBound(varRange, 2))) Then
+                        testMatch cell, i, varRange, op
+                    Else
+                        If cell.Row <> Split(varRange(3, UBound(varRange, 2)), "$")(2) Then
+                            testMatch cell, i, varRange, op
+                        End If
+                    End If
+                Next
+            End If
+        Case Is = "Active Book"
+            Set TargetWorkbook = ActiveWorkbook
+            For Each TargetWorkSheet In TargetWorkbook.Worksheets
+                ContainsFilter TargetWorkSheet
+'                Set rng = RangeFindAll(TargetWorkSheet.UsedRange, FindThis)
+                Set rng = GetSearchRange(TargetWorkSheet)
+                If Not rng Is Nothing Then
+                    For Each cell In rng
+                        If IsEmpty(varRange(1, UBound(varRange, 2))) Then
+                            testMatch cell, i, varRange, op
+                        Else
+                            If cell.Row <> Split(varRange(3, UBound(varRange, 2)), "$")(2) Then
+                                testMatch cell, i, varRange, op
+                            End If
+                        End If
+                    Next
+                End If
+            Next
+        Case Is = "All Books"
+            For Each TargetWorkbook In Workbooks
+                For Each TargetWorkSheet In TargetWorkbook.Worksheets
+                ContainsFilter TargetWorkSheet
+'                    Set rng = RangeFindAll(TargetWorkSheet.UsedRange, FindThis)
+                    Set rng = GetSearchRange(TargetWorkSheet)
+                    If Not rng Is Nothing Then
+                        For Each cell In rng
+                            If IsEmpty(varRange(1, UBound(varRange, 2))) Then
+                                testMatch cell, i, varRange, op
+                            Else
+                                If cell.Row <> Split(varRange(3, UBound(varRange, 2)), "$")(2) Then
+                                    testMatch cell, i, varRange, op
+                                End If
+                            End If
+                        Next
+                    End If
+                Next
+            Next
+    End Select
+    
+    ListBox1.list = Transpose2DArray(varRange)
+    Rem ResizeControlColumns ListBox1, False
+    '        ResizeUserformToFitControls Me
+    '    var = Split(ListBox1.ColumnWidths, ";")
+    '    ListBox1.ColumnWidths = Join(Array(var(0), var(1), var(2)), ";") & ";1500"
+
+End Sub
+Function testMatch(ByRef cell As Range, ByRef i As Long, ByRef varRange As Variant, op As OPERATOR) As Boolean
+'On Error GoTo hell
+    Dim del As String
+    Dim dupdel As String
+    del = IIf(oVBLF.Value = True, vbNewLine, "|")
+    dupdel = IIf(oVBLF.Value = True, vbNewLine & vbNewLine, "||")
+    
+    s = RangeToString(CellRow(cell), del)
+    If HideEmptyColumns = True Then
+        Do While InStr(1, s, dupdel) > 0
+            s = Replace(s, dupdel, del)
+        Loop
+    End If
+    
+    If cLookAtRow.Value = True Then
+        If InStr(1, UCase(s), UCase(FirstComp.Value)) > 0 Then Exit Function
+    Else
+        If compare(cell.Offset(CInt(offR), CInt(offC)).Value, op, _
+                    IIf(FirstComp = "", FindThis.Value, FirstComp.Value), _
+                    IIf(SecondComp = "", FirstComp.Value, SecondComp.Value)) = False _
+                    Then Exit Function
+    End If
+    
+    i = i + 1
+    ReDim Preserve varRange(1 To ListBox1.ColumnCount, 1 To i)
+    varRange(1, i) = cell.Parent.Parent.Name
+    varRange(2, i) = cell.Parent.Name
+    varRange(3, i) = cell.Address
+    varRange(4, i) = s
+    varRange(5, i) = IIf(cell.HasFormula, cell.Formula, "")
+    testMatch = True
+    If IsEmpty(varRange(1, i)) Then Exit Function
+'hell:
+End Function
+Function WhichOperator(Frame As MSForms.Frame) As OPERATOR
+    Dim op As OPERATOR
+
+    Select Case whichOption(Frame, "OptionButton").Name
+        Case Is = "IS_LIKE"
+            op = OPERATOR.IS_LIKE
+        Case Is = "IS_EQUAL"
+            op = OPERATOR.IS_EQUAL
+        Case Is = "NOT_EQUAL"
+            op = OPERATOR.NOT_EQUAL
+        Case Is = "IS_CONTAINS"
+            op = OPERATOR.IS_CONTAINS
+        Case Is = "NOT_CONTAINS"
+            op = OPERATOR.NOT_CONTAINS
+        Case Is = "STARTS_WITH"
+            op = OPERATOR.STARTS_WITH
+        Case Is = ".ENDS_WITH"
+            op = OPERATOR.ENDS_WITH
+        Case Is = "GREATER_THAN"
+            op = OPERATOR.GREATER_THAN
+        Case Is = "GREATER_OR_EQUAL"
+            op = OPERATOR.GREATER_OR_EQUAL
+        Case Is = "LESS_THAN"
+            op = OPERATOR.LESS_THAN
+        Case Is = "LESS_OR_EQUAL"
+            op = OPERATOR.LESS_OR_EQUAL
+        Case Is = "IS_BETWEEN"
+            op = OPERATOR.IS_BETWEEN
+        Case Is = "NOT_BETWEEN"
+            op = OPERATOR.NOT_BETWEEN
+    End Select
+    WhichOperator = op
+End Function
+
+Private Sub ListBox1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+    Dim i As Long
+    i = ListBox1.ListIndex
+    Dim wb As Workbook
+    Set wb = Workbooks(ListBox1.list(i, 0))
+    Dim ws As Worksheet
+    Set ws = wb.Sheets(ListBox1.list(i, 1))
+    Dim rng As Range
+    Set rng = ws.Range(ListBox1.list(i, 2))
+    ws.Activate
+    rng.Select
+End Sub
+
+'
+'Private Sub CommandButton1_Click()
+'    If IsNumeric(FindThis.Value) Then
+'        Select Case FirstComp.Text
+'        Case "", "*"
+'            FirstComp.Text = FindThis.Text
+'        End Select
+'    ElseIf FirstComp.Text = "" Then
+'        FirstComp.Text = "*"
+'    End If
+'
+'    Dim op As OPERATOR
+'    op = WhichOperator(Frame2)
+'
+'    Dim TargetWorkbook As Workbook
+'    Dim TargetWorkSheet As Worksheet
+'    Dim element As Variant
+'    Dim str As String
+'    Dim rng As Range
+'    Dim cell As Range
+'    Dim i As Long
+'    Dim varCompare
+'    Dim varRange()
+'    ReDim Preserve varRange(1 To ListBox1.ColumnCount, 1 To 1)
+'
+'    Select Case whichOption(Frame1, "OptionButton").Caption
+'
+'        Case Is = "Selection"
+'            ContainsFilter Selection.Parent
+'            If TypeName(Selection) <> "Range" Then
+'                MsgBox "Under current options, please select a Range."
+'                Exit Sub
+'            End If
+'
+'
+'            If IsDate(FirstComp.Value) Then
+'                Set rng = FindDateRange(Selection) '(Selection.SpecialCells(xlCellTypeConstants))
+'            ElseIf IsNumeric(FirstComp.Value) Then
+'                Set rng = FindNumericRange(Selection) '(Selection.SpecialCells(xlCellTypeConstants))
+'            Else
+'                Set rng = RangeFindAll(Selection, FindThis) '(Selection.SpecialCells(xlCellTypeConstants), FindThis)
+'            End If
+'
+'            Dim s As String
+'            If Not rng Is Nothing Then
+'                For Each cell In rng
+'                    If compare(cell.Offset(CInt(offR), CInt(offC)).Value, op, IIf(FirstComp = "", FindThis.Value, FirstComp.Value), IIf(SecondComp = "", FirstComp.Value, SecondComp.Value)) = True Then
+'                        i = i + 1
+'                        ReDim Preserve varRange(1 To ListBox1.ColumnCount, 1 To i)
+'                        varRange(1, i) = cell.Parent.Parent.Name
+'                        varRange(2, i) = cell.Parent.Name
+'                        varRange(3, i) = cell.Address
+'                        s = RangeToString(CellRow(cell), "|")
+'                        If HideEmptyColumns = True Then
+'                            Do While InStr(1, s, "||") > 0
+'                                s = Replace(s, "||", "|")
+'                            Loop
+'                        End If
+'                        varRange(4, i) = s
+'                        varRange(5, i) = IIf(cell.HasFormula, cell.Formula, "")
+'                    End If
+'                Next
+'            End If
+'
+'        Case Is = "Active Sheet"
+'            ContainsFilter ActiveSheet
+'            Set TargetWorkSheet = ActiveSheet
+'            If IsDate(FindThis.Value) Then
+'                Set rng = FindDateRange(TargetWorkSheet.UsedRange)
+'            ElseIf IsNumeric(FindThis.Value) Then
+'                Set rng = FindNumericRange(TargetWorkSheet.UsedRange)
+'            Else
+'                Set rng = RangeFindAll(TargetWorkSheet.UsedRange, FindThis)
+'            End If
+'
+'            If Not rng Is Nothing Then
+'                For Each cell In rng
+'                    If compare(cell.Offset(offR, offC).Value, op, IIf(FirstComp = "", FindThis.Value, FirstComp.Value), IIf(SecondComp = "", FirstComp.Value, SecondComp.Value)) = True Then
+'                        i = i + 1
+'                        ReDim Preserve varRange(1 To ListBox1.ColumnCount, 1 To i)
+'                        varRange(1, i) = cell.Parent.Parent.Name
+'                        varRange(2, i) = cell.Parent.Name
+'                        varRange(3, i) = cell.Address
+'                        s = RangeToString(CellRow(cell), "|")
+'                        If HideEmptyColumns = True Then
+'                            Do While InStr(1, s, "||") > 0
+'                                s = Replace(s, "||", "|")
+'                            Loop
+'                        End If
+'                        varRange(4, i) = s
+'                        varRange(5, i) = IIf(cell.HasFormula, cell.Formula, "")
+'                    End If
+'                Next
+'            End If
+'        Case Is = "Active Book"
+'            Set TargetWorkbook = ActiveWorkbook
+'            For Each TargetWorkSheet In TargetWorkbook.Worksheets
+'                ContainsFilter TargetWorkSheet
+'                Set rng = RangeFindAll(TargetWorkSheet.UsedRange, FindThis)
+'                If Not rng Is Nothing Then
+'                    For Each cell In rng
+'                        If compare(cell.Offset(offR, offC).Value, op, IIf(FirstComp = "", FindThis.Value, FirstComp.Value), IIf(SecondComp = "", FirstComp.Value, SecondComp.Value)) = True Then
+'                            i = i + 1
+'                            ReDim Preserve varRange(1 To ListBox1.ColumnCount, 1 To i)
+'                            varRange(1, i) = cell.Parent.Parent.Name
+'                            varRange(2, i) = cell.Parent.Name
+'                            varRange(3, i) = cell.Address
+'                            s = RangeToString(CellRow(cell), "|")
+'                            If HideEmptyColumns = True Then
+'                                Do While InStr(1, s, "||") > 0
+'                                    s = Replace(s, "||", "|")
+'                                Loop
+'                            End If
+'                            varRange(4, i) = s
+'                            varRange(5, i) = IIf(cell.HasFormula, cell.Formula, "")
+'                        End If
+'                    Next
+'                End If
+'            Next
+'        Case Is = "All Books"
+'            For Each TargetWorkbook In Workbooks
+'                For Each TargetWorkSheet In TargetWorkbook.Worksheets
+'                ContainsFilter TargetWorkSheet
+'                    Set rng = RangeFindAll(TargetWorkSheet.UsedRange, FindThis)
+'                    If Not rng Is Nothing Then
+'                        For Each cell In rng
+'                            If compare(cell.Offset(offR, offC).Value, op, IIf(FirstComp = "", FindThis.Value, FirstComp.Value), IIf(SecondComp = "", FirstComp.Value, SecondComp.Value)) = True Then
+'                                i = i + 1
+'                                ReDim Preserve varRange(1 To ListBox1.ColumnCount, 1 To i)
+'                                varRange(1, i) = cell.Parent.Parent.Name
+'                                varRange(2, i) = cell.Parent.Name
+'                                varRange(3, i) = cell.Address
+'                                s = RangeToString(CellRow(cell), "|")
+'                                If HideEmptyColumns = True Then
+'                                    Do While InStr(1, s, "||") > 0
+'                                        s = Replace(s, "||", "|")
+'                                    Loop
+'                                End If
+'                                varRange(4, i) = s
+'                                varRange(5, i) = IIf(cell.HasFormula, cell.Formula, "")
+'                            End If
+'                        Next
+'                    End If
+'                Next
+'            Next
+'    End Select
+'
+'    ListBox1.list = Transpose2DArray(varRange)
+'    Rem ResizeControlColumns ListBox1, False
+''        ResizeUserformToFitControls Me
+''    var = Split(ListBox1.ColumnWidths, ";")
+''    ListBox1.ColumnWidths = Join(Array(var(0), var(1), var(2)), ";") & ";1500"
+'
+'End Sub
+
+'CFormResizer	Class
+
+'***************************************************************************
+'*
+'* MODULE NAME:     USERFORM RESIZER CLASS
+'* AUTHOR & DATE:   STEPHEN BULLEN, Office Automation Ltd
+'*
+'* CONTACT:         Stephen@oaltd.co.uk
+'* WEB SITE:        http://www.oaltd.co.uk
+'*
+'* DESCRIPTION:     Handles the resizing and repositioning of controls on a userform
+'*
+'***************************************************************************
+'IN USERFORM
+'
+'Dim moResizer As New CFormResizer
+'Private Sub UserForm_Activate()
+'    Set moResizer.Form = Me
+'End Sub
+'Private Sub UserForm_Resize()
+'    moResizer.FormResize
+'End Sub
+'This class makes a userform resizable and handles the resizing of all the controls on the userform,
+'such that their physical dimensions (e.g. size and position) change as the form is resized.
+'To specify which control(s) to resize (and how), you set the control's .Tag property at design time to
+'indicate that the control's top, left, width and height should be adjusted as the form's size changes.
+'
+'Use the letters t, l, w and h in any order (or not at all) to state that the property should change as the form
+'is resized.  Follow the property by a decimal to indicate that the control should change by a percentage of the
+'form's change.
+'
+'For example:
+'  hw           Sets the control's height and width to change with the form (e.g. if there's a single list box on the form)
+'  tl           Sets the contol's top and left to change in line with the form (e.g. to keep it in the bottom-right corner)
+'  w0.5         Sets the control's width to change by 0.5 that of the form's width change
+'  w0.5l0.5     Sets the control's width and position to change by 0.5 that of the form's width change
+Option Explicit
+'Windows API calls to do all the dirty work!
+Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+Private Declare PtrSafe Function ShowWindow Lib "user32" (ByVal hwnd As Long, ByVal nCmdShow As Long) As Long
+Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hwnd As Long) As Long
+Private Declare PtrSafe Function SetFocus Lib "user32" (ByVal hwnd As Long) As Long
+Private Const GWL_STYLE As Long = (-16)        'The offset of a window's style
+Private Const WS_THICKFRAME As Long = &H40000        'Style to add a sizable frame
+Private Const SW_SHOW As Long = 5
+Dim moForm As Object
+Dim mdWidth As Double
+Dim mdHeight As Double
+
+'Property to set the userform to be resizable
+Public Property Set FORM(oNew As Object)
+    Dim hWndForm As Long, iStyle As Long
+    'Remember the form for later
+    Set moForm = oNew
+    'Get the userform's window handle
+    If val(Application.Version) < 9 Then
+        hWndForm = FindWindow("ThunderXFrame", moForm.Caption)        'XL97
+    Else
+        hWndForm = FindWindow("ThunderDFrame", moForm.Caption)        'XL2000
+    End If
+    'Make the form resizable
+    iStyle = GetWindowLong(hWndForm, GWL_STYLE)
+    iStyle = iStyle Or WS_THICKFRAME
+    SetWindowLong hWndForm, GWL_STYLE, iStyle
+    'Show the window with the changes
+    ShowWindow hWndForm, SW_SHOW
+    DrawMenuBar hWndForm
+    SetFocus hWndForm
+    'Remember the current size for later
+    mdWidth = moForm.Width
+    mdHeight = moForm.Height
+End Property
+
+'Handle the form's resize event, by resizing and repositioning controls
+Public Sub FormResize()
+    Dim dWidthAdj As Double, dHeightAdj As Double, sTag As String
+    Dim oCtl As MSForms.Control
+    'If not set before, remember the old width and height
+    If mdWidth = 0 Then mdWidth = moForm.Width
+    If mdHeight = 0 Then mdHeight = moForm.Height
+    'How much are we changing by?
+    dWidthAdj = moForm.Width - mdWidth
+    dHeightAdj = moForm.Height - mdHeight
+    'Check if we can perform the adjustment (i.e. widths and heights can't be -ve)
+    For Each oCtl In moForm.Controls
+        With oCtl
+            sTag = UCase(.Tag)
+            'Check if the left would become -ve
+            If InStr(1, sTag, "L", vbBinaryCompare) Then
+                If .Left + dWidthAdj <= 0 Then moForm.Width = mdWidth
+            End If
+            'Check if the width would become -ve
+            If InStr(1, sTag, "W", vbBinaryCompare) Then
+                If .Width + dWidthAdj <= 0 Then moForm.Width = mdWidth
+            End If
+            'Check if the top would become -ve
+            If InStr(1, sTag, "T", vbBinaryCompare) Then
+                If .Top + dHeightAdj <= 0 Then moForm.Height = mdHeight
+            End If
+            'Check if the height would become -ve
+            If InStr(1, sTag, "H", vbBinaryCompare) Then
+                If .Height + dHeightAdj <= 0 Then moForm.Height = mdHeight
+            End If
+        End With
+    Next
+    'OK to do it, so perform the resize
+    dWidthAdj = moForm.Width - mdWidth
+    dHeightAdj = moForm.Height - mdHeight
+    'Loop through the controls on the form, changing their size and/or position
+    For Each oCtl In moForm.Controls
+        With oCtl
+            sTag = UCase(.Tag)
+            If InStr(1, sTag, "L", vbBinaryCompare) Then .Left = .Left + dWidthAdj * ResizeFactor(sTag, "L")
+            If InStr(1, sTag, "T", vbBinaryCompare) Then .Top = .Top + dHeightAdj * ResizeFactor(sTag, "T")
+            If InStr(1, sTag, "W", vbBinaryCompare) Then .Width = .Width + dWidthAdj * ResizeFactor(sTag, "W")
+            If InStr(1, sTag, "H", vbBinaryCompare) Then .Height = .Height + dHeightAdj * ResizeFactor(sTag, "H")
+        End With
+    Next
+    'Remember the new dimensions for next time
+    mdWidth = moForm.Width
+    mdHeight = moForm.Height
+End Sub
+
+'Get the resize factor from the control's Tag property
+Private Function ResizeFactor(sTag As String, sChange As String)
+    Dim i As Integer, D As Double
+    'Find the position of the required change designator (L, T, W or H)
+    i = InStr(1, sTag, sChange, vbBinaryCompare)
+    If i > 0 Then
+        'Get the value of any numbers following the designator
+        D = val(Mid$(sTag, i + 1))
+        'If none there, change by 100%
+        If D = 0 Then D = 1
+    End If
+    ResizeFactor = D
+End Function
+
+
+'HOME	Module
+
+Sub FinderButtonClicked(Control As IRibbonControl)
+    uFinder.Show
+End Sub
+
+
+'vbArcImports	Module
+
+
+Sub SaveUserformOptions(FORM As Object, _
+                Optional includeCheckbox As Boolean = True, _
+                Optional includeOptionButton As Boolean = True, _
+                Optional includeTextBox As Boolean = True, _
+                Optional includeListbox As Boolean = True)
+'#INCLUDE CreateOrSetSheet
+'#INCLUDE ListboxSelectedIndexes
+'#INCLUDE CollectionToArray
+
+    Dim ws As Worksheet
+    Set ws = CreateOrSetSheet(FORM.Name & "_Settings", ThisWorkbook) ' change to activeworkbook for testing
+    ws.Cells.clear
+    Dim coll As New Collection
+    Dim cell As Range
+    Set cell = ws.Cells(1, 1)
+    Dim c As MSForms.Control
+    For Each c In FORM.Controls
+        If TypeName(c) Like "CheckBox" Then
+            If Not includeCheckbox Then GoTo SKIP
+        ElseIf TypeName(c) Like "OptionButton" Then
+            If Not includeOptionButton Then GoTo SKIP
+        ElseIf TypeName(c) Like "TextBox" Then
+            If Not includeTextBox Then GoTo SKIP
+        ElseIf TypeName(c) = "ListBox" Then
+            If Not includeListbox Then GoTo SKIP
+        Else
+            GoTo SKIP
+        End If
+        cell = c.Name
+        Select Case TypeName(c)
+        Case "TextBox", "CheckBox", "OptionButton"
+            cell.Offset(0, 1) = c.Value
+        Case "ListBox"
+            Set coll = ListboxSelectedIndexes(c)
+            If coll.Count > 0 Then
+                cell.Offset(0, 1) = Join(CollectionToArray(coll), ",")
+            Else
+                cell.Offset(0, 1) = -1
+            End If
+        End Select
+        Set cell = cell.Offset(1, 0)
+SKIP:
+    Next
+End Sub
+
+Sub LoadUserformOptions(FORM As Object, Optional ExcludeThese As Variant)
+'#INCLUDE CreateOrSetSheet
+'#INCLUDE IsInArray
+'#INCLUDE SelectListboxItems
+'#IMPORTS CreateOrSetSheet
+'#IMPORTS IsInArray
+'#IMPORTS SelectListboxItems
+    Dim ws As Worksheet
+    Set ws = CreateOrSetSheet(FORM.Name & "_Settings", ThisWorkbook) ' change to activeworkbook for testing
+    If ws.Range("A1") = "" Then Exit Sub
+    Dim cell As Range
+    Set cell = ws.Cells(1, 1)
+    Dim c As MSForms.Control
+    Dim v
+    On Error Resume Next
+    Do While cell <> ""
+        Set c = FORM.Controls(cell.Text)
+        If Not TypeName(c) = "Nothing " Then
+            If Not IsInArray(cell, ExcludeThese) Then
+                Select Case TypeName(c)
+                Case "TextBox", "CheckBox", "OptionButton"
+                    c.Value = cell.Offset(0, 1)
+                Case "ListBox"
+                    If InStr(1, cell.Offset(0, 1), ",") > 0 Then
+                        SelectListboxItems c, Split(cell.Offset(0, 1), ","), True
+                    Else
+                        c.Selected(CInt(cell.Offset(0, 1))) = True
+                    End If
+                End Select
+            End If
+        End If
+        Set cell = cell.Offset(1, 0)
+    Loop
+End Sub
+Function CreateOrSetSheet(SheetName As String, TargetWorkbook As Workbook) As Worksheet
+    '#INCLUDE WorksheetExists
+    Dim NewSheet As Worksheet
+    If WorksheetExists(SheetName, TargetWorkbook) = True Then
+        Set CreateOrSetSheet = TargetWorkbook.Sheets(SheetName)
+    Else
+        Set CreateOrSetSheet = TargetWorkbook.Sheets.Add
+        CreateOrSetSheet.Name = SheetName
+    End If
+End Function
+Function ListboxSelectedIndexes(LBox As MSForms.ListBox) As Collection
+    Dim i As Long
+    Dim SelectedIndexes As Collection
+    Set SelectedIndexes = New Collection
+    If LBox.ListCount > 0 Then
+        For i = 0 To LBox.ListCount - 1
+            If LBox.Selected(i) Then SelectedIndexes.Add i
+        Next i
+    End If
+    Set ListboxSelectedIndexes = SelectedIndexes
+End Function
+
+Function SelectListboxItems(LBox As MSForms.ListBox, FindMe As Variant, Optional ByIndex As Boolean)
+    Dim i As Long
+    Select Case TypeName(FindMe)
+    Case Is = "String", "Long", "Integer"
+        For i = 0 To LBox.ListCount - 1
+            If LBox.list(i) = CStr(FindMe) Then
+                LBox.Selected(i) = True
+                DoEvents
+                If LBox.MultiSelect = fmMultiSelectSingle Then Exit Function
+            End If
+        Next
+    Case Else
+        Dim el As Variant
+        If ByIndex Then
+            For Each el In FindMe
+                LBox.Selected(el) = True
+            Next
+        Else
+            For Each el In FindMe
+                For i = 0 To LBox.ListCount - 1
+                    If LBox.list(i) = el Then
+                        LBox.Selected(i) = True
+                        DoEvents
+                    End If
+                Next
+            Next
+        End If
+    End Select
+End Function
+
+Public Function IsInArray( _
+       ByVal value1 As Variant, _
+       ByVal array1 As Variant, _
+       Optional CaseSensitive As Boolean) _
+        As Boolean
+    Dim individualElement As Variant
+    If CaseSensitive = True Then value1 = UCase(value1)
+    For Each individualElement In array1
+        If CaseSensitive = True Then individualElement = UCase(individualElement)
+        If individualElement = value1 Then
+            IsInArray = True
+            Exit Function
+        End If
+    Next
+    IsInArray = False
+End Function
+Function CollectionToArray(c As Collection) As Variant
+
+    Dim A() As Variant: ReDim A(0 To c.Count - 1)
+    Dim i As Long
+    For i = 1 To c.Count
+        A(i - 1) = c.Item(i)
+    Next
+    CollectionToArray = A
+End Function
+Function WorksheetExists(shtName As String, Optional wb As Workbook) As Boolean
+'#INCLUDE sheetExists
+    Dim sht As Worksheet
+    If wb Is Nothing Then
+        Set wb = ThisWorkbook
+    End If
+    On Error Resume Next
+    Set sht = wb.Sheets(shtName)
+    On Error GoTo 0
+    WorksheetExists = Not sht Is Nothing
+End Function
+
+Rem --------------------
+
+Rem Debug Print
+Sub dp(var As Variant)
+    '#INCLUDE DPH
+    '#INCLUDE ArrayDimensions
+    '#IMPORTS DPH
+    '#IMPORTS ArrayDimensions
+    Dim element As Variant
+    Select Case TypeName(var)
+        Case Is = "String", "Long", "Integer", "Boolean"
+            Debug.Print var
+            Rem todo How to handle multidimensional array?
+        Case Is = "Variant()", "String()", "Long()", "Integer()"
+            If ArrayDimensions(var) = 1 Then
+                Dim i As Long
+                For i = LBound(var) To UBound(var)
+                    Debug.Print var(i)
+                Next i
+            ElseIf ArrayDimensions(var) > 1 Then
+                DPH var
+            End If
+        Case Is = "Collection"
+            For Each element In var
+                dp element
+            Next element
+        Case Else
+    End Select
+End Sub
+
+Function TextDecomposition(Mojiretu$)
+    Dim i&, n&
+    Dim output
+    n = Len(Mojiretu)
+    ReDim output(1 To n)
+    For i = 1 To n
+        output(i) = Mid(Mojiretu, i, 1)
+    Next i
+    TextDecomposition = output
+End Function
+
+Function CalculateByteCharacters(Mojiretu$)
+    Dim MojiKosu%
+    MojiKosu = Len(Mojiretu)
+    Dim output
+    ReDim output(1 To MojiKosu)
+    Dim i&
+    Dim TmpMoji$
+    For i = 1 To MojiKosu
+        TmpMoji = Mid(Mojiretu, i, 1)
+        If i = 1 Then
+            output(i) = LenB(StrConv(TmpMoji, vbFromUnicode))
+        Else
+            output(i) = LenB(StrConv(TmpMoji, vbFromUnicode)) + output(i - 1)
+        End If
+    Next i
+    CalculateByteCharacters = output
+End Function
+
+Function ShortenToByteCharacters(Mojiretu$, ByteNum%)
+    '#INCLUDE CalculateByteCharacters
+    '#INCLUDE TextDecomposition
+    '#IMPORTS CalculateByteCharacters
+    '#IMPORTS TextDecomposition
+    Dim OriginByte%
+    Dim output
+    OriginByte = LenB(StrConv(Mojiretu, vbFromUnicode))
+    If OriginByte <= ByteNum Then
+        output = Mojiretu
+    Else
+        Dim RuikeiByteList, BunkaiMojiretu
+        RuikeiByteList = CalculateByteCharacters(Mojiretu)
+        BunkaiMojiretu = TextDecomposition(Mojiretu)
+        Dim AddMoji$
+        AddMoji = "."
+        Dim i&, n&
+        n = Len(Mojiretu)
+        For i = 1 To n
+            If RuikeiByteList(i) < ByteNum Then
+                output = output & BunkaiMojiretu(i)
+            ElseIf RuikeiByteList(i) = ByteNum Then
+                If LenB(StrConv(BunkaiMojiretu(i), vbFromUnicode)) = 1 Then
+                    output = output & AddMoji
+                Else
+                    output = output & AddMoji & AddMoji
+                End If
+                Exit For
+            ElseIf RuikeiByteList(i) > ByteNum Then
+                output = output & AddMoji
+                Exit For
+            End If
+        Next i
+    End If
+    ShortenToByteCharacters = output
+End Function
+
+Sub DebugPrintHairetu(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional HairetuName$)
+    '#INCLUDE ShortenToByteCharacters
+    '#IMPORTS ShortenToByteCharacters
+    Dim i&, j&, k&, m&, n&
+    Dim TateMin&, TateMax&, YokoMin&, YokoMax&
+    Dim WithTableHairetu
+    Dim NagasaList, MaxNagasaList
+    Dim NagasaOnajiList
+    Dim OutputList
+    Const SikiriMoji$ = "|"
+    Dim Jigen2%
+    On Error Resume Next
+    Jigen2 = UBound(Hairetu, 2)
+    On Error GoTo 0
+    If Jigen2 = 0 Then
+        Hairetu = Application.Transpose(Hairetu)
+    End If
+    TateMin = LBound(Hairetu, 1)
+    TateMax = UBound(Hairetu, 1)
+    YokoMin = LBound(Hairetu, 2)
+    YokoMax = UBound(Hairetu, 2)
+    ReDim WithTableHairetu(1 To TateMax - TateMin + 1 + 1, 1 To YokoMax - YokoMin + 1 + 1)
+    For i = 1 To TateMax - TateMin + 1
+        WithTableHairetu(i + 1, 1) = TateMin + i - 1
+            For j = 1 To YokoMax - YokoMin + 1
+                WithTableHairetu(1, j + 1) = YokoMin + j - 1
+                    WithTableHairetu(i + 1, j + 1) = Hairetu(i - 1 + TateMin, j - 1 + YokoMin)
+                    Next j
+                Next i
+                n = UBound(WithTableHairetu, 1)
+                m = UBound(WithTableHairetu, 2)
+                ReDim NagasaList(1 To n, 1 To m)
+                ReDim MaxNagasaList(1 To m)
+                Dim TmpStr$
+                For j = 1 To m
+                    For i = 1 To n
+                        If j > 1 And HyoujiMaxNagasa <> 0 Then
+                            TmpStr = WithTableHairetu(i, j)
+                            WithTableHairetu(i, j) = ShortenToByteCharacters(TmpStr, HyoujiMaxNagasa)
+                            End If
+                            NagasaList(i, j) = LenB(StrConv(WithTableHairetu(i, j), vbFromUnicode))
+                            MaxNagasaList(j) = WorksheetFunction.Max(MaxNagasaList(j), NagasaList(i, j))
+                        Next i
+                    Next j
+                    ReDim NagasaOnajiList(1 To n, 1 To m)
+                    Dim TmpMaxNagasa&
+                    For j = 1 To m
+                        TmpMaxNagasa = MaxNagasaList(j)
+                        For i = 1 To n
+                            NagasaOnajiList(i, j) = WithTableHairetu(i, j) & WorksheetFunction.Rept(" ", TmpMaxNagasa - NagasaList(i, j))
+                        Next i
+                    Next j
+                    ReDim OutputList(1 To n)
+                    For i = 1 To n
+                        For j = 1 To m
+                            If j = 1 Then
+                                OutputList(i) = NagasaOnajiList(i, j)
+                            Else
+                                OutputList(i) = OutputList(i) & SikiriMoji & NagasaOnajiList(i, j)
+                            End If
+                        Next j
+                    Next i
+                    Debug.Print HairetuName
+                    For i = 1 To n
+                        Debug.Print OutputList(i)
+                    Next i
+                End Sub
+
+Function ArrayDimensions(ByVal vArray As Variant) As Long
+    Dim dimnum As Long
+    On Error GoTo FinalDimension
+    For dimnum = 1 To 60000
+        ErrorCheck = LBound(vArray, dimnum)
+    Next
+FinalDimension:
+    ArrayDimensions = dimnum - 1
+End Function
+
+Rem ------------------------
+
+
+Sub DPH(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional HairetuName$)
+    '#INCLUDE DebugPrintHairetu
+    '#IMPORTS DebugPrintHairetu
+    Call DebugPrintHairetu(Hairetu, HyoujiMaxNagasa, HairetuName)
+End Sub
+
+'uFinder_Settings	Document
+
+
+
+'mFormTransparent	Module
+
+Rem MakeFormTransparent me
+Rem MakeFormBorderless Me
+Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hwnd As Long) As Long
+Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hwnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+Private Const GWL_STYLE As Long = (-16)
+Private Const GWL_EXSTYLE As Long = (-20)
+Private Const WS_CAPTION As Long = &HC00000
+Private Const WS_EX_DLGMODALFRAME As Long = &H1
+Private Const WS_EX_LAYERED = &H80000
+Private Const LWA_COLORKEY = &H1
+Private Const LWA_ALPHA = &H2
+Private m_sngDownX As Single
+Private m_sngDownY As Single
+Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+
+
+Private Declare PtrSafe Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Declare PtrSafe Function GetWindowLongA Lib "user32" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+Private Declare PtrSafe Function SetWindowLongA Lib "user32" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+
+Sub AddMinimizeButtonToUserform(FORM As Object)
+    Dim UserFormCaption As String
+    UserFormCaption = FORM.Caption
+    Dim hwnd            As Long
+    Dim exLong          As Long
+     
+    hwnd = FindWindowA(vbNullString, UserFormCaption)
+    exLong = GetWindowLongA(hwnd, -16)
+    If (exLong And &H20000) = 0 Then
+        SetWindowLongA hwnd, -16, exLong Or &H20000
+    Else
+    End If
+     
+End Sub
+
+Public Sub MakeFormTransparent(frm As Object, Optional color As Variant)
+    Dim formhandle As Long
+    Dim bytOpacity As Byte
+    formhandle = CLng(FindWindow(vbNullString, frm.Caption))
+    If IsMissing(color) Then color = vbWhite
+    bytOpacity = 100
+    SetWindowLong formhandle, GWL_EXSTYLE, GetWindowLong(formhandle, GWL_EXSTYLE) Or WS_EX_LAYERED
+    frm.BackColor = color
+    SetLayeredWindowAttributes formhandle, color, bytOpacity, LWA_COLORKEY
+End Sub
+
+Public Sub MakeFormBorderless(frm As Object)
+    Dim lngWindow As Long
+    Dim lFrmHdl As Long
+    lFrmHdl = CLng(FindWindow(vbNullString, frm.Caption))
+    lngWindow = GetWindowLong(lFrmHdl, GWL_STYLE)
+    lngWindow = lngWindow And (Not WS_CAPTION)
+    SetWindowLong lFrmHdl, GWL_STYLE, lngWindow
+    lngWindow = GetWindowLong(lFrmHdl, GWL_EXSTYLE)
+    lngWindow = lngWindow And Not WS_EX_DLGMODALFRAME
+    SetWindowLong lFrmHdl, GWL_EXSTYLE, lngWindow
+    DrawMenuBar lFrmHdl
+End Sub
+
+
+'uAuthor	UserForm
+
+
+
+
+
+
+'* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+'* Userform   : uAuthor
+'* Created    : 06-10-2022 10:34
+'* Author     : Anastasiou Alex
+'* Contacts   : AnastasiouAlex@gmail.com
+'*
+'* GITHUB     : https://github.com/AlexOfRhodes
+'* YOUTUBE    : https://www.youtube.com/channel/UC5QH3fn1zjx0aUjRER_rOjg
+'* VK         : https://vk.com/video/playlist/735281600_1
+'* DONATE     : http://paypal.me/alexofrhodes
+'* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Option Explicit
+
+Const AUTHOR_EMAIL = "anastasioualex@gmail.com"
+
+#If VBA7 Then
+    Private Declare PtrSafe Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwFlags As Long, ByVal dwReserved As Long) As Long
+    Private Declare PtrSafe Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
+    
+    Private Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+    Private Declare PtrSafe Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare PtrSafe Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+    Private Declare PtrSafe Function DrawMenuBar Lib "user32" (ByVal hwnd As Long) As Long
+    Private Declare PtrSafe Function SetLayeredWindowAttributes Lib "user32" (ByVal hwnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+#Else
+    Private Declare Function InternetGetConnectedState Lib "wininet.dll" (ByRef dwflags As Long, ByVal dwReserved As Long) As Long
+    Private Declare Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
+    
+    
+    Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+    Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+    Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+    Private Declare Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
+    Private Declare Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+#End If
+
+
+Private Const GWL_STYLE As Long = (-16)
+Private Const GWL_EXSTYLE As Long = (-20)
+Private Const WS_CAPTION As Long = &HC00000
+Private Const WS_EX_DLGMODALFRAME As Long = &H1
+Private Const WS_EX_LAYERED = &H80000
+Private Const LWA_COLORKEY = &H1
+Private Const LWA_ALPHA = &H2
+Private m_sngDownX As Single
+Private m_sngDownY As Single
+
+Public Function GetInternetConnectedState() As Boolean
+    GetInternetConnectedState = InternetGetConnectedState(0&, 0&)
+End Function
+
+Private Sub MakeFormTransparent(frm As Object, Optional color As Variant)
+    Dim formhandle As Long
+    Dim bytOpacity As Byte
+    formhandle = CLng(FindWindow(vbNullString, frm.Caption))
+    If IsMissing(color) Then color = vbWhite
+    bytOpacity = 100
+    SetWindowLong formhandle, GWL_EXSTYLE, GetWindowLong(formhandle, GWL_EXSTYLE) Or WS_EX_LAYERED
+    frm.BackColor = color
+    SetLayeredWindowAttributes formhandle, color, bytOpacity, LWA_COLORKEY
+End Sub
+
+Private Sub MakeFormBorderless(frm As Object)
+    Dim lngWindow As Long
+    Dim lFrmHdl As Long
+    lFrmHdl = CLng(FindWindow(vbNullString, frm.Caption))
+    lngWindow = GetWindowLong(lFrmHdl, GWL_STYLE)
+    lngWindow = lngWindow And (Not WS_CAPTION)
+    SetWindowLong lFrmHdl, GWL_STYLE, lngWindow
+    lngWindow = GetWindowLong(lFrmHdl, GWL_EXSTYLE)
+    lngWindow = lngWindow And Not WS_EX_DLGMODALFRAME
+    SetWindowLong lFrmHdl, GWL_EXSTYLE, lngWindow
+    DrawMenuBar lFrmHdl
+End Sub
+
+Sub FollowLink(FolderPath As String)
+'@BlogPosted
+'@AssignedModule F_Unsorted
+    If Right(FolderPath, 1) = "\" Then FolderPath = Left(FolderPath, Len(FolderPath) - 1)
+    On Error Resume Next
+    Dim oShell As Object
+    Dim Wnd As Object
+    Set oShell = CreateObject("Shell.Application")
+    For Each Wnd In oShell.Windows
+        If Wnd.Name = "File Explorer" Then
+            If Wnd.document.Folder.Self.Path = FolderPath Then Exit Sub
+        End If
+    Next Wnd
+    Application.ThisWorkbook.FollowHyperlink Address:=FolderPath, NewWindow:=True
+End Sub
+
+
+
+Private Sub LVK_Click()
+    FollowLink ("https://vk.com/video/playlist/735281600_1")
+End Sub
+
+Private Sub LExit_Click()
+    Unload Me
+End Sub
+
+Private Sub LBLOG_Click()
+    FollowLink ("https://alexofrhodes.github.io")
+End Sub
+
+Private Sub LGitHub_Click()
+    FollowLink ("https://github.com/alexofrhodes")
+End Sub
+
+Private Sub LYouTube_Click()
+    FollowLink ("https://www.youtube.com/channel/UC5QH3fn1zjx0aUjRER_rOjg")
+End Sub
+
+Private Sub LBuyMeACoffee_Click()
+    FollowLink "http://paypal.me/alexofrhodes"
+End Sub
+
+Private Function CLIP(Optional StoreText As String) As String
+    Dim X As Variant
+    X = StoreText
+    With CreateObject("htmlfile")
+        With .parentWindow.clipboardData
+            Select Case True
+            Case Len(StoreText)
+                .SetData "text", X
+            Case Else
+                CLIP = .GetData("text")
+            End Select
+        End With
+    End With
+End Function
+
+Private Sub LEmail_Click()
+    If GetInternetConnectedState = False Then
+        MsgBox "Seems Internet is not available"
+        Exit Sub
+    End If
+    If OutlookCheck = True Then
+        MailDev
+    Else
+        Dim out As String
+        out = AUTHOR_EMAIL
+        CLIP out
+        MsgBox ("Seems Outlook is not available" & Chr(10) & _
+        "DEV's email address " & vbNewLine & out & vbNewLine & "copied to clipboard")
+    End If
+End Sub
+
+Function OutlookCheck() As Boolean
+    Dim xOLApp As Object
+    Set xOLApp = CreateObject("Outlook.Application")
+    If Not xOLApp Is Nothing Then
+        OutlookCheck = True
+        Set xOLApp = Nothing
+        Exit Function
+    End If
+    OutlookCheck = False
+End Function
+
+
+Sub MailDev()
+    Dim OutApp As Object
+    Dim OutMail As Object
+    Dim strBody As String
+    Set OutApp = CreateObject("Outlook.Application")
+    Set OutMail = OutApp.CreateItem(0)
+    On Error Resume Next
+    With OutMail
+        .To = AUTHOR_EMAIL
+        .cc = vbNullString
+        .BCC = vbNullString
+        .Subject = "Feedback or request - " & ThisWorkbook.Name
+        .body = strBody
+        .display
+    End With
+    On Error GoTo 0
+    Set OutMail = Nothing
+    Set OutApp = Nothing
+End Sub
+
+Private Sub UserForm_Initialize()
+
+    Dim screenWidth As Long
+    Dim screenHeight As Long
+    
+    screenWidth = GetSystemMetrics(0)  ' SM_CXSCREEN
+    screenHeight = GetSystemMetrics(1)  ' SM_CYSCREEN
+    
+    Me.Width = screenWidth
+    Me.Height = screenHeight
+    
+    Frame1.Left = Me.Width / 2 - Image1.Width
+    Frame1.Top = Me.Height / 2 - Image1.Height
+    
+    MakeFormBorderless Me
+'    MakeFormTransparent Me, vbYellow
+End Sub
+
+
+
+
+'ChangeLog	Document
+
+Option Explicit
+

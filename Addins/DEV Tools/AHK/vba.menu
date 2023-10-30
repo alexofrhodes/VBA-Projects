@@ -98,10 +98,7 @@ MODULE
 	am_PredeclaredIdEnable
 WORKBOOK
 	aw_AddLinkedLists
-	aw_VersionInitial
-	aw_VersionMajor
-	aw_VersionMinor
-	aw_VersionPatch
+	aw_Indent
 DESIGNER
 	ad_CenterLabelCaption
 	ad_CopyControlProperties
@@ -116,7 +113,7 @@ DESIGNER
 USERFORMS
 	uShow_Changelog
 	uShow_CodeOnTheFly
-	uShow_ProjectManager
+	uShow_ChangelogManager
 	uShow_ProjectExplorer
 	uShow_References
 	uShow_Skeleton
