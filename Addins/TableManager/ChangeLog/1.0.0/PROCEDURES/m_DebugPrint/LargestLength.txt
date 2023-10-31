@@ -1,0 +1,31 @@
+
+Function LargestLength(MyObj) As Long
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE dp
+    LargestLength = 0
+    Dim element As Variant
+    Select Case TypeName(MyObj)
+    Case Is = "String"
+        LargestLength = Len(MyObj)
+    Case "Collection"
+        For Each element In MyObj
+            If TypeName(element) = "String" Then
+                If Len(element) > LargestLength Then LargestLength = Len(element)
+            Else
+                If element.Width > LargestLength Then LargestLength = element.Width
+            End If
+        Next element
+    Case "Variant", "Variant()", "String()"
+       For Each element In MyObj
+            If TypeName(element) = "String" Then
+                If Len(element) > LargestLength Then LargestLength = Len(element)
+'                dp element & vbTab & Len(element)
+            End If
+        Next
+    Case Else
+    End Select
+End Function
+
+
+
+

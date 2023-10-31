@@ -1,0 +1,7 @@
+
+Public Function ArrayAllocated(ByVal arr As Variant) As Boolean
+'@AssignedModule Various
+
+    On Error Resume Next
+    ArrayAllocated = IsArray(arr) And (Not IsError(LBound(arr, 1))) And LBound(arr, 1) <= UBound(arr, 1)
+End Function

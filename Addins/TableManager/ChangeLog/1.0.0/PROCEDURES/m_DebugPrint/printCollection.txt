@@ -1,0 +1,9 @@
+
+Private Sub printCollection(var As Variant)
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE dp
+    Dim elem        As Variant
+    For Each elem In var
+        dp elem
+    Next elem
+End Sub

@@ -1,0 +1,11 @@
+
+Public Function aSwitch(CheckThis, ParamArray OptionPairs() As Variant)
+'@AssignedModule Various
+    Dim i As Long
+    For i = LBound(OptionPairs) To UBound(OptionPairs) Step 2
+        If UCase(CheckThis) = UCase(OptionPairs(i)) Then
+            aSwitch = OptionPairs(i + 1)
+            Exit Function
+        End If
+    Next
+End Function

@@ -1,0 +1,31 @@
+
+Public Function IsValueFormattedCorrectly(ByVal inputRange As Range, ByVal inputValue As Variant) As Boolean
+'@AssignedModule Various
+    If IsEmpty(inputValue) Then
+        IsValueFormattedCorrectly = True ' Empty values are always valid
+        Exit Function
+    End If
+
+    On Error Resume Next
+    Dim cellFormat As String
+    cellFormat = inputRange.NumberFormat
+    On Error GoTo 0
+
+    If cellFormat = "General" Then
+        IsValueFormattedCorrectly = True ' General format allows any value
+        Exit Function
+    End If
+
+    On Error Resume Next
+    Dim formattedValue As Variant
+    formattedValue = Format(inputValue, cellFormat)
+    On Error GoTo 0
+
+    If Not IsError(formattedValue) Then
+        ' The value can be formatted correctly, now compare the formatted value with the original input value
+        IsValueFormattedCorrectly = (formattedValue = inputValue)
+    Else
+        ' The value cannot be formatted correctly
+        IsValueFormattedCorrectly = False
+    End If
+End Function

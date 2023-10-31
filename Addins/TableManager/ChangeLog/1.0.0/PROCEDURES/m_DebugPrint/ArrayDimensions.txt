@@ -1,0 +1,12 @@
+
+Public Function ArrayDimensions(ByVal vArray As Variant) As Long
+'@AssignedModule m_DebugPrint
+    Dim dimnum      As Long
+    Dim ErrorCheck As Long
+    On Error GoTo FinalDimension
+    For dimnum = 1 To 60000
+        ErrorCheck = LBound(vArray, dimnum)
+    Next
+FinalDimension:
+    ArrayDimensions = dimnum - 1
+End Function

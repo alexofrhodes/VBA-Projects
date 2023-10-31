@@ -1,0 +1,13 @@
+Function AvailableFormOrFrameRow(FormOrFrame As Object, Optional AfterWidth As Long = 0, Optional AfterHeight As Long = 0, Optional AddMargin As Long = 0) As Long
+'@AssignedModule Various
+    Dim ctr As MSForms.control
+    Dim myHeight
+    For Each ctr In FormOrFrame.Controls
+        If ctr.Visible = True Then
+            If ctr.Left >= AfterWidth And ctr.Top >= AfterHeight Then
+                If ctr.Top + ctr.Height > myHeight Then myHeight = ctr.Top + ctr.Height
+            End If
+        End If
+    Next
+    AvailableFormOrFrameRow = myHeight + AddMargin '6
+End Function

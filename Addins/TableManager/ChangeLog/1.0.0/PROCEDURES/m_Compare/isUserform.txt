@@ -1,0 +1,9 @@
+
+Function isUserform(thing) As Boolean
+'@AssignedModule m_Compare
+    On Error Resume Next
+    Dim Module As VBComponent
+    Set Module = ThisWorkbook.VBProject.VBComponents(thing.Name)
+    isUserform = Module.Type = vbext_ct_MSForm
+End Function
+

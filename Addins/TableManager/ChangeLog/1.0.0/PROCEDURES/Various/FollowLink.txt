@@ -1,0 +1,15 @@
+
+Sub FollowLink(FolderPath As String)
+'@AssignedModule Various
+    If Right(FolderPath, 1) = "\" Then FolderPath = Left(FolderPath, Len(FolderPath) - 1)
+    On Error Resume Next
+    Dim oShell As Object
+    Dim Wnd As Object
+    Set oShell = CreateObject("Shell.Application")
+    For Each Wnd In oShell.Windows
+        If Wnd.Name = "File Explorer" Then
+            If Wnd.document.Folder.Self.Path = FolderPath Then Exit Sub
+        End If
+    Next Wnd
+    Application.ThisWorkbook.FollowHyperlink Address:=FolderPath, NewWindow:=True
+End Sub

@@ -1,0 +1,7 @@
+
+Function FolderExists(ByVal strPath As String) As Boolean
+'@AssignedModule Various
+
+    On Error Resume Next
+    FolderExists = ((GetAttr(strPath) And vbDirectory) = vbDirectory)
+End Function

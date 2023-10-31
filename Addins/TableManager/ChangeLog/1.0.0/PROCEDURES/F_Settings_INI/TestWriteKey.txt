@@ -1,0 +1,9 @@
+
+Public Sub TestWriteKey()
+'@AssignedModule F_Settings_INI
+    If Ini_WriteKeyVal(ThisWorkbook.Path & "\MyIniFile.ini", "SETTINGS", "License", "JBXR-HHTY-LKIP-HJNB-GGGT") = True Then
+        MsgBox "The key was written"
+    Else
+        MsgBox "An error occurred!"
+    End If
+End Sub

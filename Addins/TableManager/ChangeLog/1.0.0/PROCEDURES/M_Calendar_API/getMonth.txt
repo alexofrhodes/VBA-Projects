@@ -1,0 +1,33 @@
+
+Public Function getMonth(iMonth As Integer, Optional language As String)
+'    Select Case languege
+'@AssignedModule M_Calendar_API
+        Select Case iMonth Mod 12
+           Case Is = 1, "-11"
+                getMonth = "JANUARY"
+           Case Is = 2, "-10"
+                getMonth = "FEBRUARY"
+           Case Is = 3, "-9"
+                getMonth = "MARCH"
+           Case Is = 4, "-8"
+                getMonth = "APRIL"
+           Case Is = 5, "-7"
+                getMonth = "MAY"
+           Case Is = 6, "-6"
+                getMonth = "JUNE"
+           Case Is = 7, "-5"
+                getMonth = "JULY"
+           Case Is = 8, "-4"
+                getMonth = "AUGUST"
+           Case Is = 9, "-3"
+                getMonth = "SEPTEMBER"
+           Case Is = 10, "-2"
+                getMonth = "OCTOBER"
+           Case Is = 11, "-1"
+                getMonth = "NOVEMBER"
+           Case Is = 0, 12
+                getMonth = "DECEMBER"
+
+        End Select
+'    End Select
+End Function

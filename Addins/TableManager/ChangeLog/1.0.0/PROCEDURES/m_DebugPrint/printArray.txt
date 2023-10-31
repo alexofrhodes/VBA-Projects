@@ -1,0 +1,37 @@
+
+'Sub PrintXML(NodeList)
+''   Parse all levels recursively
+'    Dim obj
+'    On Error Resume Next
+'    Set obj = NodeList.ChildNodes
+'    If Err.Number = 0 Then
+'
+'    Else
+'        Err.clear
+'        Set obj = NodeList.NodeList
+'        If Err.Number <> 0 Then: Err.clear: Exit Sub
+'    End If
+'    On Error GoTo 0
+'    Dim child
+'    For Each child In obj
+'        If Not Left(child.nodename, 1) = "#" Then Debug.Print child.nodename & ":" & child.Text
+'        If child.ChildNodes.Length > 0 Then PrintXML child.ChildNodes
+'    Next
+'End Sub
+
+Private Sub printArray(var As Variant)
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE dp
+'@INCLUDE PROCEDURE PrintXML
+'@INCLUDE PROCEDURE DPH
+'@INCLUDE PROCEDURE ArrayDimensions
+    Dim element
+    If ArrayDimensions(var) = 1 Then
+'        Debug.Print Join(var, vbNewLine)
+        For Each element In var
+            dp element
+        Next
+    ElseIf ArrayDimensions(var) > 1 Then
+        DPH var
+    End If
+End Sub

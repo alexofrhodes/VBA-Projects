@@ -1,0 +1,7 @@
+
+Public Function IniSectionExists(iniFile As String, Section As String) As Boolean
+    'Alex
+'@AssignedModule F_Settings_INI
+'@INCLUDE PROCEDURE TxtRead
+    IniSectionExists = InStr(1, TxtRead(iniFile), "[" & Section & "]") > 0
+End Function

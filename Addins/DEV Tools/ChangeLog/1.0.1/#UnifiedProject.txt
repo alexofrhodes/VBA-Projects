@@ -6403,13 +6403,13 @@ Public Sub ExportModules(targetPath As String)
     targetPath = VBA.Replace(targetPath & "\", "\\", "\")
     FoldersCreate targetPath
     Dim ams As aModules: Set ams = aModules.Init(oWorkbook)
-    ams.Export targetPath, CreateSubFolders:=True
+    ams.Export targetPath, createSubfolders:=True
 End Sub
-Public Sub ExportProcedures(targetPath As String)
+Public Sub ExportProcedures(targetPath As String, createModuleSubfolders As Boolean)
     targetPath = VBA.Replace(targetPath & "\", "\\", "\")
     FoldersCreate targetPath
     Dim ams As aModules: Set ams = aModules.Init(oWorkbook)
-    ams.ExportProcedures targetPath
+    ams.ExportProcedures targetPath, createModuleSubfolders
 End Sub
 Public Sub ExportXML(targetPath As String)
     targetPath = Replace(targetPath & "\", "\\", "\")
@@ -8017,7 +8017,7 @@ Sub PrintTodoList()
     Next
 End Sub
 
-Sub Export(targetPath As String, CreateSubFolders As Boolean)
+Sub Export(targetPath As String, createSubfolders As Boolean)
     '@AssignedModule aModules
     '@INCLUDE PROCEDURE FoldersCreate
     '@INCLUDE CLASS aModule
@@ -8027,7 +8027,7 @@ Sub Export(targetPath As String, CreateSubFolders As Boolean)
     Dim NormalModuleFolder As String: NormalModuleFolder = targetPath
     Dim DocumentFolder As String: DocumentFolder = targetPath
 
-    If CreateSubFolders Then
+    If createSubfolders Then
         FormFolder = targetPath & "Userforms"
         NormalModuleFolder = targetPath & "Modules"
         DocumentFolder = targetPath & "Documents"
@@ -16635,15 +16635,18 @@ Function StringFormatAlignRowsElements( _
 
     For i = LBound(TextLines) To UBound(TextLines)
         lineText = TextLines(i)
+'        If InStr(1, lineText, "Dependencies.bas", vbTextCompare) > 0 Then Stop
         If SearchFromLeft Then
-            elementOriginalColumn = InStr(lineText, AlignAtString)
+            elementOriginalColumn = InStr(1, lineText, AlignAtString)
         Else
             elementOriginalColumn = InStrRev(lineText, AlignAtString)
         End If
 
         If elementOriginalColumn > 0 Then
-            numberOfSpacesToInsert = AlignAtColumn - elementOriginalColumn + IIf(AlignAtString = ":", 1, 0)
-            If numberOfSpacesToInsert > 0 Then
+            numberOfSpacesToInsert = AlignAtColumn - elementOriginalColumn + 1 'IIf(AlignAtString = ":", 1, 0)
+            If numberOfSpacesToInsert > 0 And Not numberOfSpacesToInsert = AlignAtColumn Then
+            
+            '@TODO some colons revert to original position even if moved eg labels like NORMAL_EXIT:
 '                If AlignAtString = ":" Then
 '                    TextLines(i) = Left(TextLines(i), elementOriginalColumn) & _
 '                            Space(numberOfSpacesToInsert) & _
@@ -25631,7 +25634,7 @@ Normal_Exit:
         If chExportReferences Then .ExportReferences targetFolder
         If chExportUnified Then .ExportCodeUnified targetFolder
         If chExportComponents Then .ExportModules targetFolder
-        If chExportProcedures Then .ExportProcedures targetFolder & "PROCEDURES\"
+        If chExportProcedures Then .ExportProcedures targetFolder & "PROCEDURES\", createModuleSubfolders:=True
         If chExportXML Then .ExportXML targetFolder
     End With
     ListModifications = True

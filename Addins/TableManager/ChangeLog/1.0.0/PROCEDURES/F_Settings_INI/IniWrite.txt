@@ -1,0 +1,38 @@
+
+Public Sub IniWrite(IniFileName As String, ByVal Sect As String, ByVal Keyname As String, ByVal Wstr As String)
+'This macro also creates the file & section & key if they doesn't exist
+'@AssignedModule F_Settings_INI
+'@INCLUDE DECLARATION WritePrivateProfileString
+
+    Dim Worked As Long
+    Dim iNoOfCharInIni As Long
+
+    iNoOfCharInIni = 0
+    Dim sIniString As String: sIniString = ""
+    If Sect = "" Or Keyname = "" Then
+        MsgBox "Section Or Key To Write Not Specified !!!", vbExclamation, "INI"
+    Else
+        Worked = WritePrivateProfileString(Sect, Keyname, Wstr, IniFileName)
+        If Worked Then
+            iNoOfCharInIni = Worked
+            sIniString = Wstr
+        End If
+    End If
+    
+'---- result for writing "settings1", "string1", "newval" ----
+'[settings1]
+'    string1 = newval
+'    string2 = bbb
+'[settings2]
+'    string1 = ccc
+'    string2 = ddd
+
+'---- result for writing "settings1", "string3", "newkey" ----
+'[settings1]
+'    string1 = newval
+'    string2 = bbb
+'    string3 = newkey
+'[settings2]
+'    string1 = ccc
+'    string2 = ddd
+End Sub

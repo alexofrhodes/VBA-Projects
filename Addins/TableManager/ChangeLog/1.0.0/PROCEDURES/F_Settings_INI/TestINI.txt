@@ -1,0 +1,39 @@
+
+Sub TestINI()
+'@AssignedModule F_Settings_INI
+'@INCLUDE PROCEDURE FollowLink
+'@INCLUDE PROCEDURE IniSections
+'@INCLUDE PROCEDURE IniReadSection
+'@INCLUDE PROCEDURE IniSectionKeys
+'@INCLUDE PROCEDURE IniReadKey
+'@INCLUDE PROCEDURE IniWrite
+'@INCLUDE PROCEDURE dp
+    Dim filepath As String: filepath = ThisWorkbook.Path & "\test.INI"
+    FollowLink ThisWorkbook.Path
+    
+    IniWrite filepath, "Settings1", "KeyName1", "Value1"
+    IniWrite filepath, "Settings1", "KeyName2", "2"
+    IniWrite filepath, "Settings1", "KeyName3", "3"     'SEE THE FILE
+    Stop
+    IniWrite filepath, "Settings1", "KeyName1", "Updated Value" 'SEE THE FILE
+    Stop
+    
+    Dim i  As Long
+    For i = 1 To 5
+        IniWrite filepath, "Settings" & i, "KeyName" & i, i
+    Next
+    'SEE THE FILE
+    Stop
+    dp String(20, "~") & " Printing sections of " & filepath
+    dp IniSections(filepath)
+    Stop
+    dp String(20, "~") & " Printing keys of section Settings1"
+    dp IniSectionKeys(filepath, "Settings1")
+    Stop
+    dp String(20, "~") & " Printing all lines of section Settings1"
+    dp IniReadSection(filepath, "Settings1")
+    Stop
+    dp String(20, "~") & " Printing value of Section: Settings1, Keyname: Keyname1"
+    dp IniReadKey(filepath, "Settings1", "KeyName1")
+    
+End Sub

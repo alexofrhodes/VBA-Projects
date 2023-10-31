@@ -1,0 +1,5 @@
+
+Function CountOfCharacters(SearchHere As String, FindThis As String)
+'@AssignedModule Various
+    CountOfCharacters = (Len(SearchHere) - Len(Replace(SearchHere, FindThis, ""))) / Len(FindThis)
+End Function

@@ -1,0 +1,83 @@
+
+Function GetInputRange(ByRef rInput As Excel.Range, _
+                    sPrompt As String, _
+                    sTitle As String, _
+                    Optional ByVal sDefault As String, _
+                    Optional ByVal bActivate As Boolean, _
+                    Optional x, _
+                    Optional y) As Boolean
+'@AssignedModule Various
+
+'assigns range to variable passed
+'GetInputRange(rng, "Range picker", "Select range to output listbox' list") = False Then Exit Sub
+    Dim bGotRng As Boolean
+    Dim bEvents As Boolean
+    Dim nAttempt As Long
+    Dim sAddr As String
+    Dim vReturn
+    On Error Resume Next
+    If Len(sDefault) = 0 Then
+        If TypeName(Application.Selection) = "Range" Then
+            sDefault = "=" & Application.Selection.Address
+            If Len(sDefault) > 240 Then
+                sDefault = "=" & Application.ActiveCell.Address
+            End If
+        ElseIf TypeName(Application.ActiveSheet) = "Chart" Then
+            sDefault = " first select a Worksheet"
+        Else
+            sDefault = " Select Cell(s) or type address"
+        End If
+    End If
+    Set rInput = Nothing
+    For nAttempt = 1 To 3
+        vReturn = False
+        vReturn = Application.InputBox(sPrompt, sTitle, sDefault, x, y, Type:=0)
+        If False = vReturn Or Len(vReturn) = 0 Then
+            Exit For
+        Else
+            sAddr = vReturn
+            If Left$(sAddr, 1) = "=" Then sAddr = Mid$(sAddr, 2, 256)
+            If Left$(sAddr, 1) = Chr(34) Then sAddr = Mid$(sAddr, 2, 255)
+            If Right$(sAddr, 1) = Chr(34) Then sAddr = Left$(sAddr, Len(sAddr) - 1)
+            Set rInput = Application.Range(sAddr)
+            If rInput Is Nothing Then
+                sAddr = Application.ConvertFormula(sAddr, xlR1C1, xlA1)
+                Set rInput = Application.Range(sAddr)
+                bGotRng = Not rInput Is Nothing
+            Else
+                bGotRng = True
+            End If
+        End If
+        If bGotRng Then
+            If bActivate Then
+                On Error GoTo ErrH
+                bEvents = Application.EnableEvents
+                Application.EnableEvents = False
+                If Not Application.ActiveWorkbook Is rInput.Parent.Parent Then
+                    rInput.Parent.Parent.Activate
+                End If
+                If Not Application.ActiveSheet Is rInput.Parent Then
+                    rInput.Parent.Activate
+                End If
+                rInput.Select
+            End If
+            Exit For
+        ElseIf nAttempt < 3 Then
+            If MsgBox("Invalid reference, do you want to try again ?", _
+                vbOKCancel, sTitle) <> vbOK Then
+                Exit For
+            End If
+        End If
+    Next
+cleanup:
+    On Error Resume Next
+    If bEvents Then
+        Application.EnableEvents = True
+    End If
+    GetInputRange = bGotRng
+    Exit Function
+ErrH:
+    Set rInput = Nothing
+    bGotRng = False
+    Resume cleanup
+End Function

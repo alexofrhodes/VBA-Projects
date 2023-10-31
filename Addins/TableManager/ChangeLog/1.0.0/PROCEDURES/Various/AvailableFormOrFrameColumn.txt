@@ -1,0 +1,15 @@
+
+Function AvailableFormOrFrameColumn(FormOrFrame As Object, Optional AfterWidth As Long = 0, Optional AfterHeight As Long = 0, Optional AddMargin As Long = 0) As Long
+'@AssignedModule Various
+
+    Dim ctr As MSForms.control
+    Dim myWidth
+    For Each ctr In FormOrFrame.Controls
+        If ctr.Visible = True Then
+            If ctr.Left >= AfterWidth And ctr.Top >= AfterHeight Then
+                If ctr.Left + ctr.Width > myWidth Then myWidth = ctr.Left + ctr.Width
+            End If
+        End If
+    Next
+    AvailableFormOrFrameColumn = myWidth + AddMargin '6
+End Function

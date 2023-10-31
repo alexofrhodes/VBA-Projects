@@ -181,7 +181,7 @@ Normal_Exit:
         If chExportReferences Then .ExportReferences targetFolder
         If chExportUnified Then .ExportCodeUnified targetFolder
         If chExportComponents Then .ExportModules targetFolder
-        If chExportProcedures Then .ExportProcedures targetFolder & "PROCEDURES\"
+        If chExportProcedures Then .ExportProcedures targetFolder & "PROCEDURES\", createModuleSubfolders:=True
         If chExportXML Then .ExportXML targetFolder
     End With
     ListModifications = True

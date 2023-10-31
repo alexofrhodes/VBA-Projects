@@ -1,0 +1,29 @@
+
+Function CompareValues(ByVal value1 As Variant, ByVal value2 As Variant, ByVal operator As operator) As Boolean
+'@AssignedModule m_Compare
+'@INCLUDE DECLARATION operator
+    Select Case operator
+        Case IS_LIKE
+            CompareValues = (UCase(CStr(value1)) Like "*" & UCase(CStr(value2)) & "*")
+        Case IS_EQUAL
+            CompareValues = (value1 = value2)
+        Case NOT_EQUAL
+            CompareValues = (value1 <> value2)
+        Case IS_CONTAINS
+            CompareValues = (InStr(1, CStr(value1), CStr(value2), vbTextCompare) > 0)
+        Case NOT_CONTAINS
+            CompareValues = (InStr(1, CStr(value1), CStr(value2), vbTextCompare) = 0)
+        Case STARTS_WITH
+            CompareValues = (Left(CStr(value1), Len(CStr(value2))) = CStr(value2))
+        Case ENDS_WITH
+            CompareValues = (Right(CStr(value1), Len(CStr(value2))) = CStr(value2))
+        Case GREATER_THAN
+            CompareValues = (value1 > value2)
+        Case GREATER_OR_EQUAL
+            CompareValues = (value1 >= value2)
+        Case LESS_THAN
+            CompareValues = (value1 < value2)
+        Case LESS_OR_EQUAL
+            CompareValues = (value1 <= value2)
+    End Select
+End Function

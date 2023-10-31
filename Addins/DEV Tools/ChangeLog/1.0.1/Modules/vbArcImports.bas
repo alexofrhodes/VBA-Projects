@@ -1481,15 +1481,18 @@ Function StringFormatAlignRowsElements( _
 
     For i = LBound(TextLines) To UBound(TextLines)
         lineText = TextLines(i)
+'        If InStr(1, lineText, "Dependencies.bas", vbTextCompare) > 0 Then Stop
         If SearchFromLeft Then
-            elementOriginalColumn = InStr(lineText, AlignAtString)
+            elementOriginalColumn = InStr(1, lineText, AlignAtString)
         Else
             elementOriginalColumn = InStrRev(lineText, AlignAtString)
         End If
 
         If elementOriginalColumn > 0 Then
-            numberOfSpacesToInsert = AlignAtColumn - elementOriginalColumn + IIf(AlignAtString = ":", 1, 0)
-            If numberOfSpacesToInsert > 0 Then
+            numberOfSpacesToInsert = AlignAtColumn - elementOriginalColumn + 1 'IIf(AlignAtString = ":", 1, 0)
+            If numberOfSpacesToInsert > 0 And Not numberOfSpacesToInsert = AlignAtColumn Then
+            
+            '@TODO some colons revert to original position even if moved eg labels like NORMAL_EXIT:
 '                If AlignAtString = ":" Then
 '                    TextLines(i) = Left(TextLines(i), elementOriginalColumn) & _
 '                            Space(numberOfSpacesToInsert) & _

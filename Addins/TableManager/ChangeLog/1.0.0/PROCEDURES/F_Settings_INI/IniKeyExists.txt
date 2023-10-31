@@ -1,0 +1,6 @@
+
+Public Function IniKeyExists(iniFile As String, Section As String, key As String) As Boolean
+    'Alex
+'@AssignedModule F_Settings_INI
+    IniKeyExists = (Ini_ReadKeyVal(iniFile, Section, key) <> "")
+End Function

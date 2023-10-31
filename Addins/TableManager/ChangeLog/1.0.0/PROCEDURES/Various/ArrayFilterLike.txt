@@ -1,0 +1,21 @@
+
+Function ArrayFilterLike(inputArray As Variant, MatchThis As String, MatchCase As Boolean)
+'@AssignedModule Various
+    Dim OutputArray As Variant
+    ReDim OutputArray(1 To 1)
+    Dim counter As Long
+    counter = 0
+    Dim element
+    Dim doesMatch As Boolean
+    For Each element In inputArray
+        doesMatch = IIf(MatchCase, _
+                    element Like MatchThis, _
+                    UCase(element) Like UCase(MatchThis))
+        If doesMatch Then
+            counter = counter + 1
+            ReDim Preserve OutputArray(1 To counter)
+            OutputArray(UBound(OutputArray)) = element
+        End If
+    Next
+    ArrayFilterLike = OutputArray
+End Function

@@ -1,0 +1,7 @@
+
+Public Function MouseMoveIcon()
+'@AssignedModule M_Calendar_API
+'@INCLUDE PROCEDURE MouseCursor
+'@INCLUDE DECLARATION IDC_HAND
+    Call MouseCursor(IDC_HAND)
+End Function

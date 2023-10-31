@@ -52,7 +52,7 @@ Sub PrintTodoList()
     Next
 End Sub
 
-Sub Export(targetPath As String, CreateSubFolders As Boolean)
+Sub Export(targetPath As String, createSubfolders As Boolean)
     '@AssignedModule aModules
     '@INCLUDE PROCEDURE FoldersCreate
     '@INCLUDE CLASS aModule
@@ -62,7 +62,7 @@ Sub Export(targetPath As String, CreateSubFolders As Boolean)
     Dim NormalModuleFolder As String: NormalModuleFolder = targetPath
     Dim DocumentFolder As String: DocumentFolder = targetPath
 
-    If CreateSubFolders Then
+    If createSubfolders Then
         FormFolder = targetPath & "Userforms"
         NormalModuleFolder = targetPath & "Modules"
         DocumentFolder = targetPath & "Documents"

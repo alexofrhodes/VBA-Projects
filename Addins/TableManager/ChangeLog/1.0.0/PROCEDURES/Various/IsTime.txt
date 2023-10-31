@@ -1,0 +1,23 @@
+
+Function IsTime(ByVal inputValue As Variant) As Boolean
+'@AssignedModule Various
+    If IsNumeric(inputValue) Or IsDate(inputValue) Then
+        ' Check if the numeric value is within the valid time range (0 to 1)
+        If inputValue >= 0 And inputValue <= 1 Then
+            ' Convert to total seconds in a day
+            Dim totalSeconds As Double
+            totalSeconds = inputValue * 24 * 60 * 60
+            ' Validate the individual components of the time
+            Dim hours As Long, minutes As Long, seconds As Long
+            hours = Int(totalSeconds / 3600)
+            totalSeconds = totalSeconds Mod 3600
+            minutes = Int(totalSeconds / 60)
+            seconds = totalSeconds Mod 60
+            If hours >= 0 And hours < 24 And minutes >= 0 And minutes < 60 And seconds >= 0 And seconds < 60 Then
+                IsTime = True
+                Exit Function
+            End If
+        End If
+    End If
+    IsTime = False
+End Function

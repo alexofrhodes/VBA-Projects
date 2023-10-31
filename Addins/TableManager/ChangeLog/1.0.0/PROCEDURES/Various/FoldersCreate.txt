@@ -1,0 +1,16 @@
+
+Sub FoldersCreate(FolderPath As String)
+'@AssignedModule Various
+'@INCLUDE PROCEDURE FolderExists
+    On Error Resume Next
+    Dim individualFolders() As String
+    Dim tempFolderPath As String
+    Dim ArrayElement As Variant
+    individualFolders = Split(FolderPath, "\")
+    For Each ArrayElement In individualFolders
+        tempFolderPath = tempFolderPath & ArrayElement & "\"
+        If FolderExists(tempFolderPath) = False Then
+            MkDir tempFolderPath
+        End If
+    Next ArrayElement
+End Sub

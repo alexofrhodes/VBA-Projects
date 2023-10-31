@@ -411,13 +411,13 @@ Public Sub ExportModules(targetPath As String)
     targetPath = VBA.Replace(targetPath & "\", "\\", "\")
     FoldersCreate targetPath
     Dim ams As aModules: Set ams = aModules.Init(oWorkbook)
-    ams.Export targetPath, CreateSubFolders:=True
+    ams.Export targetPath, createSubfolders:=True
 End Sub
-Public Sub ExportProcedures(targetPath As String)
+Public Sub ExportProcedures(targetPath As String, createModuleSubfolders As Boolean)
     targetPath = VBA.Replace(targetPath & "\", "\\", "\")
     FoldersCreate targetPath
     Dim ams As aModules: Set ams = aModules.Init(oWorkbook)
-    ams.ExportProcedures targetPath
+    ams.ExportProcedures targetPath, createModuleSubfolders
 End Sub
 Public Sub ExportXML(targetPath As String)
     targetPath = Replace(targetPath & "\", "\\", "\")

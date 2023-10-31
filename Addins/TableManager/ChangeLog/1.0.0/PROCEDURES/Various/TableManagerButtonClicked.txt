@@ -1,0 +1,6 @@
+
+Sub TableManagerButtonClicked(control As IRibbonControl)
+'@AssignedModule Various
+'@INCLUDE USERFORM uTableManager
+    uTableManager.Show
+End Sub

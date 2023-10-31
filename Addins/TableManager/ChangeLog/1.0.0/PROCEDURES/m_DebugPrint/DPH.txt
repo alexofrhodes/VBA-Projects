@@ -1,0 +1,7 @@
+
+Private Sub DPH(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional HairetuName$)
+'https://gist.github.com/YujiFukami/15c922d41ff06c9b12ad450a14131080#file-
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE DebugPrintHairetu
+    Call DebugPrintHairetu(Hairetu, HyoujiMaxNagasa, HairetuName)
+End Sub

@@ -1,0 +1,73 @@
+
+Private Sub DebugPrintHairetu(ByVal Hairetu, Optional HyoujiMaxNagasa%, Optional HairetuName$)
+'https://gist.github.com/YujiFukami/15c922d41ff06c9b12ad450a14131080#file-
+'@AssignedModule m_DebugPrint
+'@INCLUDE PROCEDURE Transpose2DArray
+'@INCLUDE PROCEDURE ReptText
+'@INCLUDE PROCEDURE MaxValue
+'@INCLUDE PROCEDURE ShortenToByteCharacters
+    Dim i&, j&, k&, M&, N&
+    Dim TateMin&, TateMax&, YokoMin&, YokoMax&
+    Dim WithTableHairetu
+    Dim NagasaList, MaxNagasaList
+    Dim NagasaOnajiList
+    Dim OutputList
+    Const SikiriMoji$ = "|"
+    Dim Jigen2%
+    On Error Resume Next
+    Jigen2 = UBound(Hairetu, 2)
+'    On Error GoTo 0
+
+    If Jigen2 = 0 Then
+        Hairetu = Transpose2DArray(Hairetu)
+    End If
+    TateMin = LBound(Hairetu, 1)
+    TateMax = UBound(Hairetu, 1)
+    YokoMin = LBound(Hairetu, 2)
+    YokoMax = UBound(Hairetu, 2)
+    ReDim WithTableHairetu(1 To TateMax - TateMin + 1 + 1, 1 To YokoMax - YokoMin + 1 + 1)
+    For i = 1 To TateMax - TateMin + 1
+        WithTableHairetu(i + 1, 1) = TateMin + i - 1
+        For j = 1 To YokoMax - YokoMin + 1
+            WithTableHairetu(1, j + 1) = YokoMin + j - 1
+            WithTableHairetu(i + 1, j + 1) = Hairetu(i - 1 + TateMin, j - 1 + YokoMin)
+        Next j
+    Next i
+    N = UBound(WithTableHairetu, 1)
+    M = UBound(WithTableHairetu, 2)
+    ReDim NagasaList(1 To N, 1 To M)
+    ReDim MaxNagasaList(1 To M)
+    Dim tmpStr$
+    For j = 1 To M
+        For i = 1 To N
+            If j > 1 And HyoujiMaxNagasa <> 0 Then
+                tmpStr = WithTableHairetu(i, j)
+                WithTableHairetu(i, j) = ShortenToByteCharacters(tmpStr, HyoujiMaxNagasa)
+            End If
+            NagasaList(i, j) = LenB(StrConv(WithTableHairetu(i, j), vbFromUnicode))
+            MaxNagasaList(j) = MaxValue(MaxNagasaList(j), NagasaList(i, j))
+        Next i
+    Next j
+    ReDim NagasaOnajiList(1 To N, 1 To M)
+    Dim TmpMaxNagasa&
+    For j = 1 To M
+        TmpMaxNagasa = MaxNagasaList(j)
+        For i = 1 To N
+            NagasaOnajiList(i, j) = WithTableHairetu(i, j) & ReptText(" ", IIf(WithTableHairetu(i, j) = "", 1, TmpMaxNagasa - NagasaList(i, j)))
+        Next i
+    Next j
+    ReDim OutputList(1 To N)
+    For i = 1 To N
+        For j = 1 To M
+            If j = 1 Then
+                OutputList(i) = NagasaOnajiList(i, j)
+            Else
+                OutputList(i) = OutputList(i) & SikiriMoji & NagasaOnajiList(i, j)
+            End If
+        Next j
+    Next i
+    Debug.Print HairetuName
+    For i = 1 To N
+        Debug.Print OutputList(i)
+    Next i
+End Sub
