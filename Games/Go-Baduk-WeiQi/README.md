@@ -11,13 +11,14 @@ https://youtu.be/fqp9TPUAHZQ
 
 
 Game Features:  
-The goban (board) has 3 sizes.  
-The game moves are numbered.  
-Games and puzzles save/load their original board size.  
-Games also save/load the handicap if any.  
-Games can be reviewed with previous/next move controls.  
-You can load a random game/puzzle matchinig your criteria.  
-You can update info about the loaded game/puzzle.  
-If a chain dies it is automatically removed.  
-Clicking End Game will allow you to click on territory or enemy stones to claim them.  
-Puzzles can be set up quickly.  
+
+- The goban (board) has 3 sizes.  
+- The game moves are numbered.  
+- Games and puzzles save/load their original board size.  
+- Games also save/load the handicap if any.  
+- Games can be reviewed with previous/next move controls.  
+- You can load a random game/puzzle matchinig your criteria.  
+- You can update info about the loaded game/puzzle.  
+- If a chain dies it is automatically removed.  
+- Clicking End Game will allow you to click on territory or enemy stones to claim them.  
+- Puzzles can be set up quickly.  
