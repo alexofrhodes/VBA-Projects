@@ -1,5 +1,0 @@
-
-Sub PrintXML(var)
-'@AssignedModule m_DebugPrint
-    Debug.Print var.XML
-End Sub

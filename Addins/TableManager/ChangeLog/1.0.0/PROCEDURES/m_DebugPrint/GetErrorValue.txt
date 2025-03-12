@@ -1,5 +1,0 @@
-
-Function GetErrorValue() As Variant
-'@AssignedModule m_DebugPrint
-    GetErrorValue = CVErr(2042) ' 2042 represents the xlErrValue error number in Excel
-End Function

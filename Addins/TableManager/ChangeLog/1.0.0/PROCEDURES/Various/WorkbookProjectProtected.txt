@@ -1,7 +1,0 @@
-
-
-Function WorkbookProjectProtected(ByVal TargetWorkbook As Workbook) As Boolean
-'@AssignedModule Various
-'@INCLUDE DECLARATION TargetWorkbook
-        WorkbookProjectProtected = (TargetWorkbook.VBProject.Protection = 1)
-End Function

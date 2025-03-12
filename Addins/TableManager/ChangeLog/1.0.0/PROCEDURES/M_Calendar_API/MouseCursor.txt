@@ -1,9 +1,0 @@
-
-Public Function MouseCursor(CursorType As Long)
-'@AssignedModule M_Calendar_API
-'@INCLUDE DECLARATION LoadCursorBynum
-'@INCLUDE DECLARATION SetCursor
-  Dim lngRet As Long
-  lngRet = LoadCursorBynum(0&, CursorType)
-  lngRet = SetCursor(lngRet)
-End Function
